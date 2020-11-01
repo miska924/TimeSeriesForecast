@@ -12,19 +12,13 @@ import datetime
 # BA - business year
 # BM - business month
 # B  - business day (default)
-# W  - week
-
-offsets = ('BA', 'BM', 'B', 'W', '-')
+# W  - week (it does not work, because the end of the week always is not the business day)
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
-if len(sys.argv) != 4:
+if len(sys.argv) != 4 or sys.argv[-1] not in ['BA', 'BM', 'B', 'BW', '-']:
     eprint(f"WRONG FORMAT\nExample:\n\t{sys.argv[0]} 2016-06-01 2020-06-01 BM")
-    exit(0)
-
-if sys.argv[-1] not in offsets:
-    eprint(f"WRONG FORMAT\navailiable offsets:",' '.join(offsets))
     exit(0)
 
 date_start, date_end, offset = sys.argv[1:]
@@ -55,8 +49,12 @@ with requests.Session() as session:
         df = pd.DataFrame(data)[['TRADEDATE','CLOSE']].rename(columns={'CLOSE':TICK})
         result = result.join(df.set_index('TRADEDATE'), how='outer')
 
-result = result.resample(offset).apply('last')
+if offset == 'BW':
+    # select the only needed dates for week offset
+    result = result.resample('W', loffset=pd.Timedelta(days=-6)).apply('last')
+else:
+    result = result.asfreq(offset) # select the only needed dates if it's not week offset
+
 result = result.dropna(axis=0, how='all')
 result.to_csv('table.csv')
-
 
