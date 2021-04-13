@@ -61,19 +61,18 @@ result = result.dropna(axis=0, how='all')
 result.to_csv('table.csv')
 
 
-def get_prepared_data_frame(df, index):
-    res = pd.DataFrame(index=index).join(df).rename(columns={df.name: '0'})
+def get_prepared_data_frame(series, index):
+    res = pd.DataFrame(index=index).join(series).rename(columns={series.name: '0'})
     for i in range(1, 10):
         res = res.join(
-            pd.DataFrame(index=index)
-                .join(
+            pd.DataFrame(index=index).join(
                 res[str(i - 1)].copy()
             ).rename(columns={str(i - 1): str(i)}),
             how='outer'
         )
         res[str(i)] = res[str(i)] - res[str(i)].shift(1)
-
     return res
+
 
 try:
     os.stat('prepared')
