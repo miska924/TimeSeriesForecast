@@ -7,6 +7,7 @@ import requests
 import apimoex
 import sys
 import datetime
+import matplotlib.pyplot as plt
 
 # BA - business year
 # BM - business month
@@ -63,6 +64,9 @@ result.to_csv('table.csv')
 
 def get_prepared_data_frame(series, index):
     res = pd.DataFrame(index=index).join(series).rename(columns={series.name: '0'})
+    plt.title(series.name)
+    plt.plot(series)
+    plt.show()
     for i in range(1, 10):
         res = res.join(
             pd.DataFrame(index=index).join(
@@ -80,5 +84,5 @@ except:
     os.mkdir('prepared')
 
 for TICK in result:
-    prepared = get_prepared_data_frame(result['GAZP'], result.index)
+    prepared = get_prepared_data_frame(result[TICK], result.index)
     prepared.to_csv(f'prepared/{TICK}.csv')
