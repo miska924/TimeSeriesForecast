@@ -7,3 +7,4 @@ theory/theory.log
 *.out
 *.csv
 venv/*
+prepared/*

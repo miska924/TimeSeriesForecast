@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+import os
+
 from tqdm import tqdm
 import pandas as pd
 import requests
@@ -13,8 +15,10 @@ import datetime
 
 offsets = ('BA', 'BM', 'B', 'W', '-')
 
+
 def error_print(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
 
 if len(sys.argv) != 4:
     raise Exception(f'WRONG FORMAT\nExample:\n\t{sys.argv[0]} 2016-06-01 2020-06-01 BM')
@@ -62,7 +66,7 @@ def get_prepared_data_frame(df, index):
     for i in range(1, 10):
         res = res.join(
             pd.DataFrame(index=index)
-            .join(
+                .join(
                 res[str(i - 1)].copy()
             ).rename(columns={str(i - 1): str(i)}),
             how='outer'
@@ -71,6 +75,11 @@ def get_prepared_data_frame(df, index):
 
     return res
 
+try:
+    os.stat('prepared')
+except:
+    os.mkdir('prepared')
 
-prepared = get_prepared_data_frame(result['GAZP'], result.index)
-print(prepared)
+for TICK in result:
+    prepared = get_prepared_data_frame(result['GAZP'], result.index)
+    prepared.to_csv(f'prepared/{TICK}.csv')
