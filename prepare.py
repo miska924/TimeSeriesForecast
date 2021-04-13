@@ -1,10 +1,7 @@
-#!/bin/python3
+#!/usr/bin/python3
 from tqdm import tqdm
 import pandas as pd
-import numpy as np
 import requests
-import datetime
-import pathlib
 import apimoex
 import sys
 import datetime
@@ -16,18 +13,14 @@ import datetime
 
 offsets = ('BA', 'BM', 'B', 'W', '-')
 
-
-def eprint(*args, **kwargs):
+def error_print(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
-
 if len(sys.argv) != 4:
-    eprint(f"WRONG FORMAT\nExample:\n\t{sys.argv[0]} 2016-06-01 2020-06-01 BM")
-    exit(0)
+    raise Exception(f'WRONG FORMAT\nExample:\n\t{sys.argv[0]} 2016-06-01 2020-06-01 BM')
 
 if sys.argv[-1] not in offsets:
-    eprint(f"WRONG FORMAT\navailiable offsets:", ' '.join(offsets))
-    exit(0)
+    raise Exception("WRONG FORMAT\navailable offsets:", ' '.join(offsets))
 
 date_start, date_end, offset = sys.argv[1:]
 
@@ -40,7 +33,7 @@ if date_end == '-':
 if offset == '-':
     offset = 'B'
 
-print(date_start, date_end, offset)  # show got instructions
+error_print(date_start, date_end, offset)
 
 date_range = pd.date_range(date_start, date_end, freq='B')
 result = pd.DataFrame(index=date_range)  # .format(formatter=lambda x: x.strftime('%Y-%m-%d')))
@@ -64,11 +57,9 @@ result = result.dropna(axis=0, how='all')
 result.to_csv('table.csv')
 
 
-def getPreparedDataFrame(df, index):
+def get_prepared_data_frame(df, index):
     res = pd.DataFrame(index=index).join(df).rename(columns={df.name: '0'})
-    print(res)
     for i in range(1, 10):
-        col = df.copy()
         res = res.join(
             pd.DataFrame(index=index)
             .join(
@@ -81,5 +72,5 @@ def getPreparedDataFrame(df, index):
     return res
 
 
-prepared = getPreparedDataFrame(result['GAZP'], result.index)
+prepared = get_prepared_data_frame(result['GAZP'], result.index)
 print(prepared)
