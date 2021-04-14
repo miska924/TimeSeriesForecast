@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python3 prepare.py 2020-04-12 2021-04-12 B
+python -m source.server.server 2016-06-01 2020-06-01 BM
