@@ -9,3 +9,4 @@ theory/theory.log
 venv/*
 prepared/*
 __pycache__/*
+.idea/*
