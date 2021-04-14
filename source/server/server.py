@@ -42,7 +42,3 @@ if __name__ == '__main__':
         offset
     )
     run(tmp_params)
-
-
-
-
