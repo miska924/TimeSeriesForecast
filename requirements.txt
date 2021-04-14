@@ -1,0 +1,5 @@
+pandas~=1.2.4
+requests~=2.25.1
+apimoex~=1.2.0
+matplotlib~=3.4.1
+tqdm~=4.54.0
