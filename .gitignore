@@ -5,3 +5,6 @@ theory/theory.log
 *.synctex.gz
 *.toc
 *.out
+*.csv
+venv/*
+prepared/*
