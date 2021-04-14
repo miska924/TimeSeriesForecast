@@ -21,6 +21,7 @@
 \apptocmd{\sum}{\limits}{}{}
 \apptocmd{\prod}{\limits}{}{}
 \apptocmd{\inf}{\limits}{}{}
+\apptocmd{\int}{\limits}{}{}
 
 
 \NewDocumentCommand\xDeclarePairedDelimiter{mmm}
@@ -69,6 +70,12 @@
 
 \newtheorem{definition}{Определение}
 \newtheorem*{definition*}{Определение}
+\newtheorem{comment}{Замечание}
+\newtheorem*{comment*}{Замечание}
+\newtheorem{example}{Пример}
+\newtheorem*{example*}{Пример}
+\newtheorem{theorem}{Теорема}
+\newtheorem*{theorem*}{Теорема}
 
 \title {Теоретические материалы для проекта}
 \author {Лоптев Сергей}
@@ -351,4 +358,136 @@
 
     \subsection{Моменты распределений}
     Число $\mexp \xi^k$ называется \textbf{моментом порядка $k$} или \textbf{$k$-ым моментом случайной величины $\xi$}. 
+
+    \part{Математическая статистика}
+    \section{Оценки параметров}
+
+    \subsection{Точечные оценки параметров}
+    Основная задача математической статистики состоит в нахождении неизвестного распределения. Приведём пример: пусть в ящике $N$ шаров, $M$ из которых чёрные. Вынимаем $n$ шаров. Вопрос теории вероятностей: с какой вероятностью среди них $m$ чёрных шаров? Вопрос математической статистики: пусть среди $n$ шаров оказалось $m$ чёрных, сколько всего чёрных шаров в коробке (чему равно $M$)?
+
+    Предположим, нам изначально известно, что неизвестное распределение принадлежит некоторому семейству распределений с функциями распределения $F_\theta, \theta \in \Theta \subset \RR^k$. Тогда задача сводится к нахождению неизвестного параметра $\theta_0 \in \Theta$, соответствующего нашему неизвестному распределению.
+
+    \begin{definition*}[Выборка и статистики]
+        Вектор $X = (X_1,\,\ldots,\,X_n)$ с независимыми компонентами, где каждая случайная величина имеет одно и то же распределение, называется \textbf{выборкой}.
+
+        Все случайные велиичны вида $T(X)$ называются \textbf{статистиками}.
+    \end{definition*}
+
+    Проведя серию независимых экспериментов с неизвестным распределением, мы получаем выборку $X = (X_1,\,\ldots,\,X_n)$. По выборке нам бы хотелось определить значение $\widehat{\theta}_n$, которое в каком-то смысле близко к реальному неизвестному значению $\theta_0$. Тем самым, мы строим функцию от выборки $\widehat{\theta}_n(X)$ со значением во множестве параметров. Такие случайные величины называются оценками неизвестного параметра.
+
+    \subsection{Интервальные оценки. Доверительные интервалы}
+    Ясно, что информация о состоятельности оценки $\widehat{\theta}_n(X)$ не достаточно для того, чтобы что-то говорить о возможном значении параметра $\theta$. Предположим, что мы знаем ``скорость сходимости'', то есть для фиксированного $\alpha \in (0,\, 1)$, для фиксированного $\varepsilon > 0$ мы смогли подобрать номер $n$, для которого $\prob_\theta (\abs{\widehat{\theta}_n(X) - \theta} < \varepsilon) > 1 - \alpha$. Тогда параметр $\theta \in (\widehat{\theta}_n(X) - \varepsilon, \widehat{\theta}_n(X) + \varepsilon)$ с большой вероятностью.
+
+    Обобщая данное наблюдение, приходим к определению доверительного интервала. Пусть заданы две статистики $\theta(X)$ и $\theta_2(X)$. Случайный интервал $(\theta_1(X), \theta_2(X))$ называется \textbf{доверительным интервалом} для параметра $\theta$ с уровнем доверия $1 - \alpha$, если при всех $\theta$ выполняется неравенство
+    \begin{equation*}
+        \prob_\theta(\theta_1^n(X) < \theta < \theta_2^n(X)) \geq 1 - \alpha.
+    \end{equation*}
+    Если же последовательность пар статистик $\theta_1^n(X)$ и $\theta_2^n(X)$, для которой
+    \begin{equation*}
+        \liminf_{n \to \infty} \prob_\theta(\theta_1^n(X) < \theta < \theta_2^n(X)) \geq 1 - \alpha,
+    \end{equation*}
+    то говорят, что задан асимптотический интервал уровня доверия $1 - \alpha$.
+    \subsection{Свойства точечных оценок параметров}
+    Сформулируем теперь, в каком смысле можно понимать близость оценки $\widehat{\theta}_n(X)$ к неизвестному параметру $\theta$.
+    \begin{enumerate}[label=\Roman*.]
+        \item \textbf{Несмещённость.} $\mexp_\theta \widehat{\theta}_n(X) = \theta$. Это естественное свойство, которое означает, что в среднем оценка даёт правильное значение неизвестного параметра.
+        \item \textbf{Состоятельность.} $\lim_{n \to \infty} \widehat{\theta}_n(X) = \theta$ по вероятности $\prob_\theta$ (соответствующей функции распределения $F_\theta$). Обычно это свойство является следствием закона больших чисел и теорем непрерывности.
+        \item \textbf{Сильная состоятельность.} $\lim_{n \to \infty} \widehat{\theta}_n(X) = \theta \prob_\theta$-п.н.
+        \item \textbf{Асимптотическая нормальность.} Оценка $\widehat{\theta}_n(X)$ является асимптотически нормальной, если
+        \begin{equation*}
+            \sqrt{n}\left(\widehat{\theta}_n(X) - \theta\right) \to \ZZ \sim \mathcal{N\left(0, \sigma^2(\theta)\right)}
+        \end{equation*}
+        по распределению для некоторого числа $\sigma^2(\theta)$. Это условие влечёт состоятельность и позволяет оценивать вероятности событий $\alpha < \theta_n(X) < \beta$ с помощью нормального распределения.
+        \item \textbf{Эффективность.} Несмещённая оценка $\widehat{\theta}_n(X)$ называется эффективной (в классе всех несмещённых оценок), если она имеет наименьшую дисперсию среди всех несмещённых оценок, т.е. $\mexp_\theta\left(\widehat{\theta}_n(X) - \theta\right)^2 \leq \mexp_\theta(\theta_n^*(X) - \theta)^2$ для произвольной несмещённой оценки $\theta_n^*(X)$. Это очень естественное требование, особенно, если принять во внимание неравенство Чебышева:
+        \begin{equation*}
+            \prob(\abs{\widehat{\theta}_n(X) - \theta} \geq \varepsilon) \leq \frac{\var\widehat{\theta}_n(X)}{\varepsilon^2}. 
+        \end{equation*}
+    \end{enumerate}
+    
+    \section{Метод максимального правдоподобия}
+    \subsection{Метод максимального правдоподобия для оценки параметров распределений}
+    \begin{definition*}[Обобщённая плотность]
+        Пусть случайная величина $\xi$ имеет дискретное или непрерывное распределение. \textbf{Обобщённой плотностью} $\varrho$ этого распределения (этой случайной величины) назовём обычную плотность в случае, когда $\xi$ имеет непрерывное распределение, а в дискретном случае положим $\varrho(t) = \prob(\xi = t)$, где $t$ принадлежит области значений $\xi$.
+    \end{definition*}
+    \begin{definition*}[Функция правдоподобия]
+        Пусть $X_1,\,\ldots,\,X_n$~--- выборка из распределения с обобщённой плотностью $\varrho_\theta$. Обобщённая плотность вектора $X = (X_1,\,\ldots,\,X_)$
+        \begin{equation*}
+            p(x, \theta) := \varrho_\theta(x_1) \cdot \ldots \cdot \varrho_\theta(x_n)
+        \end{equation*}
+        называется \textbf{функцией правдоподобия}, а её логарифм
+        \begin{equation*}
+            L(x,\,\theta) = \ln p(x,\,\theta) = \sum_{i=1}^n \ln \varrho_\theta(x_i)
+        \end{equation*}
+        называют \textbf{логарифмической функцией правдоподобия}.
+    \end{definition*}
+    \begin{definition*}[Оценка максимального правдоподобия]
+        Пусть $X_1,\,\ldots,\,X_n$~--- выборка из распределения с обобщённой плотностью $\varrho_\theta$. Оценка $\widehat{\theta}_n(X)$ называется \textbf{оценкой максимального правдоподобия}, если при фиксированном $x = (x_1,\,\ldots,\, x_n)$ число $\widehat{\theta}_n(x)$ есть точка максимума функции правдоподобия $p(x, \theta)$. То есть, в качестве оценки выбирается такое значение $\theta$, при котором наблюдаемые значения $X = (X_1,\, \ldots,\, X_N)$ имеют максимальную вероятность.
+    \end{definition*}
+    \begin{comment*}
+        Ясно, что точки максимума функций $p(x, \theta)$ и $L(x, \theta)$ совпадают. Обычно для поиска точки максимума просто приравнивают к нулю производную функции $L(x, \theta)$, так как считать производную функции для суммы проще, чем для произведения.
+    \end{comment*}
+    \begin{example*}
+        Пусть $X_1,\, \ldots ,\, X_n$~--- выборка из распределения Бернулли с вероятностью успеха $\theta$. Найдём оценку по методу максимального правдоподобия. В нашем случае обобщённая плотность распределения имеет вид $\varrho_\theta(t) = \theta^t(1 - \theta)^{1-t}$, где $t \in \{0,\, 1\}$. Тем самым, функция правдоподобия 
+        \begin{equation*}
+            p(x,\, \theta) = \theta^{\sum_{j=1}^n x_j} (1 - \theta)^{n - \sum_{j=1}^n x_j}
+        \end{equation*}
+        и логарифмическая функция правдоподобия
+        \begin{equation*}
+            L(x,\, \theta) = \left(\sum_{j=1}^n x_j\right) \ln \theta + \left(n - \sum_{j=1}^n x_j\right) \ln(1 - \theta).
+        \end{equation*}
+        Дифференцируя, получаем уравнения
+        \begin{equation*}
+            \frac{\sum x_j}{\widehat{\theta}_n} - \frac{n - \sum x_j}{1 - \widehat{\theta}_n} = 0,
+        \end{equation*}
+        откуда $\widehat{\theta}_n = \frac{\sum x_j}{n} = \bar{X}_n$.
+
+        Заметим, что в точке максимума $\widehat{\theta}_n(x)$ выполнено
+        \begin{equation*}
+            L(x, \theta) \approx L(x, \widehat{\theta}_n(x)) + \frac{1}{2}\delta_{\theta \theta}^2 L(x, \widehat{\theta}_n(x))(\theta - \widehat{\theta}_n(x))^2,
+        \end{equation*}
+        то есть вторая производная $\delta_{\theta \theta}^2 L(x, \theta)$ описывает сколь быстро логарифмическая функция правдоподобия меняется в окрестности точки максимума. Пусть теперь на самом деле выборка задана распределением с параметром $\theta_0$. Вычисляем среднее значение данной второй производной в точке $\theta_0$ со знаком минус (в дискретном случае все знаки интегралов надо заменить на знаки сумм):
+        \begin{equation*}
+            -\mexp_{\theta_0} \delta_{\theta \theta}^2 L(X, \theta_0) = -\int \left[\delta_{\theta \theta}^2 \ln p(x,\, \theta_0)\right] p(x, \theta_0) dx = \int \left[\frac{\delta_{\theta \theta}^2 p(x,\, \theta_0)}{p(x,\, \theta_0)} - \frac{(\delta_\theta p(x, \theta_0))^2}{p^2(x, \theta_0)}\right] p(x,\, \theta_0) dx.
+        \end{equation*}
+        Предположим, что для $p(x,\, \theta)$ выполнено следующее условие регулярности: $p(x, \theta)$ положительна, непрерывна и дифференцируема по $\theta$, причём операции дифференцирования и интегрирования перестановочны.
+
+        Так как
+        \begin{equation*}
+            \int p(x, \theta) dx = 1,
+        \end{equation*}
+        то
+        \begin{equation*}
+            \int \delta_\theta p(x, \theta) dx = \int \delta_{\theta \theta}^2 p(x, \theta_0) dx = 0,
+        \end{equation*}
+        поэтому
+        \begin{multline*}
+            \mexp_{\theta_0} \delta_{\theta \theta}^2 L(X,\, \theta_0) = \int \frac{(\delta_\theta p(x, \theta_0))^2}{p(x, \theta_0)} dx = \int \frac{(\delta_\theta p(x, \theta_0))^2}{p^2(x, \theta_0)} p(x, \theta_0) dx =\\ = \int \left[\delta_\theta \ln p(x, \theta_0)\right]^2 p(x,\, \theta_0) dx = \mexp_{\theta_0}\left[\delta_\theta L(X,\, \theta_0)\right]^2.
+        \end{multline*}
+    \end{example*}
+
+    \subsection{Свойства ММП-оценок}
+    \begin{theorem*}[Состоятельность]
+        Пусть $\theta \in (\alpha, \beta),\ \varrho(x)$ непрерывна по $\theta$ и при каждом $x$ функция $L(x, \theta)$ имеет ровно одну точку локального максимума $\theta_n(x)$ в $(\alpha, \beta)$. Тогда $\theta_n(X)$ сходится по вероятности к $\theta_0$ (то есть является состоятельной оценкой).
+    \end{theorem*}
+    \begin{theorem*}
+        Пусть в дополнение к предположениям предыдущей теоремы выполнены условия регулярности $\varrho_\theta(x)$ положительна, трижды непрерывно дифференцируема по $\theta$, причём операции дифференцирования и интегрирования перестановочны и $\abs{\frac{\delta^3 \ln \varrho_\theta(x)}{\delta \theta^3}} \leq H(x)$, $ \mexp_\theta H(X_1) = \int H(x) \varrho \theta(x) dx \leq M$~--- не зависит от $\theta$.
+
+        Тогда оценка, полученная по методу максимального правдоподобия, будет асимптотически нормальной с асимптотической дисперсией $\frac{1}{i(\theta)}$.
+    \end{theorem*}
+
+    \section{Центральная предельная теорема}
+    Пусть $\{\xi\}$~--- последовательность независимых одинаково распределённых случайных величин, причём $\mexp \xi_1 = \mu$ и $\var\xi_1 = \sigma^2$. Тогда для всех $x$
+    \begin{equation*}
+        \lim_{n \to \infty} \prob\left(\frac{\xi_1 + \ldots + \xi_n - n\mu}{\sigma \sqrt{n}} \leq x\right) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^x e^{-y^2/2} dy.
+    \end{equation*}
+
+    \section{Закон больших чисел}
+    \begin{theorem*}[Закон больших чисел]
+        Предположим, что $\{\xi_n\}$~--- последовательность независимых одинаково распределённых случайных величин таких, что $\mexp \xi_n^4 < \infty$. Пусть $\mexp \xi_n = \mu$. Тогда с вероятностью единица
+        \begin{equation*}
+            \lim_{n \to \infty} \frac{\xi_1 + \ldots + \xi_n}{n} = \mu.
+        \end{equation*}
+    \end{theorem*}
+
+    
 \end{document}
