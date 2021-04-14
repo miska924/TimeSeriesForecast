@@ -15,6 +15,7 @@ TICKERS = {
     'FLOT': [],
 }
 
+
 class Period(enum.Enum):
     business_year = 'BA'
     business_month = 'BM'
