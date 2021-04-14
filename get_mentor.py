@@ -41,7 +41,7 @@ if offset == '-':
 print(date_start, date_end, offset) #show got instructions
 
 date_range = pd.date_range(date_start, date_end, freq='B')
-result = pd.DataFrame(index = date_range)
+result = pd.DataFrame(index=date_range)#.format(formatter=lambda x: x.strftime('%Y-%m-%d')))
 
 with open("TICKs", "r") as TICKs:
     TICKs = [line.rstrip() for line in TICKs]
@@ -51,6 +51,8 @@ with requests.Session() as session:
         data = apimoex.get_board_history(session, TICK, date_start, date_end)
         if not data or not TICK:
             continue
+        for item in data:
+            item['TRADEDATE'] = pd.to_datetime(item['TRADEDATE'])
             
         df = pd.DataFrame(data)[['TRADEDATE','CLOSE']].rename(columns={'CLOSE':TICK})
         result = result.join(df.set_index('TRADEDATE'), how='outer')
