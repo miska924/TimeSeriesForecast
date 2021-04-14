@@ -8,3 +8,4 @@ theory/theory.log
 *.csv
 venv/*
 prepared/*
+__pycache__/*
