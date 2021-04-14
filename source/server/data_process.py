@@ -10,6 +10,20 @@ from source._helpers import error_print
 from source import config as cfg
 
 
+def join(res, a, a_coef=1, b=None, b_coef=-1):
+    if a is not None:
+        a.name = "TMP"
+    if b is not None:
+        b.name = "TMP"
+
+    return res.join(
+        pd.DataFrame(index=res.index).join(
+            (a_coef * a if a is not None else 0) + (b_coef * b if b is not None else 0)
+        ).rename(columns={a.name: res.shape[1]}),
+        how='outer'
+    )
+
+
 class DataProcess:
 
     def __init__(self):
@@ -69,58 +83,31 @@ class DataProcess:
         series.index = index
         res = pd.DataFrame(index=new_index).join(series).rename(columns={series.name: 0})
 
-
         # average Y days:
         l, r = 1, 2
         average = res[0].copy()
         for k in range(1, average_y_days):
             average += res[0].shift(k)
-        res = res.join(
-            pd.DataFrame(index=new_index).join(
-                average.copy() / average_y_days
-            ).rename(columns={res[0].name: l}),
-            how='outer'
-        )
+        res = join(res, average, 1 / average_y_days)
 
         # diffs:
         l, r = r, r + diffs_count
         if diffs_count > 0:
-            res = res.join(
-                pd.DataFrame(index=index).join(
-                    res[0].copy() - res[0].copy().shift(1)
-                ).rename(columns={0: l}),
-                how='outer'
-            )
+            res = join(res, res[0].copy(), 1, res[0].copy().shift(1), -1)
         for i in range(l + 1, r):
-            res = res.join(
-                pd.DataFrame(index=index).join(
-                    res[i - 1].copy()
-                ).rename(columns={i - 1: i}),
-                how='outer'
-            )
-            res[i] = res[i] - res[i].shift(1)
+            res = join(res, res[i - 1].copy(), 1, res[i - 1].copy().shift(1), -1)
 
         # X lags:
         l, r = 1, r
         last = r
         for i in range(l, r):
             for j in range(x_lags):
-                res = res.join(
-                    pd.DataFrame(index=new_index).join(
-                        res[i].copy().shift(j + 1)
-                    ).rename(columns={i: last}),
-                    how='outer'
-                )
-                last += 1
-        r = last
+                res = join(res, res[i].copy().shift(j + 1))
+        r = res.shape[1]
 
         # Y lags:
         l, r = r, r + y_lags
         for i in range(y_lags):
-            res = res.join(
-                pd.DataFrame(index=new_index).join(
-                    res[0].copy().shift(i + 1)
-                ).rename(columns={0: l + i}),
-                how='outer'
-            )
+            res = join(res, res[0].copy().shift(i + 1))
+
         return res
