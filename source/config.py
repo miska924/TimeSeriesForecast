@@ -1,18 +1,11 @@
 import enum
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 TICKERS = {
-    'CBOM': [],
-    'GAZP': [],
-    'GMKN': [],
-    'PIKK': [],
-    'LSRG': [],
-    'DSKY': [],
-    'ALRS': [],
-    'CHMF': [],
-    'FLOT': [],
+    'CBOM': ['PIKK', 'GAZP', 'PIKK'],
+    'GAZP': ['GMKN', 'LSRG']
 }
 
 
