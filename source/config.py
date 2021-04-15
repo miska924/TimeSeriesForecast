@@ -1,7 +1,7 @@
 import enum
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 TICKERS = {
     'CBOM': ['PIKK', 'GAZP', 'PIKK'],
