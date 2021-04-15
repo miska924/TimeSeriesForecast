@@ -3,7 +3,7 @@ import datetime
 import sys
 
 from source import config as cfg
-from source._helpers import PredictParams
+from source._helpers import PredictParams, get_values
 from source.server.data_process import DataProcess
 
 
@@ -16,8 +16,8 @@ if __name__ == '__main__':
         raise Exception(f'WRONG FORMAT\nExample:\n\t{sys.argv[0]} 2016-06-01 2020-06-01 BM')
 
     print(sys.argv)
-    if sys.argv[-1] not in cfg.Period.get_values():
-        raise Exception("WRONG FORMAT\navailable offsets:", ' '.join(cfg.Period.get_values()))
+    if sys.argv[-1] not in get_values(cfg.Offset):
+        raise Exception("WRONG FORMAT\navailable offsets:", ' '.join(get_values(cfg.Offset)))
 
     start_date, end_date, offset = sys.argv[1:]
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
         end_date = datetime.date.today()
 
     if offset == '-':
-        offset = cfg.Period.default
+        offset = cfg.Offset.default
 
     tmp_params = PredictParams(
         None,
