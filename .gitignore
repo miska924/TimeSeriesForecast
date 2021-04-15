@@ -8,7 +8,11 @@ theory/theory.log
 *.csv
 venv/*
 prepared/*
+<<<<<<< HEAD
 **__pycache__/
+=======
+__pycache__/
+>>>>>>> 4d80474 (Change elements names and fill information in the interface)
 .idea/*
 tmp/*
 *.pyc
