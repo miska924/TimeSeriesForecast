@@ -69,44 +69,45 @@ class DataProcess:
             os.mkdir('../../prepared')
 
         for TICK in result:
-            prepared = DataProcess.get_prepared_data_frame(result[TICK], result.index)
+            prepared = DataProcess.get_prepared_data_frame(
+                pd.DataFrame(index=result.index).join(result[TICK]).join(result.copy().drop([TICK], axis=1))
+            )
             prepared.to_csv(f'../../prepared/{TICK}.csv')
 
     @staticmethod
-    def get_prepared_data_frame(series, index, regressors=(), diffs_count=2, x_lags=3, y_lags=4, average_y_days=5):
+    def get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4,
+                                average_y_days=5):
         # plt.title(series.name)
         # plt.plot(series)
         # plt.show()
 
-        index = [i for i in range(len(index))]
-        new_index = [i for i in range(len(index) + max(x_lags, y_lags))]
-        series.index = index
-        res = pd.DataFrame(index=new_index).join(series).rename(columns={series.name: 0})
+        index = [i for i in range(len(df.index))]
+        new_index = [i for i in range(len(df.index) + max(x_lags, y_lags))]
+
+        res = df
+        res.set_axis(index, axis=0, inplace=True)
+        res = res.join(pd.DataFrame(index=new_index), how='outer')
+        res.set_axis(range(df.shape[1]), axis=1, inplace=True)
+
 
         # average Y days:
-        l, r = 1, 2
         average = res[0].copy()
-        for k in range(1, average_y_days):
+        for k in range(res.shape[1], average_y_days):
             average += res[0].shift(k)
         res = join(res, average, 1 / average_y_days)
 
         # diffs:
-        l, r = r, r + diffs_count
         if diffs_count > 0:
             res = join(res, res[0].copy(), 1, res[0].copy().shift(1), -1)
-        for i in range(l + 1, r):
+        for i in range(res.shape[1], res.shape[1] + diffs_count - 1):
             res = join(res, res[i - 1].copy(), 1, res[i - 1].copy().shift(1), -1)
 
         # X lags:
-        l, r = 1, r
-        last = r
-        for i in range(l, r):
+        for i in range(1, res.shape[1]):
             for j in range(x_lags):
                 res = join(res, res[i].copy().shift(j + 1))
-        r = res.shape[1]
 
         # Y lags:
-        l, r = r, r + y_lags
         for i in range(y_lags):
             res = join(res, res[0].copy().shift(i + 1))
 
