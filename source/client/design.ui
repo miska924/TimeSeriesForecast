@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>933</width>
+    <width>800</width>
     <height>600</height>
    </rect>
   </property>
@@ -66,7 +66,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="cBox_series"/>
+          <widget class="QComboBox" name="comboBox_series"/>
          </item>
          <item alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label_2">
@@ -86,7 +86,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QListView" name="listView"/>
+          <widget class="QListWidget" name="listWidget"/>
          </item>
          <item alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label_4">
@@ -106,7 +106,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox_4"/>
+          <widget class="QComboBox" name="comboBox_method"/>
          </item>
          <item alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label_6">
@@ -116,7 +116,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox_5"/>
+          <widget class="QComboBox" name="comboBox_type"/>
          </item>
          <item alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label_7">
@@ -135,7 +135,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QDateEdit" name="dateEdit"/>
+            <widget class="QDateEdit" name="dateEdit_start"/>
            </item>
           </layout>
          </item>
@@ -149,7 +149,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QDateEdit" name="dateEdit_2"/>
+            <widget class="QDateEdit" name="dateEdit_end"/>
            </item>
           </layout>
          </item>
@@ -161,7 +161,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="comboBox_6"/>
+          <widget class="QComboBox" name="comboBox_offset"/>
          </item>
          <item>
           <widget class="QPushButton" name="pushButton">
