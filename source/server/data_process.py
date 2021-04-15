@@ -63,7 +63,9 @@ class DataProcess:
             prepared.to_csv(f'{prepared_dir}/{TICK}.csv')
 
     @staticmethod
-    def _join(res, a, a_coef=1, b=None, b_coef=-1):
+    def _join(res, a, a_coef=1, b=None, b_coef=-1, name=None):
+        if name is None:
+            name = res.shape[1]
         if a is not None:
             a.name = "TMP"
         if b is not None:
@@ -72,45 +74,44 @@ class DataProcess:
         return res.join(
             pd.DataFrame(index=res.index).join(
                 (a_coef * a if a is not None else 0) + (b_coef * b if b is not None else 0)
-            ).rename(columns={a.name: res.shape[1]}),
+            ).rename(columns={a.name: name}),
             how='outer'
         )
 
     @staticmethod
     def get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4,
                                 average_y_days=5):
-        # plt.title(series.name)
-        # plt.plot(series)
-        # plt.show()
 
         index = [i for i in range(len(df.index))]
-        new_index = [i for i in range(len(df.index) + max(x_lags, y_lags))]
+        #new_index = [i for i in range(len(df.index) + max(x_lags, y_lags))]
 
         res = df
         res.set_axis(index, axis=0, inplace=True)
-        res = res.join(pd.DataFrame(index=new_index), how='outer')
-        res.set_axis(range(df.shape[1]), axis=1, inplace=True)
+        #res = res.join(pd.DataFrame(index=new_index), how='outer')
+        res.set_axis(['Y'] + [('EXO ' + str(y)) for y in range(df.shape[1] - 1)], axis=1, inplace=True)
 
 
         # average Y days:
-        average = res[0].copy()
-        for k in range(res.shape[1], average_y_days):
-            average += res[0].shift(k)
-        res = DataProcess._join(res, average, 1 / average_y_days)
+        average = res[res.columns[0]].copy()
+        for k in range(1, average_y_days):
+            average += res[res.columns[0]].shift(k)
+        res = DataProcess._join(res, average, 1 / average_y_days, name=f'Y AVRG {average_y_days}')
 
         # diffs:
         if diffs_count > 0:
-            res = DataProcess._join(res, res[0].copy(), 1, res[0].copy().shift(1), -1)
+            res = DataProcess._join(res, res[res.columns[0]].copy(), 1, res[res.columns[0]].copy().shift(1), -1, name=f'Y DIFF 1')
+        current_diff = 2
         for i in range(res.shape[1], res.shape[1] + diffs_count - 1):
-            res = DataProcess._join(res, res[i - 1].copy(), 1, res[i - 1].copy().shift(1), -1)
+            res = DataProcess._join(res, res[res.columns[i - 1]].copy(), 1, res[res.columns[i - 1]].copy().shift(1), -1, name=f'Y DIFF {current_diff}')
+            current_diff += 1
 
         # X lags:
         for i in range(1, res.shape[1]):
             for j in range(x_lags):
-                res = DataProcess._join(res, res[i].copy().shift(j + 1))
+                res = DataProcess._join(res, res[res.columns[i]].copy().shift(j + 1), name=f'{res.columns[i]} LAG {j + 1}')
 
         # Y lags:
         for i in range(y_lags):
-            res = DataProcess._join(res, res[0].copy().shift(i + 1))
+            res = DataProcess._join(res, res[res.columns[0]].copy().shift(i + 1), name=f'Y LAG {i + 1}')
 
         return res
