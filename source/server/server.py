@@ -1,15 +1,14 @@
-#!/usr/bin/python3
 import datetime
 import sys
 
 from source import config as cfg
-from source._helpers import PredictParams, get_values
+from source._helpers import PredictParams, get_values, save_file
 from source.server.data_process import DataProcess
 
 
 def run(params: PredictParams):
-    DataProcess.load_data(params.start_date, params.end_date, params.offset)
-
+    result = DataProcess.get_processed(params.ticker, params.start_date, params.end_date, params.offset)
+    save_file(result, f"{params.ticker}.csv")
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
@@ -31,7 +30,7 @@ if __name__ == '__main__':
         offset = cfg.Offset.default
 
     tmp_params = PredictParams(
-        None,
+        list(cfg.TICKERS.keys())[0],
         None,
         None,
         None,
@@ -39,6 +38,7 @@ if __name__ == '__main__':
         None,
         start_date,
         end_date,
+        None,
         offset
     )
     run(tmp_params)

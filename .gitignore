@@ -10,3 +10,4 @@ venv/*
 prepared/*
 */__pycache__/*
 .idea/*
+tmp/*
