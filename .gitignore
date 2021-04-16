@@ -11,3 +11,4 @@ prepared/*
 */__pycache__/*
 .idea/*
 tmp/*
+*.pyc
