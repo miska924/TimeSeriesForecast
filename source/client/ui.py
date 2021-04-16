@@ -4,15 +4,17 @@ import sys
 import source._helpers as hlp
 import source.client.config as ui_cfg
 import source.config as cfg
-<<<<<<< HEAD
 # TEST
 import plotly
 import plotly.graph_objs as go
 import numpy as np
 import pandas as pd
+<<<<<<< HEAD
 
 =======
 
+=======
+>>>>>>> f637c56 (Add forecast_date)
 
 >>>>>>> 4d80474 (Change elements names and fill information in the interface)
 class GUI(QtWidgets.QMainWindow):
@@ -99,6 +101,7 @@ class GUI(QtWidgets.QMainWindow):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         self.ui.comboBox_series.addItem("")
         self.ui.comboBox_model.addItem("")
@@ -123,6 +126,8 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.listWidget.addItems(cfg.TICKERS[ticker])
 
 >>>>>>> 4d80474 (Change elements names and fill information in the interface)
+=======
+>>>>>>> f637c56 (Add forecast_date)
 app = QtWidgets.QApplication([])
 application = GUI()
 application.show()
