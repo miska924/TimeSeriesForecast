@@ -51,6 +51,7 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.comboBox_type.currentText(), 
             self.ui.dateEdit_start.date().toString("yyyy-MM-dd"),
             self.ui.dateEdit_end.date().toString("yyyy-MM-dd"),
+            self.ui.dateEdit_forecast.date().toString("yyyy-MM-dd"),
             ui_cfg.TRANSLATE[self.ui.comboBox_offset.currentText()]
         )
         
