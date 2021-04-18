@@ -9,14 +9,7 @@ import plotly
 import plotly.graph_objs as go
 import numpy as np
 import pandas as pd
-<<<<<<< HEAD
 
-=======
-
-=======
->>>>>>> f637c56 (Add forecast_date)
-
->>>>>>> 4d80474 (Change elements names and fill information in the interface)
 class GUI(QtWidgets.QMainWindow):
     def __init__(self):
         super(GUI, self).__init__()
@@ -99,10 +92,6 @@ class GUI(QtWidgets.QMainWindow):
         
         self.ui.webView.setHtml(html)
 
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
         self.ui.comboBox_series.addItem("")
         self.ui.comboBox_model.addItem("")
         self.ui.comboBox_metric.addItem("")
@@ -125,9 +114,6 @@ class GUI(QtWidgets.QMainWindow):
         if (ticker):
             self.ui.listWidget.addItems(cfg.TICKERS[ticker])
 
->>>>>>> 4d80474 (Change elements names and fill information in the interface)
-=======
->>>>>>> f637c56 (Add forecast_date)
 app = QtWidgets.QApplication([])
 application = GUI()
 application.show()
