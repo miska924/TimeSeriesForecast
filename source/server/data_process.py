@@ -48,7 +48,7 @@ class DataProcess:
 
         # process:
         loaded_df = DataProcess._load_data_from_moex(target_ticker, date_start, date_end, offset)
-        prepared_df = DataProcess._get_prepared_data_frame(loaded_df)
+        prepared_df = DataProcess._get_prepared_data_frame(loaded_df, predict_day=1)
         filtered_df = DataProcess._get_filtered_data_frame(prepared_df)
 
         return filtered_df
@@ -105,7 +105,7 @@ class DataProcess:
         )
 
     @staticmethod
-    def _get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5):
+    def _get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5, predict_day=1):
         # rename index & columns:
         index = df.index
         df.set_axis(index, axis=0, inplace=True)
@@ -139,4 +139,8 @@ class DataProcess:
         # cut begin which contains None values:
         df = df.copy()[max(1, average_y_days - 1 + y_lags, x_lags + diffs_count) - 1:]
 
+        for col in df.columns:
+            if col != 'Y':
+                df[col] = df[col].shift(predict_day)
+        df = df.dropna(axis=0, how='any')
         return df
