@@ -131,7 +131,6 @@
            </item>
            <item>
             <widget class="QDateEdit" name="dateEdit_end"/>
-<<<<<<< HEAD
            </item>
           </layout>
          </item>
@@ -146,8 +145,6 @@
            </item>
            <item>
             <widget class="QDateEdit" name="dateEdit_forecast"/>
-=======
->>>>>>> 4d80474 (Change elements names and fill information in the interface)
            </item>
           </layout>
          </item>
