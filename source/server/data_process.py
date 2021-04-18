@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import requests
 import apimoex
+import pymrmr
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
@@ -27,14 +28,16 @@ class DataProcess:
 
         return res
 
+    # filters relevant columns using mrmr method
     @staticmethod
-    def _get_filtered_data_frame(df):
-        # TODO: filter
+    def _get_filtered_data_frame(df, features_left_cnt=10):
+        mrmr_features = [df.columns.values[0]] + pymrmr.mRMR(df, 'MID', features_left_cnt)
+        df = df[mrmr_features]
         return df
 
     # [THE POINT OF ENTRANCE]:
     @staticmethod
-    def get_processed(target_ticker, date_start, date_end, offset):
+    def get_processed(target_ticker, date_start, date_end, offset) -> pd.DataFrame:
         # for debug:
         stderr_print(f"""
         Start loading data
@@ -45,7 +48,7 @@ class DataProcess:
 
         # process:
         loaded_df = DataProcess._load_data_from_moex(target_ticker, date_start, date_end, offset)
-        prepared_df = DataProcess._get_prepared_data_frame(loaded_df)
+        prepared_df = DataProcess._get_prepared_data_frame(loaded_df, predict_day=1)
         filtered_df = DataProcess._get_filtered_data_frame(prepared_df)
 
         return filtered_df
@@ -58,11 +61,10 @@ class DataProcess:
         result = pd.DataFrame(index=date_range)
 
         # get list of needed tickers:
-        tickers = set()
-        tickers.add(target_ticker)
-        if cfg.TICKERS.__contains__(target_ticker):
-            for ticker in cfg.TICKERS[target_ticker]:
-                tickers.add(ticker)
+        tickers = [target_ticker]
+        for ticker in cfg.TICKERS.get(target_ticker, []):
+            if ticker not in tickers:
+                tickers.append(ticker)
 
         # load tickers' series from moex:
         with requests.Session() as session:
@@ -103,7 +105,7 @@ class DataProcess:
         )
 
     @staticmethod
-    def _get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5):
+    def _get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5, predict_day=1):
         # rename index & columns:
         index = df.index
         df.set_axis(index, axis=0, inplace=True)
@@ -137,4 +139,8 @@ class DataProcess:
         # cut begin which contains None values:
         df = df.copy()[max(1, average_y_days - 1 + y_lags, x_lags + diffs_count) - 1:]
 
+        for col in df.columns:
+            if col != 'Y':
+                df[col] = df[col].shift(predict_day)
+        df = df.dropna(axis=0, how='any')
         return df

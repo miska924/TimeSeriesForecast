@@ -4,11 +4,14 @@ import sys
 from source import config as cfg
 from source._helpers import PredictParams, get_values, save_file
 from source.server.data_process import DataProcess
+from source.server.models import Models
 
 
 def run(params: PredictParams):
     result = DataProcess.get_processed(params.ticker, params.start_date, params.end_date, params.offset)
+    print(Models.test_linear_regression(result))
     save_file(result, f"{params.ticker}.csv")
+
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
