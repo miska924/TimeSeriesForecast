@@ -96,13 +96,6 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.webView.setHtml(html)
 
-        self.ui.comboBox_series.addItems(cfg.TICKERS.keys())
-        self.ui.comboBox_model.addItems(hlp.get_values(cfg.Model))
-        self.ui.comboBox_metric.addItems(hlp.get_values(cfg.Metrics))
-        self.ui.comboBox_method.addItems(hlp.get_values(cfg.Methods))
-        self.ui.comboBox_type.addItems(hlp.get_values(cfg.Type))
-        self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.keys())
-
         self.ui.comboBox_series.currentTextChanged.connect(self.change_exogenous)
 
     @QtCore.pyqtSlot(str)
