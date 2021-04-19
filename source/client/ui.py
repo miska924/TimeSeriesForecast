@@ -92,13 +92,6 @@ class GUI(QtWidgets.QMainWindow):
         
         self.ui.webView.setHtml(html)
 
-        self.ui.comboBox_series.addItem("")
-        self.ui.comboBox_model.addItem("")
-        self.ui.comboBox_metric.addItem("")
-        self.ui.comboBox_method.addItem("")
-        self.ui.comboBox_type.addItem("")
-        self.ui.comboBox_offset.addItem("")
-
         self.ui.comboBox_series.addItems(cfg.TICKERS.keys())
         self.ui.comboBox_model.addItems(hlp.get_values(cfg.Model))
         self.ui.comboBox_metric.addItems(hlp.get_values(cfg.Metrics))
