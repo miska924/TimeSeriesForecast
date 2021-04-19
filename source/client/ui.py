@@ -1,5 +1,5 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
-from source.client.design import Ui_MainWindow
+from PyQt5 import QtWidgets, QtCore  # , QtGui
+from source.client.design import UiMainWindow
 import sys
 import source._helpers as hlp
 import source.client.config as ui_cfg
@@ -8,13 +8,16 @@ import source.config as cfg
 import plotly
 import plotly.graph_objs as go
 import numpy as np
-import pandas as pd
+
+
+# import pandas as pd
+
 
 class GUI(QtWidgets.QMainWindow):
     def __init__(self):
         super(GUI, self).__init__()
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
+        self.ui = UiMainWindow()
+        self.ui.setup_ui(self)
         self.setWindowTitle("TimeSeries Forecast")
 
         self.ui.comboBox_series.addItem("")
@@ -36,9 +39,9 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.pushButton.clicked.connect(self.predict_series)
 
     @QtCore.pyqtSlot(str)
-    def change_exogenous(self, ticker : str):
+    def change_exogenous(self, ticker: str):
         self.ui.listWidget.clear()
-        if (ticker):
+        if ticker:
             self.ui.listWidget.addItems(cfg.TICKERS[ticker])
 
     def predict_series(self):
@@ -48,20 +51,21 @@ class GUI(QtWidgets.QMainWindow):
             [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
             self.ui.comboBox_metric.currentText(),
             self.ui.comboBox_method.currentText(),
-            self.ui.comboBox_type.currentText(), 
+            self.ui.comboBox_type.currentText(),
             self.ui.dateEdit_start.date().toString("yyyy-MM-dd"),
             self.ui.dateEdit_end.date().toString("yyyy-MM-dd"),
             self.ui.dateEdit_forecast.date().toString("yyyy-MM-dd"),
             ui_cfg.TRANSLATE[self.ui.comboBox_offset.currentText()]
         )
-        
-        # Getting forecast and timeseries from backend
-        
+
+        # Getting forecast and time series from backend
+
         # Example
         x = np.arange(0, 30, 0.1)
+
         def f(x):
             return x * (1 + np.sin(x))
-            
+
         fig = go.Figure()
         # fig.show()
 
@@ -70,26 +74,26 @@ class GUI(QtWidgets.QMainWindow):
         fig.update_layout(
             title={
                 'text': self.ui.comboBox_series.currentText(),
-                'y':0.95,
-                'x':0.5,
+                'y': 0.95,
+                'x': 0.5,
                 'xanchor': 'center',
                 'yanchor': 'top',
                 'font': dict(size=40)
             },
             xaxis_title={
-                "text" : "Timeline",
-                "font" : dict(size=20)
+                "text": "Timeline",
+                "font": dict(size=20)
             },
             yaxis_title={
-                "text" : "Value",
-                "font" : dict(size=20)
+                "text": "Value",
+                "font": dict(size=20)
             }
         )
         # fig = Figure(Scatter(x=x, y=y))
         html = '<html><body>'
         html += plotly.offline.plot(fig, output_type='div', include_plotlyjs='cdn')
         html += '</body></html>'
-        
+
         self.ui.webView.setHtml(html)
 
         self.ui.comboBox_series.addItems(cfg.TICKERS.keys())
@@ -104,8 +108,9 @@ class GUI(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot(str)
     def change_exogenous(self, ticker):
         self.ui.listWidget.clear()
-        if (ticker):
+        if ticker:
             self.ui.listWidget.addItems(cfg.TICKERS[ticker])
+
 
 app = QtWidgets.QApplication([])
 application = GUI()

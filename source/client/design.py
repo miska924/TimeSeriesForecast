@@ -11,11 +11,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 600)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+class UiMainWindow(object):
+    def setup_ui(self, main_window):
+        main_window.setObjectName("MainWindow")
+        main_window.resize(800, 600)
+        self.centralwidget = QtWidgets.QWidget(main_window)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.centralwidget)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
@@ -110,17 +110,17 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.pushButton)
         self.horizontalLayout.addLayout(self.verticalLayout_2)
         self.horizontalLayout_2.addWidget(self.horizontalFrame)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        main_window.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(main_window)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        main_window.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslate_ui(main_window)
+        QtCore.QMetaObject.connectSlotsByName(main_window)
 
-    def retranslateUi(self, MainWindow):
+    def retranslate_ui(self, main_window):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        main_window.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label.setText(_translate("MainWindow", "Прогнозный ряд"))
         self.label_2.setText(_translate("MainWindow", "Модель прогнозирования"))
         self.label_3.setText(_translate("MainWindow", "Внешние переменные"))
@@ -133,4 +133,6 @@ class Ui_MainWindow(object):
         self.label_12.setText(_translate("MainWindow", "Конец прогноза:"))
         self.label_10.setText(_translate("MainWindow", "Периодичность"))
         self.pushButton.setText(_translate("MainWindow", "Спрогнозировать"))
+
+
 from PyQt5 import QtWebEngineWidgets
