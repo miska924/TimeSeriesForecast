@@ -96,14 +96,6 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.webView.setHtml(html)
 
-        self.ui.comboBox_series.currentTextChanged.connect(self.change_exogenous)
-
-    @QtCore.pyqtSlot(str)
-    def change_exogenous(self, ticker):
-        self.ui.listWidget.clear()
-        if ticker:
-            self.ui.listWidget.addItems(cfg.TICKERS[ticker])
-
 
 app = QtWidgets.QApplication([])
 application = GUI()
