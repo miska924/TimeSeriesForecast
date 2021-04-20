@@ -1,5 +1,6 @@
 import datetime
 import sys
+import pandas as pd
 
 from source import config as cfg
 from source._helpers import PredictParams, get_values, save_file
@@ -8,6 +9,15 @@ from source.server.models import Models
 
 
 def run(params: PredictParams):
+    date_range = pd.date_range(params.end_date, params.forecast_date, freq=str(params.offset.value))
+    if len(date_range) and date_range[0] == params.end_date:
+        date_range = date_range[1:]
+
+    print(date_range)
+    #exit()
+    #for i in range(len(date_range)):
+
+
     result = DataProcess.get_processed(params.ticker, params.start_date, params.end_date, params.offset)
     print(Models.test_linear_regression(result))
     save_file(result, f"{params.ticker}.csv")

@@ -1,13 +1,16 @@
 from PyQt5 import QtWidgets, QtCore  # , QtGui
-from source.client.design import UiMainWindow
 import sys
-import source._helpers as hlp
-import source.client.config as ui_cfg
-import source.config as cfg
-# TEST
 import plotly
 import plotly.graph_objs as go
 import numpy as np
+
+from source.server import server
+
+import source._helpers as hlp
+
+import source.client.config as ui_cfg
+import source.config as cfg
+from source.client.design import UiMainWindow
 
 
 # import pandas as pd
@@ -59,6 +62,7 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # Getting forecast and time series from backend
+        server.run(params)
 
         # Example
         x = np.arange(0, 30, 0.1)
