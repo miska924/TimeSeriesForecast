@@ -62,19 +62,14 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # Getting forecast and time series from backend
-        server.run(params)
-
-        # Example
-        x = np.arange(0, 30, 0.1)
-
-        def f(x):
-            return x * (1 + np.sin(x))
+        x, y, x_pred, y_pred = server.run(params)
+        print(x, y)
 
         fig = go.Figure()
         # fig.show()
 
-        fig.add_trace(go.Scatter(x=x[:100], y=f(x[:100]), mode='lines', name='Known values'))
-        fig.add_trace(go.Scatter(x=x[100:], y=x[100:], mode='lines', name='Forecast'))
+        fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Known values'))
+        fig.add_trace(go.Scatter(x=x_pred, y=y_pred, mode='lines', name='Forecast'))
         fig.update_layout(
             title={
                 'text': self.ui.comboBox_series.currentText(),

@@ -28,6 +28,10 @@ def get_values(e) -> list:
     return [item.value for item in e]
 
 
+def dates_from_array(array):
+    return [str(x)[:10] for x in array]
+
+
 def save_file(df, filename):
     tmp_dir = os.path.join(cfg.BASE_DIR, "tmp")
     try:

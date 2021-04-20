@@ -1,4 +1,5 @@
 import os
+import traceback
 
 import pandas as pd
 import requests
@@ -30,10 +31,8 @@ class DataProcess:
 
     # filters relevant columns using mrmr method
     @staticmethod
-    def _get_filtered_data_frame(df, features_left_cnt=10):
-        mrmr_features = [df.columns.values[0]] + pymrmr.mRMR(df, 'MID', features_left_cnt)
-        df = df[mrmr_features]
-        return df
+    def get_filtered_data_frame_columns(df, features_left_cnt=10):
+        return [df.columns.values[0]] + pymrmr.mRMR(df, 'MID', features_left_cnt)
 
     # [THE POINT OF ENTRANCE]:
     @staticmethod
@@ -47,29 +46,31 @@ class DataProcess:
         """)
 
         # process:
-        loaded_df = DataProcess._load_data_from_moex(target_ticker, date_start, date_end, offset)
-        prepared_df = DataProcess._get_prepared_data_frame(loaded_df, predict_day=1)
-        filtered_df = DataProcess._get_filtered_data_frame(prepared_df)
+        loaded_df = DataProcess.load_data_from_moex(target_ticker, date_start, date_end, offset)
+        prepared_df = DataProcess._get_prepared_data_frame(loaded_df, predict_day=0)
+        # filtered_df = DataProcess._get_filtered_data_frame(prepared_df)
 
-        return filtered_df
+        return prepared_df
 
     # load needed tickers from moex and returns dataframe
     @staticmethod
-    def _load_data_from_moex(target_ticker, date_start, date_end, offset):
+    def load_data_from_moex(target_ticker, date_start, date_end, offset, need_exo=True):
         # generating base dataframe:
         date_range = pd.date_range(date_start, date_end, freq='B')
         result = pd.DataFrame(index=date_range)
 
         # get list of needed tickers:
         tickers = [target_ticker]
-        for ticker in cfg.TICKERS.get(target_ticker, []):
-            if ticker not in tickers:
-                tickers.append(ticker)
+        if need_exo:
+            for ticker in cfg.TICKERS.get(target_ticker, []):
+                if ticker not in tickers:
+                    tickers.append(ticker)
 
         # load tickers' series from moex:
         with requests.Session() as session:
             for ticker in tqdm(tickers):
                 data = apimoex.get_board_history(session, ticker, date_start, date_end)
+
                 if not data:
                     return
 
@@ -105,7 +106,7 @@ class DataProcess:
         )
 
     @staticmethod
-    def _get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5, predict_day=1):
+    def _get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5, predict_day=0):
         # rename index & columns:
         index = df.index
         df.set_axis(index, axis=0, inplace=True)
@@ -142,5 +143,5 @@ class DataProcess:
         for col in df.columns:
             if col != 'Y':
                 df[col] = df[col].shift(predict_day)
-        df = df.dropna(axis=0, how='any')
+        # df = df.dropna(axis=0, how='any')
         return df

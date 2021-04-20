@@ -21,7 +21,10 @@ class Models:
 
     # trains liner regression model on given data and returns it
     @staticmethod
-    def train_linear_regression(x: np.ndarray, y: np.ndarray) -> LinearRegression:
+    def train_linear_regression(df: pd.DataFrame) -> LinearRegression:
+        df = df.to_numpy()
+        x = df[:, 1:]
+        y = df[:, 0]
         model = LinearRegression()
         model.fit(x, y)
 
