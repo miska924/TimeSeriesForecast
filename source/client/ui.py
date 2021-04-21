@@ -96,8 +96,9 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.webView.setHtml(html)
 
 
-app = QtWidgets.QApplication([])
-application = GUI()
-application.show()
+if __name__ == '__main__':
+    app = QtWidgets.QApplication([])
+    application = GUI()
+    application.show()
 
-sys.exit(app.exec())
+    sys.exit(app.exec())

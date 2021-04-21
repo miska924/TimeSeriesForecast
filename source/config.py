@@ -4,7 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 TICKERS = {
-    'GAZP': ['MOEX'], # 'USDRUB_TOM'
+    'GAZP': ['MOEX', 'MOEXOG'], # 'USDRUB_TOM'
     'CBOM': ['PIKK', 'GAZP', 'PIKK']
 }
 

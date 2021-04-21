@@ -69,7 +69,10 @@ class DataProcess:
         # load tickers' series from moex:
         with requests.Session() as session:
             for ticker in tqdm(tickers):
-                data = apimoex.get_board_history(session, ticker, date_start, date_end)
+                if 'MOEXOG' not in ticker:
+                    data = apimoex.get_board_history(session, ticker, date_start, date_end)
+                else:
+                    data = apimoex.get_board_history(session, 'MOEXOG', '2020-01-01', '2021-01-01', market='index', board='SNDX')
 
                 if not data:
                     return
