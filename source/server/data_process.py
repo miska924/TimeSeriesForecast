@@ -9,6 +9,7 @@ from tqdm import tqdm
 from sklearn import feature_selection
 
 from source._helpers import stderr_print
+from source.server.moex_api import MoexAPI
 from source import config as cfg
 
 
@@ -75,12 +76,11 @@ class DataProcess:
         # load tickers' series from moex:
         with requests.Session() as session:
             for ticker in tqdm(tickers):
-                if 'MOEXOG' not in ticker:
-                    data = apimoex.get_board_history(session, ticker, date_start, date_end)
-                else:
-                    data = apimoex.get_board_history(session, 'MOEXOG', date_start, date_end, market='index', board='SNDX')
-
+                info = MoexAPI.get_ticker_info(session, ticker)
+                data = apimoex.get_board_history(session, ticker, date_start, date_end, market=info['market'],
+                                                 board=info['boardid'], engine=info['engine'])
                 if not data:
+                    print(f'Empty data for {ticker}')
                     return
 
                 for item in data:
