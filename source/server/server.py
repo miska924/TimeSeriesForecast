@@ -24,7 +24,7 @@ def run(params: PredictParams):
             if col != 'Y':
                 df[col] = df[col].shift(1)
         df_train = df.dropna(axis=0, how='any')
-        filtered_columns = DataProcess.get_filtered_data_frame_columns(df_train)
+        filtered_columns = DataProcess.get_filtered_data_frame_columns(df_train, mrmr=False)
         model = Models.train_linear_regression(df_train[filtered_columns])
         res_y.append(model.predict(df.loc[[date], filtered_columns[1:]])[0])
         res_index.append(date)

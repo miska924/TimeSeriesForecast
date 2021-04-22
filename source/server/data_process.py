@@ -4,9 +4,9 @@ import traceback
 import pandas as pd
 import requests
 import apimoex
-import pymrmr
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from sklearn import feature_selection
 
 from source._helpers import stderr_print
 from source import config as cfg
@@ -29,10 +29,16 @@ class DataProcess:
 
         return res
 
-    # filters relevant columns using mrmr method
+    # filters relevant columns using mutual info or mrmr method
     @staticmethod
-    def get_filtered_data_frame_columns(df, features_left_cnt=10):
-        return [df.columns.values[0]] + pymrmr.mRMR(df, 'MID', features_left_cnt)
+    def get_filtered_data_frame_columns(df: pd.DataFrame, mrmr=False, treshold=0.5, features_left_cnt=10):
+        if mrmr:
+            import pymrmr
+            return [df.columns.values[0]] + pymrmr.mRMR(df, 'MID', features_left_cnt)
+        else:
+            data = df.to_numpy()
+            mask = feature_selection.mutual_info_regression(data[:, 1:], data[:, 0]) > treshold
+            return [df.columns.values[0]] + list(df.columns.values[1:][mask == 1])
 
     # [THE POINT OF ENTRANCE]:
     @staticmethod
@@ -72,7 +78,7 @@ class DataProcess:
                 if 'MOEXOG' not in ticker:
                     data = apimoex.get_board_history(session, ticker, date_start, date_end)
                 else:
-                    data = apimoex.get_board_history(session, 'MOEXOG', '2020-01-01', '2021-01-01', market='index', board='SNDX')
+                    data = apimoex.get_board_history(session, 'MOEXOG', date_start, date_end, market='index', board='SNDX')
 
                 if not data:
                     return
