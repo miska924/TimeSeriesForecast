@@ -11,3 +11,6 @@ PyQt5~=5.15.4
 sklearn~=0.0
 python-dateutil~=2.8.1
 PyQtWebEngine~=5.15.4
+
+bottle~=0.12.19
+DateTime~=4.3
