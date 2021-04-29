@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python -m source.server.server 2019-04-01 2021-04-16 B
+python -m source.server.server 2020-01-01 2021-01-01 B

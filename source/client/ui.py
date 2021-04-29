@@ -1,13 +1,16 @@
 from PyQt5 import QtWidgets, QtCore  # , QtGui
-from source.client.design import UiMainWindow
 import sys
-import source._helpers as hlp
-import source.client.config as ui_cfg
-import source.config as cfg
-# TEST
 import plotly
 import plotly.graph_objs as go
 import numpy as np
+
+from source.server import server
+
+import source._helpers as hlp
+
+import source.client.config as ui_cfg
+import source.config as cfg
+from source.client.design import UiMainWindow
 
 
 # import pandas as pd
@@ -59,18 +62,14 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # Getting forecast and time series from backend
-
-        # Example
-        x = np.arange(0, 30, 0.1)
-
-        def f(x):
-            return x * (1 + np.sin(x))
+        x, y, x_pred, y_pred = server.run(params)
+        print(x, y)
 
         fig = go.Figure()
         # fig.show()
 
-        fig.add_trace(go.Scatter(x=x[:100], y=f(x[:100]), mode='lines', name='Known values'))
-        fig.add_trace(go.Scatter(x=x[100:], y=x[100:], mode='lines', name='Forecast'))
+        fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Known values'))
+        fig.add_trace(go.Scatter(x=x_pred, y=y_pred, mode='lines', name='Forecast'))
         fig.update_layout(
             title={
                 'text': self.ui.comboBox_series.currentText(),
@@ -97,8 +96,9 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.webView.setHtml(html)
 
 
-app = QtWidgets.QApplication([])
-application = GUI()
-application.show()
+if __name__ == '__main__':
+    app = QtWidgets.QApplication([])
+    application = GUI()
+    application.show()
 
-sys.exit(app.exec())
+    sys.exit(app.exec())
