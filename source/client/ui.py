@@ -1,3 +1,4 @@
+import requests
 from PyQt5 import QtWidgets, QtCore  # , QtGui
 import sys
 import plotly
@@ -62,7 +63,11 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # Getting forecast and time series from backend
-        x, y, x_pred, y_pred = back.run(params)
+        print(self._predict_request(params))
+        data = self._get_request()
+        print(data)
+        x, y, x_pred, y_pred = data["X"], data["Y"], data["PredictedX"], data["PredictedY"]
+
         print(x, y)
 
         fig = go.Figure()
@@ -94,6 +99,14 @@ class GUI(QtWidgets.QMainWindow):
         html += '</body></html>'
 
         self.ui.webView.setHtml(html)
+
+    @staticmethod
+    def _predict_request(params):
+        return requests.post(url='http://158.101.168.149:8080/predict', data=params.__dict__).json()
+
+    @staticmethod
+    def _get_request():
+        return requests.get(url='http://158.101.168.149:8080/get').json()
 
 
 if __name__ == '__main__':

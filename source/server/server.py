@@ -25,7 +25,7 @@ def test():
 
 @app.route('/get', methods=['GET'])
 def get():
-    return "OK"
+    return predictions.get()
 
 
 @app.route('/check', methods=['GET'])

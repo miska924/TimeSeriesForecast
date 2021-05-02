@@ -15,15 +15,17 @@ from dateutil import parser
 
 def predictor(requests: Queue, predictions: Queue):
     while True:
-        msg = requests.get()
-        print(msg)
+        data = requests.get()
+        params = PredictParams(**data)
+        print(params)
+        predictions.put(run(params))
 
 
 def run(params: PredictParams):
     date_range = pd.date_range(parser.parse(params.end_date) + datetime.timedelta(days=1),
-                               params.forecast_date, freq=params.offset.value)
+                               params.forecast_date, freq="B")
 
-    df = DataProcess.get_processed(params.ticker, params.start_date, params.end_date, params.offset.value)\
+    df = DataProcess.get_processed(params.ticker, params.start_date, params.end_date, "B")\
         .join(pd.DataFrame(index=date_range), how="outer")
     res_y, res_index = [], []
     for i, date in enumerate(date_range):
@@ -43,11 +45,16 @@ def run(params: PredictParams):
         params.ticker,
         params.start_date,
         params.forecast_date,
-        params.offset.value,
+        "B",
         need_exo=False
     )
 
-    return dates_from_array(real_df.index), real_df[params.ticker], dates_from_array(res_index), res_y
+    return {
+        "X": dates_from_array(real_df.index),
+        "Y": real_df[params.ticker],
+        "PredictedX": dates_from_array(res_index),
+        "PredictedY": res_y
+    }
 
 
 if __name__ == '__main__':

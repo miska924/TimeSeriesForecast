@@ -19,6 +19,23 @@ class PredictParams:
     forecast_date: str
     offset: cfg.Offset
 
+    def __init__(self, ticker: str, model: str, exogenous_variables: list, metrics: str, prediction_method: str,
+                 prediction_type: str, start_date: str, end_date: str, forecast_date: str, offset):
+        self.ticker = ticker
+        self.model = model
+        self.exogenous_variables = exogenous_variables
+        self.metrics = metrics
+        self.prediction_method = prediction_method
+        self.prediction_type = prediction_type
+        self.start_date = start_date
+        self.end_date = end_date
+        self.forecast_date = forecast_date
+        if type(offset) == 'str':
+            self.offset = cfg.Offset(offset)
+        else:
+            self.offset = offset
+
+
 
 def stderr_print(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
