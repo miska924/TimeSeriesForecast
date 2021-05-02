@@ -4,12 +4,19 @@ import sys
 import pandas as pd
 import numpy as np
 from copy import copy
+from multiprocessing import Queue
 
 from source import config as cfg
 from source._helpers import PredictParams, get_values, save_file, dates_from_array
 from source.back.data_process import DataProcess
 from source.back.models import Models
 from dateutil import parser
+
+
+def predictor(requests: Queue, predictions: Queue):
+    while True:
+        msg = requests.get()
+        print(msg)
 
 
 def run(params: PredictParams):

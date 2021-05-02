@@ -3,6 +3,8 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+MAX_QUEUE_SIZE = 5
+
 TICKERS = {
     'GAZP': ['MOEX', 'MOEXOG'], # 'USDRUB_TOM'
     'CBOM': ['PIKK', 'GAZP', 'PIKK']
