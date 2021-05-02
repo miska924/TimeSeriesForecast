@@ -62,7 +62,7 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # Getting forecast and time series from backend
-        x, y, x_pred, y_pred = server.run(params)
+        x, y, x_pred, y_pred = back.run(params)
         print(x, y)
 
         fig = go.Figure()
