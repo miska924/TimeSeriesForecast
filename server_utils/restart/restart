@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "$(date)" >> /home/ubuntu/logs/restart/restart.log
+
+cd /home/ubuntu/TimeSeriesForecast
+echo -e "$(git fetch)\n" >> /home/ubuntu/logs/restart/restart.log
+echo -e "$(git reset --hard origin/SERVER-01)\n" >> /home/ubuntu/logs/restart/restart.log
+echo -e "$(git pull)\n\n" >> /home/ubuntu/logs/restart/restart.log
+/home/ubuntu/bin/utils/cut_log /home/ubuntu/logs/restart/restart.log 200
