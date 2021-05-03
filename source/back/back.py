@@ -50,10 +50,10 @@ def run(params: PredictParams):
     )
 
     return {
-        "X": dates_from_array(real_df.index),
-        "Y": real_df[params.ticker],
-        "PredictedX": dates_from_array(res_index),
-        "PredictedY": res_y
+        "X": list(dates_from_array(real_df.index)),
+        "Y": list(real_df[params.ticker]),
+        "PredictedX": list(dates_from_array(res_index)),
+        "PredictedY": list(res_y)
     }
 
 
