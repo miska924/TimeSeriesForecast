@@ -38,3 +38,9 @@ class Offset(enum.Enum):
 
     def __str__(self):
         return self.value
+
+
+class Status:
+    ready = 0
+    wait = 1
+    fail = 2

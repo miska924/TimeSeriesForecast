@@ -1,3 +1,5 @@
+import time
+
 import requests
 from PyQt5 import QtWidgets, QtCore  # , QtGui
 import sys
@@ -63,8 +65,13 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # Getting forecast and time series from backend
-        print(self._predict_request(params))
-        data = self._get_request()
+        req_res = self._predict_request(params)
+        while not req_res.get('success', False):
+            req_res = self._predict_request(params)
+            time.sleep(1)
+
+        print(req_res)
+        data = self._get_request(req_res['id'])
         print(data)
         x, y, x_pred, y_pred = data["X"], data["Y"], data["PredictedX"], data["PredictedY"]
 
@@ -105,8 +112,15 @@ class GUI(QtWidgets.QMainWindow):
         return requests.post(url='http://158.101.168.149:8080/predict', data=params.__dict__).json()
 
     @staticmethod
-    def _get_request():
-        return requests.get(url='http://158.101.168.149:8080/get').json()
+    def _get_request(reqid):
+        params = {
+            'id': reqid
+        }
+        res = requests.get(url='http://158.101.168.149:8080/get', params=params).json()
+        while res.get('status', cfg.Status.fail) != cfg.Status.ready:
+            res = requests.get(url='http://158.101.168.149:8080/get', params=params).json()
+            time.sleep(1)
+        return res['data']
 
 
 if __name__ == '__main__':

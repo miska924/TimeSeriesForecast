@@ -1,10 +1,12 @@
 import datetime
 import sys
+import time
+import traceback
 
 import pandas as pd
 import numpy as np
 from copy import copy
-from multiprocessing import Queue
+from multiprocessing import Queue, Manager
 
 from source import config as cfg
 from source._helpers import PredictParams, get_values, save_file, dates_from_array
@@ -13,12 +15,27 @@ from source.back.models import Models
 from dateutil import parser
 
 
-def predictor(requests: Queue, predictions: Queue):
+def predictor(requests: Queue, predictions: dict):
     while True:
         data = requests.get()
-        params = PredictParams(**data)
-        print(params)
-        predictions.put(run(params))
+        for i in range(3):
+            try:
+                params = PredictParams(**(data['data']))
+                print(params)
+                res = run(params)
+                predictions[data['id']] = {
+                    'data': res,
+                    'timestamp': time.time_ns()
+                }
+                break
+            except:
+                print(traceback.format_exc())
+        else:
+            predictions[data['id']] = {
+                'data': None,
+                # TODO: return something smart
+                'timestamp': time.time_ns()
+            }
 
 
 def run(params: PredictParams):

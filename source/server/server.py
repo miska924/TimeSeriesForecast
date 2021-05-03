@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import uuid
 
 from pprint import pprint
 from flask import request, Flask
@@ -11,10 +12,15 @@ app = Flask(__name__)
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    requests.put(dict(request.form))
+    uid = str(uuid.uuid4())
+    requests.put({
+        'data': dict(request.form),
+        'id': uid
+    })
 
     return {
-        "success": True
+        "success": True,
+        "id": uid
     }
 
 
@@ -25,17 +31,32 @@ def test():
 
 @app.route('/get', methods=['GET'])
 def get():
-    return predictions.get()
+    if 'id' not in request.args:
+        return {
+            'status': cfg.Status.fail
+        }
 
-
-@app.route('/check', methods=['GET'])
-def check():
-    return "OK"
+    if request.args['id'] in predictions:
+        try:
+            return {
+                'data': predictions[request.args['id']]['data'],
+                'status': cfg.Status.ready,
+            }
+        except:
+            # TODO: rewrite it for correction
+            return {
+                "status": cfg.Status.wait
+            }
+    else:
+        # TODO: it can be timeouted
+        return {
+            "status": cfg.Status.wait
+        }
 
 
 if __name__ == '__main__':
     requests = mp.Queue(cfg.MAX_QUEUE_SIZE)
-    predictions = mp.Queue(cfg.MAX_QUEUE_SIZE)
+    predictions = mp.Manager().dict()
     mp.Process(target=predictor, args=(requests, predictions)).start()
 
     app.run(host="10.0.0.5", port="8080")
