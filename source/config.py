@@ -35,3 +35,6 @@ class Offset(enum.Enum):
     business_day = 'B'
     week = 'W'
     default = 'B'
+
+    def __str__(self):
+        return self.value

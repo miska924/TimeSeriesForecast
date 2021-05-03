@@ -30,7 +30,7 @@ class PredictParams:
         self.start_date = start_date
         self.end_date = end_date
         self.forecast_date = forecast_date
-        if type(offset) == 'str':
+        if type(offset) is str:
             self.offset = cfg.Offset(offset)
         else:
             self.offset = offset
