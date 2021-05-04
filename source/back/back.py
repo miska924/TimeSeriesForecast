@@ -8,6 +8,8 @@ import numpy as np
 from copy import copy
 from multiprocessing import Queue, Manager
 
+from tqdm import tqdm
+
 from source import config as cfg
 from source._helpers import PredictParams, get_values, save_file, dates_from_array
 from source.back.data_process import DataProcess
@@ -29,9 +31,12 @@ def clean(predictions: dict):
 def predictor(requests: Queue, predictions: dict):
     counter = 0
     while True:
-        if counter == cfg.RETRY_PREDICT_CNT:
-            counter = 0
+        if counter == cfg.CLEAN_PREDICT_CNT:
+            print("before cleaning:\n", predictions.keys())
             clean(predictions)
+            print("after cleaning:\n", predictions.keys())
+
+            counter = 0
             continue
 
         counter += 1
@@ -59,7 +64,7 @@ def run(params: PredictParams):
         df = DataProcess.get_processed(params.ticker, params.start_date, params.end_date, params.offset.value) \
             .join(pd.DataFrame(index=date_range), how="outer")
         res_y, res_index = [], []
-        for i, date in enumerate(date_range):
+        for i, date in tqdm(enumerate(date_range), desc="Predicting"):
             for col in df.columns:
                 if col != 'Y':
                     df[col] = df[col].shift(1)
@@ -68,7 +73,7 @@ def run(params: PredictParams):
             model = Models.train_linear_regression(df_train[filtered_columns])
             res_y.append(model.predict(df.loc[[date], filtered_columns[1:]])[0])
             res_index.append(date)
-            print(str(date)[:10], res_y[-1])
+            # print(str(date)[:10], res_y[-1])
 
         save_file(df, f"{params.ticker}.csv")
 

@@ -35,9 +35,13 @@ def test():
 @app.route('/get', methods=['GET'])
 def get():
     if ('id' not in request.args) or (request.args['id'] not in predictions):
-        return PredictionData(status=cfg.Status.invalid).__dict__
+        return PredictionData(status=cfg.Status.invalid).format()
 
-    return predictions[request.args['id']].__dict__
+    res = predictions[request.args['id']]
+    if res.status not in [cfg.Status.wait, cfg.Status.process]:
+        del predictions[request.args['id']]
+
+    return res.format()
 
 
 if __name__ == '__main__':

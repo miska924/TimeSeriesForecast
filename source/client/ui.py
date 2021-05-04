@@ -125,7 +125,7 @@ class GUI(QtWidgets.QMainWindow):
         res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
         while res.get('status', cfg.Status.fail) in [cfg.Status.wait, cfg.Status.process]:
             res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
-            time.sleep(1)
+            time.sleep(20)
         return res
 
 
