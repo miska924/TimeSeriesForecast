@@ -13,65 +13,67 @@ from source._helpers import PredictParams, get_values, save_file, dates_from_arr
 from source.back.data_process import DataProcess
 from source.back.models import Models
 from dateutil import parser
+from source.config import PredictionData
 
 
 def predictor(requests: Queue, predictions: dict):
+
     while True:
         data = requests.get()
-        for i in range(3):
-            try:
-                params = PredictParams(**(data['data']))
-                print(params)
-                res = run(params)
-                predictions[data['id']] = {
-                    'data': res,
-                    'timestamp': time.time_ns()
-                }
-                break
-            except:
-                print(traceback.format_exc())
-        else:
-            predictions[data['id']] = {
-                'data': None,
-                # TODO: return something smart
-                'timestamp': time.time_ns()
-            }
+        uid, data = data['id'], data['data']
+        predictions[uid] = PredictionData(status=cfg.Status.process)
+
+        try:
+            params = PredictParams(**data)
+            print(params)
+        except:
+            print(traceback.format_exc())
+            predictions[uid] = PredictionData(status=cfg.Status.fail, data=cfg.INVALID_PARAMS_ERROR)
+            continue
+
+        predictions[uid] = run(params)
 
 
 def run(params: PredictParams):
-    date_range = pd.date_range(parser.parse(params.end_date) + datetime.timedelta(days=1),
-                               params.forecast_date, freq=params.offset.value)
+    try:
+        date_range = pd.date_range(parser.parse(params.end_date) + datetime.timedelta(days=1),
+                                   params.forecast_date, freq=params.offset.value)
 
-    df = DataProcess.get_processed(params.ticker, params.start_date, params.end_date, params.offset.value)\
-        .join(pd.DataFrame(index=date_range), how="outer")
-    res_y, res_index = [], []
-    for i, date in enumerate(date_range):
-        for col in df.columns:
-            if col != 'Y':
-                df[col] = df[col].shift(1)
-        df_train = df.dropna(axis=0, how='any')
-        filtered_columns = DataProcess.get_filtered_data_frame_columns(df_train, mrmr=False)
-        model = Models.train_linear_regression(df_train[filtered_columns])
-        res_y.append(model.predict(df.loc[[date], filtered_columns[1:]])[0])
-        res_index.append(date)
-        print(str(date)[:10], res_y[-1])
+        df = DataProcess.get_processed(params.ticker, params.start_date, params.end_date, params.offset.value) \
+            .join(pd.DataFrame(index=date_range), how="outer")
+        res_y, res_index = [], []
+        for i, date in enumerate(date_range):
+            for col in df.columns:
+                if col != 'Y':
+                    df[col] = df[col].shift(1)
+            df_train = df.dropna(axis=0, how='any')
+            filtered_columns = DataProcess.get_filtered_data_frame_columns(df_train, mrmr=False)
+            model = Models.train_linear_regression(df_train[filtered_columns])
+            res_y.append(model.predict(df.loc[[date], filtered_columns[1:]])[0])
+            res_index.append(date)
+            print(str(date)[:10], res_y[-1])
 
-    save_file(df, f"{params.ticker}.csv")
+        save_file(df, f"{params.ticker}.csv")
 
-    real_df = DataProcess.load_data_from_moex(
-        params.ticker,
-        params.start_date,
-        params.forecast_date,
-        params.offset.value,
-        need_exo=False
+        real_df = DataProcess.load_data_from_moex(
+            params.ticker,
+            params.start_date,
+            params.forecast_date,
+            params.offset.value,
+            need_exo=False
+        )
+    except:
+        return PredictionData(status=cfg.Status.fail, data=cfg.PREDICTION_FAILED)
+
+    return PredictionData(
+        data={
+            "X": list(dates_from_array(real_df.index)),
+            "Y": list(real_df[params.ticker]),
+            "PredictedX": list(dates_from_array(res_index)),
+            "PredictedY": list(res_y)
+        },
+        status=cfg.Status.ready
     )
-
-    return {
-        "X": list(dates_from_array(real_df.index)),
-        "Y": list(real_df[params.ticker]),
-        "PredictedX": list(dates_from_array(res_index)),
-        "PredictedY": list(res_y)
-    }
 
 
 if __name__ == '__main__':

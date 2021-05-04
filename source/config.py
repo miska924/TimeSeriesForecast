@@ -4,9 +4,13 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 MAX_QUEUE_SIZE = 5
+RETRY_PREDICT_CNT = 3
+
+INVALID_PARAMS_ERROR = "Invalid params."
+PREDICTION_FAILED = "Prediction failed."
 
 TICKERS = {
-    'GAZP': ['MOEX', 'MOEXOG'], # 'USDRUB_TOM'
+    'GAZP': ['MOEX', 'MOEXOG'],  # 'USDRUB_TOM'
     'CBOM': ['PIKK', 'GAZP', 'PIKK']
 }
 
@@ -42,5 +46,17 @@ class Offset(enum.Enum):
 
 class Status:
     ready = 0
-    wait = 1
-    fail = 2
+    process = 1
+    wait = 2
+    fail = 3
+    invalid = 4
+
+
+class PredictionData:
+    status = None
+    data = None
+
+    def __init__(self, status=None, data=None):
+        self.status = status
+        self.data = data
+

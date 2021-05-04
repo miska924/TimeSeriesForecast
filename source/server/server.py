@@ -1,11 +1,11 @@
 import multiprocessing as mp
 import uuid
 
-from pprint import pprint
 from flask import request, Flask
 
 from source import config as cfg
 from source.back.back import predictor
+from source.config import PredictionData
 
 app = Flask(__name__)
 
@@ -13,10 +13,13 @@ app = Flask(__name__)
 @app.route('/predict', methods=['POST'])
 def predict():
     uid = str(uuid.uuid4())
+
     requests.put({
         'data': dict(request.form),
         'id': uid
     })
+
+    predictions[uid] = PredictionData(status=cfg.Status.wait)
 
     return {
         "success": True,
@@ -31,27 +34,10 @@ def test():
 
 @app.route('/get', methods=['GET'])
 def get():
-    if 'id' not in request.args:
-        return {
-            'status': cfg.Status.fail
-        }
+    if ('id' not in request.args) or (request.args['id'] not in predictions):
+        return PredictionData(status=cfg.Status.invalid).__dict__
 
-    if request.args['id'] in predictions:
-        try:
-            return {
-                'data': predictions[request.args['id']]['data'],
-                'status': cfg.Status.ready,
-            }
-        except:
-            # TODO: rewrite it for correction
-            return {
-                "status": cfg.Status.wait
-            }
-    else:
-        # TODO: it can be timeouted
-        return {
-            "status": cfg.Status.wait
-        }
+    return predictions[request.args['id']].__dict__
 
 
 if __name__ == '__main__':
