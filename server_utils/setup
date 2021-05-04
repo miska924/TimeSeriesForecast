@@ -21,10 +21,15 @@ fi
 set -xe
 
 sudo chown -R $USER:$USER /home/$USER/TimeSeriesForecast
+sudo chown -R $USER:$USER /home/$USER/TimeSeriesForecast/.git
+sudo apt-get install python3-pip git cron make zsh
 
-sudo apt-get install python3-pip git cron make
+curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
+sudo chsh $USER /bin/zsh
 
-#sudo chown -R $USER:$USER /home/$USER/.git
+sed -i 's/robbyrussell/agnoster/' $HOME/.zshrc
+sed -i 's/blue/white/' $HOME/.oh-my-zsh/themes/agnoster.zsh-theme
+
 
 PROJECT="${HOME}/TimeSeriesForecast"
 cd $PROJECT
@@ -56,5 +61,8 @@ TSF_ADD_CRON_CONFIG="*/1 * * * * sudo /home/ubuntu/bin/restart"
 echo -e "${TSF_CRON_CONFIG}\n${TSF_ADD_CRON_CONFIG}\n" | crontab -u $USER -
 
 echo -e "Now you can run\n   cd ${PROJECT}\n   python3 -m source.server.server\n"
+
+#Set aliases:
+echo "alias restart=\"/home/${USER}/bin/restart\"" >> $HOME/.zshrc
 
 
