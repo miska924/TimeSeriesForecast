@@ -1,10 +1,13 @@
 import enum
+import time
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 MAX_QUEUE_SIZE = 5
 RETRY_PREDICT_CNT = 3
+MAX_PREDICTIONS_SIZE = 30
+CLEAN_TIMEOUT = 60 * 60 * 1000 * 1000
 
 INVALID_PARAMS_ERROR = "Invalid params."
 PREDICTION_FAILED = "Prediction failed."
@@ -55,8 +58,9 @@ class Status:
 class PredictionData:
     status = None
     data = None
+    timestamp = None
 
     def __init__(self, status=None, data=None):
         self.status = status
         self.data = data
-
+        self.timestamp = time.time_ns()

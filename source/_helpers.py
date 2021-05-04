@@ -2,6 +2,10 @@ import enum
 import os
 import sys
 from dataclasses import dataclass
+
+import requests
+from tenacity import retry, stop_after_attempt, wait_exponential
+
 from source import config as cfg
 
 
@@ -58,3 +62,16 @@ def save_file(df, filename):
 
     path = os.path.join(tmp_dir, filename)
     df.to_csv(path)
+
+
+@retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=1, max=5))
+def send_request(method: str, url: str, params=None, headers=None, cookies=None, data=None) -> any:
+    with requests.Session() as session:
+        with session.request(method=method,
+                             url=url,
+                             params=params,
+                             headers=headers,
+                             cookies=cookies,
+                             timeout=5,
+                             data=data) as response:
+            return response.json()

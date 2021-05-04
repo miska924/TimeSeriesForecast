@@ -16,9 +16,26 @@ from dateutil import parser
 from source.config import PredictionData
 
 
-def predictor(requests: Queue, predictions: dict):
+def clean(predictions: dict):
+    current_time = time.time_ns()
+    predictions_dict = dict(
+        sorted(filter(lambda item: current_time - item[1].timestamp < cfg.CLEAN_TIMEOUT, predictions.items()),
+               key=lambda item: item[1].timestamp, reverse=True)[:cfg.MAX_PREDICTIONS_SIZE])
+    for key, value in predictions.items():
+        if key not in predictions_dict:
+            del predictions[key]
 
+
+def predictor(requests: Queue, predictions: dict):
+    counter = 0
     while True:
+        if counter == cfg.RETRY_PREDICT_CNT:
+            counter = 0
+            clean(predictions)
+            continue
+
+        counter += 1
+
         data = requests.get()
         uid, data = data['id'], data['data']
         predictions[uid] = PredictionData(status=cfg.Status.process)

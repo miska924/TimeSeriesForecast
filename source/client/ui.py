@@ -10,6 +10,7 @@ import numpy as np
 from source.back import back
 
 import source._helpers as hlp
+from source._helpers import send_request
 
 import source.client.config as ui_cfg
 import source.config as cfg
@@ -72,7 +73,12 @@ class GUI(QtWidgets.QMainWindow):
 
         print(req_res)
         data = self._get_request(req_res['id'])
-        print(data)
+
+        if data.get('status', None) is not cfg.Status.ready:
+            print(data)
+            return
+
+        data = data['data']
         x, y, x_pred, y_pred = data["X"], data["Y"], data["PredictedX"], data["PredictedY"]
 
         print(x, y)
@@ -109,18 +115,18 @@ class GUI(QtWidgets.QMainWindow):
 
     @staticmethod
     def _predict_request(params):
-        return requests.post(url='http://158.101.168.149:8080/predict', data=params.__dict__).json()
+        return send_request(method='POST', url='http://158.101.168.149:8080/predict', data=params.__dict__)
 
     @staticmethod
-    def _get_request(reqid):
+    def _get_request(uid):
         params = {
-            'id': reqid
+            'id': uid
         }
-        res = requests.get(url='http://158.101.168.149:8080/get', params=params).json()
-        while res.get('status', cfg.Status.fail) != cfg.Status.ready:
-            res = requests.get(url='http://158.101.168.149:8080/get', params=params).json()
+        res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
+        while res.get('status', cfg.Status.fail) in [cfg.Status.wait, cfg.Status.process]:
+            res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
             time.sleep(1)
-        return res['data']
+        return res
 
 
 if __name__ == '__main__':
