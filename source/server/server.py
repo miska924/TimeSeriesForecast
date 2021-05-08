@@ -1,77 +1,52 @@
-import datetime
-import sys
+import multiprocessing as mp
+import uuid
 
-import pandas as pd
-import numpy as np
-from copy import copy
+from flask import request, Flask
 
 from source import config as cfg
-from source._helpers import PredictParams, get_values, save_file, dates_from_array
-from source.server.data_process import DataProcess
-from source.server.models import Models
-from dateutil import parser
+from source.back.back import predictor
+from source.config import PredictionData
+
+app = Flask(__name__)
 
 
-def run(params: PredictParams):
-    date_range = pd.date_range(parser.parse(params.end_date) + datetime.timedelta(days=1),
-                               params.forecast_date, freq=params.offset.value)
+@app.route('/predict', methods=['POST'])
+def predict():
+    uid = str(uuid.uuid4())
 
-    df = DataProcess.get_processed(params.ticker, params.start_date, params.end_date, params.offset.value)\
-        .join(pd.DataFrame(index=date_range), how="outer")
-    res_y, res_index = [], []
-    for i, date in enumerate(date_range):
-        for col in df.columns:
-            if col != 'Y':
-                df[col] = df[col].shift(1)
-        df_train = df.dropna(axis=0, how='any')
-        filtered_columns = DataProcess.get_filtered_data_frame_columns(df_train, mrmr=False)
-        model = Models.train_linear_regression(df_train[filtered_columns])
-        res_y.append(model.predict(df.loc[[date], filtered_columns[1:]])[0])
-        res_index.append(date)
-        print(str(date)[:10], res_y[-1])
+    requests.put({
+        'data': dict(request.form),
+        'id': uid
+    })
 
-    save_file(df, f"{params.ticker}.csv")
+    predictions[uid] = PredictionData(status=cfg.Status.wait)
 
-    real_df = DataProcess.load_data_from_moex(
-        params.ticker,
-        params.start_date,
-        params.forecast_date,
-        params.offset.value,
-        need_exo=False
-    )
+    return {
+        "success": True,
+        "id": uid
+    }
 
-    return dates_from_array(real_df.index), real_df[params.ticker], dates_from_array(res_index), res_y
+
+@app.route('/test', methods=['POST'])
+def test():
+    return "OK"
+
+
+@app.route('/get', methods=['GET'])
+def get():
+    if ('id' not in request.args) or (request.args['id'] not in predictions):
+        return PredictionData(status=cfg.Status.invalid).format()
+
+    res = predictions[request.args['id']]
+    if res.status not in [cfg.Status.wait, cfg.Status.process]:
+        del predictions[request.args['id']]
+
+    return res.format()
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 4:
-        raise Exception(f'WRONG FORMAT\nExample:\n\t{sys.argv[0]} 2016-06-01 2020-06-01 BM')
+    requests = mp.Queue(cfg.MAX_QUEUE_SIZE)
+    predictions = mp.Manager().dict()
+    mp.Process(target=predictor, args=(requests, predictions)).start()
 
-    print(sys.argv)
-    if sys.argv[-1] not in get_values(cfg.Offset):
-        raise Exception("WRONG FORMAT\navailable offsets:", ' '.join(get_values(cfg.Offset)))
-
-    start_date, end_date, offset = sys.argv[1:]
-
-    if start_date == '-':
-        start_date = '2016-06-01'
-
-    if end_date == '-':
-        end_date = datetime.date.today()
-
-    if offset == '-':
-        offset = cfg.Offset.default
-
-    tmp_params = PredictParams(
-        list(cfg.TICKERS.keys())[0],
-        None,
-        None,
-        None,
-        None,
-        None,
-        start_date,
-        end_date,
-        '2021-01-09',
-        offset
-    )
-    run(tmp_params)
+    app.run(host="10.0.0.5", port="8080")

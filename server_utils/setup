@@ -1,0 +1,68 @@
+#!/bin/bash
+
+USER="$(whoami)"
+#HOME="/home/${USER}"
+
+RED='\033[0;31m'
+NC='\033[0m'
+
+if [ "$(whoami)" == 'root' ]
+then
+  echo "${RED}Run setup script without sudo${NC}"
+  exit
+fi
+
+if [ "$(which apt-get)" == 'apt-get not found' ]
+then
+  echo "${RED}Setup avaliable only with APT package manager${NC}"
+  exit
+fi
+
+set -xe
+
+sudo chown -R $USER:$USER /home/$USER/TimeSeriesForecast
+sudo chown -R $USER:$USER /home/$USER/TimeSeriesForecast/.git
+sudo apt-get install python3-pip git cron make zsh
+
+curl -L https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
+sudo chsh $USER /bin/zsh
+
+sed -i 's/robbyrussell/agnoster/' $HOME/.zshrc
+sed -i 's/blue/white/' $HOME/.oh-my-zsh/themes/agnoster.zsh-theme
+
+
+PROJECT="${HOME}/TimeSeriesForecast"
+cd $PROJECT
+
+#pip3 install -r requirements.txt
+#pip3 install PyQt5~=5.15.4 PyQtWebEngine~=5.15.4
+#sudo apt-get install python3-pyqt5 python3-pyqt5.qtwebengine
+
+#Configuring logging
+touch $HOME/logs $HOME/bin
+rm -r $HOME/logs $HOME/bin
+
+mkdir $HOME/logs
+mkdir $HOME/logs/restart
+touch $HOME/logs/restart/restart.log
+
+mkdir $HOME/bin
+cp $PROJECT/server_utils/restart/restart $HOME/bin/
+chmod +x $HOME/bin/restart
+
+mkdir $HOME/bin/utils
+cp $PROJECT/server_utils/restart/cut_log/* $HOME/bin/utils/
+cd $HOME/bin/utils/
+make
+
+cd $PROJECT
+TSF_CRON_CONFIG="$(crontab -l -u ${USER})"
+TSF_ADD_CRON_CONFIG="*/1 * * * * sudo /home/ubuntu/bin/restart"
+echo -e "${TSF_CRON_CONFIG}\n${TSF_ADD_CRON_CONFIG}\n" | crontab -u $USER -
+
+echo -e "Now you can run\n   cd ${PROJECT}\n   python3 -m source.server.server\n"
+
+#Set aliases:
+echo "alias restart=\"/home/${USER}/bin/restart\"" >> $HOME/.zshrc
+
+

@@ -1,12 +1,16 @@
+import time
+
+import requests
 from PyQt5 import QtWidgets, QtCore  # , QtGui
 import sys
 import plotly
 import plotly.graph_objs as go
 import numpy as np
 
-from source.server import server
+from source.back import back
 
 import source._helpers as hlp
+from source._helpers import send_request
 
 import source.client.config as ui_cfg
 import source.config as cfg
@@ -62,7 +66,21 @@ class GUI(QtWidgets.QMainWindow):
         )
 
         # Getting forecast and time series from backend
-        x, y, x_pred, y_pred = server.run(params)
+        req_res = self._predict_request(params)
+        while not req_res.get('success', False):
+            req_res = self._predict_request(params)
+            time.sleep(1)
+
+        print(req_res)
+        data = self._get_request(req_res['id'])
+
+        if data.get('status', None) is not cfg.Status.ready:
+            print(data)
+            return
+
+        data = data['data']
+        x, y, x_pred, y_pred = data["X"], data["Y"], data["PredictedX"], data["PredictedY"]
+
         print(x, y)
 
         fig = go.Figure()
@@ -94,6 +112,21 @@ class GUI(QtWidgets.QMainWindow):
         html += '</body></html>'
 
         self.ui.webView.setHtml(html)
+
+    @staticmethod
+    def _predict_request(params):
+        return send_request(method='POST', url='http://158.101.168.149:8080/predict', data=params.__dict__)
+
+    @staticmethod
+    def _get_request(uid):
+        params = {
+            'id': uid
+        }
+        res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
+        while res.get('status', cfg.Status.fail) in [cfg.Status.wait, cfg.Status.process]:
+            res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
+            time.sleep(20)
+        return res
 
 
 if __name__ == '__main__':

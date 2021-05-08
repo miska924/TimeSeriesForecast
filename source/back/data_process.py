@@ -9,7 +9,7 @@ from tqdm import tqdm
 from sklearn import feature_selection
 
 from source._helpers import stderr_print
-from source.server.moex_api import MoexAPI
+from source.back.moex_api import MoexAPI
 from source import config as cfg
 
 
