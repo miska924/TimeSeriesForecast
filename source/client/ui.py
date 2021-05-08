@@ -1,11 +1,10 @@
 import time
 
 import requests
-from PyQt5 import QtWidgets, QtCore  # , QtGui
+from PyQt5 import QtWidgets, QtCore, QtGui
 import sys
 import plotly
 import plotly.graph_objs as go
-import numpy as np
 
 from source.back import back
 
@@ -51,7 +50,42 @@ class GUI(QtWidgets.QMainWindow):
         if ticker:
             self.ui.listWidget.addItems(cfg.TICKERS[ticker])
 
+    def paint_widget(self, widget, color, role=QtGui.QPalette.Button):
+        pal = widget.palette()
+        pal.setColor(role, QtGui.QColor(*color))
+        widget.setPalette(pal)
+    
+    def check_empty(self, cb):
+        if not cb.currentText():
+            self.paint_widget(cb, ui_cfg.error_color)        
+            return True
+        else:
+            self.paint_widget(cb, ui_cfg.correct_cb_color)
+            return False
+
     def predict_series(self):
+        flag_correct = True
+        for widget in self.ui.horizontalFrame.children():
+            if isinstance(widget, QtWidgets.QComboBox):
+                if self.check_empty(widget):
+                    flag_correct = False
+        if self.ui.dateEdit_end.date() <= self.ui.dateEdit_start.date():
+            flag_correct = False
+            self.paint_widget(self.ui.dateEdit_end, ui_cfg.error_color, QtGui.QPalette.Base)
+        else:
+            self.paint_widget(self.ui.dateEdit_end, ui_cfg.correct_de_color, QtGui.QPalette.Base)
+
+        if self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_end.date() or \
+                            self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_start.date():
+            flag_correct = False
+            self.paint_widget(self.ui.dateEdit_forecast, ui_cfg.error_color, QtGui.QPalette.Base)
+        else:
+            self.paint_widget(self.ui.dateEdit_forecast, ui_cfg.correct_de_color, QtGui.QPalette.Base)
+        if not flag_correct:
+            print("WARNING: Incorrect input!")
+            return
+
+        
         params = hlp.PredictParams(
             self.ui.comboBox_series.currentText(),
             self.ui.comboBox_model.currentText(),
@@ -84,7 +118,6 @@ class GUI(QtWidgets.QMainWindow):
         print(x, y)
 
         fig = go.Figure()
-        # fig.show()
 
         fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Known values'))
         fig.add_trace(go.Scatter(x=x_pred, y=y_pred, mode='lines', name='Forecast'))
@@ -106,7 +139,6 @@ class GUI(QtWidgets.QMainWindow):
                 "font": dict(size=20)
             }
         )
-        # fig = Figure(Scatter(x=x, y=y))
         html = '<html><body>'
         html += plotly.offline.plot(fig, output_type='div', include_plotlyjs='cdn')
         html += '</body></html>'
