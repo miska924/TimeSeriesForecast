@@ -16,23 +16,20 @@ import source.client.config as ui_cfg
 import source.config as cfg
 from source.client.design import UiMainWindow
 
-
-# import pandas as pd
-
-
 class GUI(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, test):
         super(GUI, self).__init__()
         self.ui = UiMainWindow()
         self.ui.setup_ui(self)
         self.setWindowTitle("TimeSeries Forecast")
 
-        self.ui.comboBox_series.addItem("")
-        self.ui.comboBox_model.addItem("")
-        self.ui.comboBox_metric.addItem("")
-        self.ui.comboBox_method.addItem("")
-        self.ui.comboBox_type.addItem("")
-        self.ui.comboBox_offset.addItem("")
+        if not test:
+            self.ui.comboBox_series.addItem("")
+            self.ui.comboBox_model.addItem("")
+            self.ui.comboBox_metric.addItem("")
+            self.ui.comboBox_method.addItem("")
+            self.ui.comboBox_type.addItem("")
+            self.ui.comboBox_offset.addItem("")
 
         self.ui.comboBox_series.addItems(cfg.TICKERS.keys())
         self.ui.comboBox_model.addItems(hlp.get_values(cfg.Model))
@@ -40,8 +37,10 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.comboBox_method.addItems(hlp.get_values(cfg.Methods))
         self.ui.comboBox_type.addItems(hlp.get_values(cfg.Type))
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.keys())
-
+        
         self.ui.comboBox_series.currentTextChanged.connect(self.change_exogenous)
+        if test:
+            self.change_exogenous(self.ui.comboBox_series.currentText())
 
         self.ui.pushButton.clicked.connect(self.predict_series)
 
@@ -130,8 +129,11 @@ class GUI(QtWidgets.QMainWindow):
 
 
 if __name__ == '__main__':
+    test = False
+    if len(sys.argv) > 1:
+        test = (sys.argv[1] == '--test')
     app = QtWidgets.QApplication([])
-    application = GUI()
+    application = GUI(test)
     application.show()
 
     sys.exit(app.exec())
