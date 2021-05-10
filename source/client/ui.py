@@ -40,6 +40,13 @@ class GUI(QtWidgets.QMainWindow):
         
         self.ui.comboBox_series.currentTextChanged.connect(self.change_exogenous)
         if test:
+            cur = QtCore.QDate.currentDate()
+            print(type(cur))
+            self.ui.dateEdit_forecast.setDate(cur)
+            cur = cur.addDays(-5)
+            self.ui.dateEdit_end.setDate(cur)
+            cur = cur.addYears(-2)
+            self.ui.dateEdit_start.setDate(cur)
             self.change_exogenous(self.ui.comboBox_series.currentText())
 
         self.ui.pushButton.clicked.connect(self.predict_series)
