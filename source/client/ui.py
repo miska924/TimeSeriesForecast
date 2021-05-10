@@ -23,21 +23,18 @@ class GUI(QtWidgets.QMainWindow):
         self.setWindowTitle("TimeSeries Forecast")
 
         if not test:
-            self.ui.comboBox_series.addItem("")
             self.ui.comboBox_model.addItem("")
             self.ui.comboBox_metric.addItem("")
             self.ui.comboBox_method.addItem("")
             self.ui.comboBox_type.addItem("")
             self.ui.comboBox_offset.addItem("")
 
-        self.ui.comboBox_series.addItems(cfg.TICKERS.keys())
         self.ui.comboBox_model.addItems(hlp.get_values(cfg.Model))
         self.ui.comboBox_metric.addItems(hlp.get_values(cfg.Metrics))
         self.ui.comboBox_method.addItems(hlp.get_values(cfg.Methods))
         self.ui.comboBox_type.addItems(hlp.get_values(cfg.Type))
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.keys())
         
-        self.ui.comboBox_series.currentTextChanged.connect(self.change_exogenous)
         if test:
             cur = QtCore.QDate.currentDate()
             print(type(cur))
@@ -46,15 +43,20 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.dateEdit_end.setDate(cur)
             cur = cur.addYears(-2)
             self.ui.dateEdit_start.setDate(cur)
-            self.change_exogenous(self.ui.comboBox_series.currentText())
+            
+        # self.ui.pushButton_del_ex.setStyleSheet("background-image : url(:/images/trash.png);")
 
-        self.ui.pushButton.clicked.connect(self.predict_series)
+        self.ui.pushButton_forecast.clicked.connect(self.predict_series)
+        # self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
+        # self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
 
-    @QtCore.pyqtSlot(str)
-    def change_exogenous(self, ticker: str):
-        self.ui.listWidget.clear()
-        if ticker:
-            self.ui.listWidget.addItems(cfg.TICKERS[ticker])
+        
+
+    # @QtCore.pyqtSlot(str)
+    # def change_exogenous(self, ticker: str):
+    #     self.ui.listWidget.clear()
+    #     if ticker:
+    #         self.ui.listWidget.addItems(cfg.TICKERS[ticker])
 
     def paint_widget(self, widget, color, role=QtGui.QPalette.Button):
         pal = widget.palette()
