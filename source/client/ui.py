@@ -79,7 +79,7 @@ class GUI(QtWidgets.QMainWindow):
         pal.setColor(role, QtGui.QColor(*color))
         widget.setPalette(pal)
     
-    def check_empty(self, cb):
+    def check_empty_cb(self, cb: QtWidgets.QComboBox):
         if not cb.currentText():
             self.paint_widget(cb, ui_cfg.error_color)        
             return True
@@ -87,12 +87,25 @@ class GUI(QtWidgets.QMainWindow):
             self.paint_widget(cb, ui_cfg.correct_cb_color)
             return False
 
+    def check_empty_le(self, le: QtWidgets.QLineEdit):
+        if not le.text():
+            self.paint_widget(le, ui_cfg.error_color, QtGui.QPalette.Base)        
+            return True
+        else:
+            self.paint_widget(le, ui_cfg.correct_le_color, QtGui.QPalette.Base)
+            return False
+
     def predict_series(self):
         flag_correct = True
+
+        if self.check_empty_le(self.ui.lineEdit_series):
+                    flag_correct = False
+
         for widget in self.ui.horizontalFrame.children():
             if isinstance(widget, QtWidgets.QComboBox):
-                if self.check_empty(widget):
+                if self.check_empty_cb(widget):
                     flag_correct = False
+
         if self.ui.dateEdit_end.date() <= self.ui.dateEdit_start.date():
             flag_correct = False
             self.paint_widget(self.ui.dateEdit_end, ui_cfg.error_color, QtGui.QPalette.Base)
