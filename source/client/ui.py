@@ -43,20 +43,36 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.dateEdit_end.setDate(cur)
             cur = cur.addYears(-2)
             self.ui.dateEdit_start.setDate(cur)
-            
-        # self.ui.pushButton_del_ex.setStyleSheet("background-image : url(:/images/trash.png);")
+
+        class List(QtWidgets.QListWidget):
+            delete = QtCore.pyqtSignal()
+
+            def __new__(cls, a):
+                a.__class__ = cls
+                return a
+
+            def keyPressEvent(self, event):
+                if event.key() == QtCore.Qt.Key_Delete:
+                    self.delete.emit()
+
+        self.ui.listWidget = List(self.ui.listWidget)
+        self.ui.listWidget.delete.connect(self.del_exogenous)
+        self.ui.listWidget.setSelectionMode(QtWidgets.QListWidget.MultiSelection)
 
         self.ui.pushButton_forecast.clicked.connect(self.predict_series)
-        # self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
-        # self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
+        self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
+        self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
+        self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
 
-        
+    def add_exogenous(self):
+        if self.ui.lineEdit_exogenous.text():
+            self.ui.listWidget.insertItem(0, self.ui.lineEdit_exogenous.text())
+        self.ui.lineEdit_exogenous.clear()
 
-    # @QtCore.pyqtSlot(str)
-    # def change_exogenous(self, ticker: str):
-    #     self.ui.listWidget.clear()
-    #     if ticker:
-    #         self.ui.listWidget.addItems(cfg.TICKERS[ticker])
+    def del_exogenous(self):
+        selected = self.ui.listWidget.selectedItems()
+        for item in selected:
+            self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
 
     def paint_widget(self, widget, color, role=QtGui.QPalette.Button):
         pal = widget.palette()
