@@ -1,3 +1,4 @@
+import json
 import time
 
 import requests
@@ -14,6 +15,7 @@ from source._helpers import send_request
 import source.client.config as ui_cfg
 import source.config as cfg
 from source.client.design import UiMainWindow
+
 
 class GUI(QtWidgets.QMainWindow):
     def __init__(self, test):
@@ -34,12 +36,12 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.comboBox_method.addItems(hlp.get_values(cfg.Methods))
         self.ui.comboBox_type.addItems(hlp.get_values(cfg.Type))
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.keys())
-        
+
         if test:
             cur = QtCore.QDate.currentDate()
             print(type(cur))
             self.ui.dateEdit_forecast.setDate(cur)
-            cur = cur.addDays(-5)
+            cur = cur.addDays(-30)
             self.ui.dateEdit_end.setDate(cur)
             cur = cur.addYears(-2)
             self.ui.dateEdit_start.setDate(cur)
@@ -78,10 +80,10 @@ class GUI(QtWidgets.QMainWindow):
         pal = widget.palette()
         pal.setColor(role, QtGui.QColor(*color))
         widget.setPalette(pal)
-    
+
     def check_empty_cb(self, cb: QtWidgets.QComboBox):
         if not cb.currentText():
-            self.paint_widget(cb, ui_cfg.error_color)        
+            self.paint_widget(cb, ui_cfg.error_color)
             return True
         else:
             self.paint_widget(cb, ui_cfg.correct_cb_color)
@@ -89,7 +91,7 @@ class GUI(QtWidgets.QMainWindow):
 
     def check_empty_le(self, le: QtWidgets.QLineEdit):
         if not le.text():
-            self.paint_widget(le, ui_cfg.error_color, QtGui.QPalette.Base)        
+            self.paint_widget(le, ui_cfg.error_color, QtGui.QPalette.Base)
             return True
         else:
             self.paint_widget(le, ui_cfg.correct_le_color, QtGui.QPalette.Base)
@@ -99,7 +101,7 @@ class GUI(QtWidgets.QMainWindow):
         flag_correct = True
 
         if self.check_empty_le(self.ui.lineEdit_series):
-                    flag_correct = False
+            flag_correct = False
 
         for widget in self.ui.horizontalFrame.children():
             if isinstance(widget, QtWidgets.QComboBox):
@@ -113,7 +115,7 @@ class GUI(QtWidgets.QMainWindow):
             self.paint_widget(self.ui.dateEdit_end, ui_cfg.correct_de_color, QtGui.QPalette.Base)
 
         if self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_end.date() or \
-                            self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_start.date():
+                self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_start.date():
             flag_correct = False
             self.paint_widget(self.ui.dateEdit_forecast, ui_cfg.error_color, QtGui.QPalette.Base)
         else:
@@ -122,7 +124,6 @@ class GUI(QtWidgets.QMainWindow):
             print("WARNING: Incorrect input!")
             return
 
-        
         params = hlp.PredictParams(
             self.ui.lineEdit_series.text(),
             self.ui.comboBox_model.currentText(),
@@ -184,7 +185,9 @@ class GUI(QtWidgets.QMainWindow):
 
     @staticmethod
     def _predict_request(params):
-        return send_request(method='POST', url='http://158.101.168.149:8080/predict', data=params.__dict__)
+        headers = {'Content-type': 'application/json'}
+        return send_request(method='POST', url='http://158.101.168.149:8080/predict', headers=headers,
+                            data=json.dumps(params.__dict__, cls=hlp.EnumEncoder))
 
     @staticmethod
     def _get_request(uid):
@@ -194,7 +197,7 @@ class GUI(QtWidgets.QMainWindow):
         res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
         while res.get('status', cfg.Status.fail) in [cfg.Status.wait, cfg.Status.process]:
             res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
-            time.sleep(20)
+            time.sleep(1)
         return res
 
 

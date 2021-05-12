@@ -61,7 +61,7 @@ def run(params: PredictParams):
         date_range = pd.date_range(parser.parse(params.end_date) + datetime.timedelta(days=1),
                                    params.forecast_date, freq=params.offset.value)
 
-        df = DataProcess.get_processed(params.ticker, params.start_date, params.end_date, params.offset.value) \
+        df = DataProcess.get_processed(params) \
             .join(pd.DataFrame(index=date_range), how="outer")
         res_y, res_index = [], []
         for i, date in tqdm(enumerate(date_range), desc="Predicting"):
@@ -81,8 +81,7 @@ def run(params: PredictParams):
             params.ticker,
             params.start_date,
             params.forecast_date,
-            params.offset.value,
-            need_exo=False
+            params.offset.value
         )
     except:
         return PredictionData(status=cfg.Status.fail, data=cfg.PREDICTION_FAILED)

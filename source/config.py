@@ -43,9 +43,6 @@ class Offset(enum.Enum):
     week = 'W'
     default = 'B'
 
-    def __str__(self):
-        return self.value
-
 
 class Status:
     ready = 0

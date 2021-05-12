@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from sklearn import feature_selection
 
-from source._helpers import stderr_print
+from source._helpers import stderr_print, PredictParams
 from source.back.moex_api import MoexAPI
 from source import config as cfg
 
@@ -43,17 +43,18 @@ class DataProcess:
 
     # [THE POINT OF ENTRANCE]:
     @staticmethod
-    def get_processed(target_ticker, date_start, date_end, offset) -> pd.DataFrame:
+    def get_processed(params: PredictParams) -> pd.DataFrame:
         # for debug:
         stderr_print(f"""
         Start loading data
-        Date start: {date_start}
-        Date end: {date_end}
-        Offset: {offset}
+        Date start: {params.start_date}
+        Date end: {params.end_date}
+        Offset: {params.offset}
         """)
 
         # process:
-        loaded_df = DataProcess.load_data_from_moex(target_ticker, date_start, date_end, offset)
+        loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
+                                                    params.offset.value, params.exogenous_variables)
         prepared_df = DataProcess._get_prepared_data_frame(loaded_df, predict_day=0)
         # filtered_df = DataProcess._get_filtered_data_frame(prepared_df)
 
@@ -61,17 +62,18 @@ class DataProcess:
 
     # load needed tickers from moex and returns dataframe
     @staticmethod
-    def load_data_from_moex(target_ticker, date_start, date_end, offset, need_exo=True):
+    def load_data_from_moex(target_ticker, date_start, date_end, offset, exo=None):
+        if exo is None:
+            exo = []
         # generating base dataframe:
         date_range = pd.date_range(date_start, date_end, freq='B')
         result = pd.DataFrame(index=date_range)
 
         # get list of needed tickers:
         tickers = [target_ticker]
-        if need_exo:
-            for ticker in cfg.TICKERS.get(target_ticker, []):
-                if ticker not in tickers:
-                    tickers.append(ticker)
+        for ticker in exo:
+            if ticker not in tickers:
+                tickers.append(ticker)
 
         # load tickers' series from moex:
         with requests.Session() as session:

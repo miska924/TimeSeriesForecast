@@ -1,3 +1,4 @@
+import json
 import multiprocessing as mp
 import uuid
 
@@ -6,6 +7,7 @@ from flask import request, Flask
 from source import config as cfg
 from source.back.back import predictor
 from source.config import PredictionData
+from source._helpers import as_enum
 
 app = Flask(__name__)
 
@@ -14,8 +16,10 @@ app = Flask(__name__)
 def predict():
     uid = str(uuid.uuid4())
 
+    print(json.loads(request.get_data(), object_hook=as_enum))
+
     requests.put({
-        'data': dict(request.form),
+        'data': json.loads(request.get_data(), object_hook=as_enum),
         'id': uid
     })
 
