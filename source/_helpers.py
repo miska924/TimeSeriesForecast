@@ -1,4 +1,5 @@
 import enum
+import json
 import os
 import sys
 from dataclasses import dataclass
@@ -65,7 +66,7 @@ def save_file(df, filename):
 
 
 @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=1, max=5))
-def send_request(method: str, url: str, params=None, headers=None, cookies=None, data=None) -> any:
+def send_request(method: str, url: str, params=None, headers=None, cookies=None, data=None, json=None) -> any:
     with requests.Session() as session:
         with session.request(method=method,
                              url=url,
@@ -73,5 +74,30 @@ def send_request(method: str, url: str, params=None, headers=None, cookies=None,
                              headers=headers,
                              cookies=cookies,
                              timeout=5,
-                             data=data) as response:
+                             data=data,
+                             json=json) as response:
             return response.json()
+
+
+PUBLIC_ENUMS = {
+    'Type': cfg.Type,
+    'Methods': cfg.Methods,
+    'Metrics': cfg.Metrics,
+    'Model': cfg.Model,
+    'Offset': cfg.Offset
+}
+
+
+class EnumEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if type(obj) in PUBLIC_ENUMS.values():
+            return {"__enum__": str(obj)}
+        return json.JSONEncoder.default(self, obj)
+
+
+def as_enum(d):
+    if "__enum__" in d:
+        name, member = d["__enum__"].split(".")
+        return getattr(PUBLIC_ENUMS[name], member)
+    else:
+        return d

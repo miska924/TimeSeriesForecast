@@ -1,3 +1,4 @@
+import json
 import time
 
 import requests
@@ -15,6 +16,7 @@ import source.client.config as ui_cfg
 import source.config as cfg
 from source.client.design import UiMainWindow
 
+
 class GUI(QtWidgets.QMainWindow):
     def __init__(self, test):
         super(GUI, self).__init__()
@@ -23,58 +25,89 @@ class GUI(QtWidgets.QMainWindow):
         self.setWindowTitle("TimeSeries Forecast")
 
         if not test:
-            self.ui.comboBox_series.addItem("")
             self.ui.comboBox_model.addItem("")
             self.ui.comboBox_metric.addItem("")
             self.ui.comboBox_method.addItem("")
             self.ui.comboBox_type.addItem("")
             self.ui.comboBox_offset.addItem("")
 
-        self.ui.comboBox_series.addItems(cfg.TICKERS.keys())
         self.ui.comboBox_model.addItems(hlp.get_values(cfg.Model))
         self.ui.comboBox_metric.addItems(hlp.get_values(cfg.Metrics))
         self.ui.comboBox_method.addItems(hlp.get_values(cfg.Methods))
         self.ui.comboBox_type.addItems(hlp.get_values(cfg.Type))
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.keys())
-        
-        self.ui.comboBox_series.currentTextChanged.connect(self.change_exogenous)
+
         if test:
             cur = QtCore.QDate.currentDate()
             print(type(cur))
             self.ui.dateEdit_forecast.setDate(cur)
-            cur = cur.addDays(-5)
+            cur = cur.addDays(-30)
             self.ui.dateEdit_end.setDate(cur)
             cur = cur.addYears(-2)
             self.ui.dateEdit_start.setDate(cur)
-            self.change_exogenous(self.ui.comboBox_series.currentText())
 
-        self.ui.pushButton.clicked.connect(self.predict_series)
+        class List(QtWidgets.QListWidget):
+            delete = QtCore.pyqtSignal()
 
-    @QtCore.pyqtSlot(str)
-    def change_exogenous(self, ticker: str):
-        self.ui.listWidget.clear()
-        if ticker:
-            self.ui.listWidget.addItems(cfg.TICKERS[ticker])
+            def __new__(cls, a):
+                a.__class__ = cls
+                return a
+
+            def keyPressEvent(self, event):
+                if event.key() == QtCore.Qt.Key_Delete:
+                    self.delete.emit()
+
+        self.ui.listWidget = List(self.ui.listWidget)
+        self.ui.listWidget.delete.connect(self.del_exogenous)
+        self.ui.listWidget.setSelectionMode(QtWidgets.QListWidget.MultiSelection)
+
+        self.ui.pushButton_forecast.clicked.connect(self.predict_series)
+        self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
+        self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
+        self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
+
+    def add_exogenous(self):
+        if self.ui.lineEdit_exogenous.text():
+            self.ui.listWidget.insertItem(0, self.ui.lineEdit_exogenous.text())
+        self.ui.lineEdit_exogenous.clear()
+
+    def del_exogenous(self):
+        selected = self.ui.listWidget.selectedItems()
+        for item in selected:
+            self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
 
     def paint_widget(self, widget, color, role=QtGui.QPalette.Button):
         pal = widget.palette()
         pal.setColor(role, QtGui.QColor(*color))
         widget.setPalette(pal)
-    
-    def check_empty(self, cb):
+
+    def check_empty_cb(self, cb: QtWidgets.QComboBox):
         if not cb.currentText():
-            self.paint_widget(cb, ui_cfg.error_color)        
+            self.paint_widget(cb, ui_cfg.error_color)
             return True
         else:
             self.paint_widget(cb, ui_cfg.correct_cb_color)
             return False
 
+    def check_empty_le(self, le: QtWidgets.QLineEdit):
+        if not le.text():
+            self.paint_widget(le, ui_cfg.error_color, QtGui.QPalette.Base)
+            return True
+        else:
+            self.paint_widget(le, ui_cfg.correct_le_color, QtGui.QPalette.Base)
+            return False
+
     def predict_series(self):
         flag_correct = True
+
+        if self.check_empty_le(self.ui.lineEdit_series):
+            flag_correct = False
+
         for widget in self.ui.horizontalFrame.children():
             if isinstance(widget, QtWidgets.QComboBox):
-                if self.check_empty(widget):
+                if self.check_empty_cb(widget):
                     flag_correct = False
+
         if self.ui.dateEdit_end.date() <= self.ui.dateEdit_start.date():
             flag_correct = False
             self.paint_widget(self.ui.dateEdit_end, ui_cfg.error_color, QtGui.QPalette.Base)
@@ -82,7 +115,7 @@ class GUI(QtWidgets.QMainWindow):
             self.paint_widget(self.ui.dateEdit_end, ui_cfg.correct_de_color, QtGui.QPalette.Base)
 
         if self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_end.date() or \
-                            self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_start.date():
+                self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_start.date():
             flag_correct = False
             self.paint_widget(self.ui.dateEdit_forecast, ui_cfg.error_color, QtGui.QPalette.Base)
         else:
@@ -91,9 +124,8 @@ class GUI(QtWidgets.QMainWindow):
             print("WARNING: Incorrect input!")
             return
 
-        
         params = hlp.PredictParams(
-            self.ui.comboBox_series.currentText(),
+            self.ui.lineEdit_series.text(),
             self.ui.comboBox_model.currentText(),
             [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
             self.ui.comboBox_metric.currentText(),
@@ -129,7 +161,7 @@ class GUI(QtWidgets.QMainWindow):
         fig.add_trace(go.Scatter(x=x_pred, y=y_pred, mode='lines', name='Forecast'))
         fig.update_layout(
             title={
-                'text': self.ui.comboBox_series.currentText(),
+                'text': self.ui.lineEdit_series.text(),
                 'y': 0.95,
                 'x': 0.5,
                 'xanchor': 'center',
@@ -153,7 +185,9 @@ class GUI(QtWidgets.QMainWindow):
 
     @staticmethod
     def _predict_request(params):
-        return send_request(method='POST', url='http://158.101.168.149:8080/predict', data=params.__dict__)
+        headers = {'Content-type': 'application/json'}
+        return send_request(method='POST', url='http://158.101.168.149:8080/predict', headers=headers,
+                            data=json.dumps(params.__dict__, cls=hlp.EnumEncoder))
 
     @staticmethod
     def _get_request(uid):
@@ -163,7 +197,7 @@ class GUI(QtWidgets.QMainWindow):
         res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
         while res.get('status', cfg.Status.fail) in [cfg.Status.wait, cfg.Status.process]:
             res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
-            time.sleep(20)
+            time.sleep(1)
         return res
 
 
