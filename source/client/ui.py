@@ -124,7 +124,7 @@ class GUI(QtWidgets.QMainWindow):
 
         
         params = hlp.PredictParams(
-            self.ui.comboBox_series.currentText(),
+            self.ui.lineEdit_series.text(),
             self.ui.comboBox_model.currentText(),
             [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
             self.ui.comboBox_metric.currentText(),
@@ -160,7 +160,7 @@ class GUI(QtWidgets.QMainWindow):
         fig.add_trace(go.Scatter(x=x_pred, y=y_pred, mode='lines', name='Forecast'))
         fig.update_layout(
             title={
-                'text': self.ui.comboBox_series.currentText(),
+                'text': self.ui.lineEdit_series.text(),
                 'y': 0.95,
                 'x': 0.5,
                 'xanchor': 'center',
