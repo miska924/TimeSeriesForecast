@@ -16,5 +16,6 @@ tmp = QtWidgets.QLineEdit()
 correct_le_color = tmp.palette().color(QtGui.QPalette.Base)
 tmp = QtWidgets.QDateEdit()
 correct_de_color = tmp.palette().color(QtGui.QPalette.Base)
+print(error_color.getRgb(), correct_cb_color.getRgb(), correct_le_color.getRgb(), correct_de_color.getRgb(), sep='\n')
 del tmp_app
 del tmp
