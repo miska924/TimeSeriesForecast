@@ -78,7 +78,7 @@ class GUI(QtWidgets.QMainWindow):
 
     def paint_widget(self, widget, color, role=QtGui.QPalette.Button):
         pal = widget.palette()
-        pal.setColor(role, QtGui.QColor(*color))
+        pal.setColor(role, color)
         widget.setPalette(pal)
 
     def check_empty_cb(self, cb: QtWidgets.QComboBox):
