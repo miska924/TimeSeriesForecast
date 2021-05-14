@@ -37,14 +37,12 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.comboBox_type.addItems(hlp.get_values(cfg.Type))
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.keys())
 
-        if test:
-            cur = QtCore.QDate.currentDate()
-            print(type(cur))
-            self.ui.dateEdit_forecast.setDate(cur)
-            cur = cur.addDays(-30)
-            self.ui.dateEdit_end.setDate(cur)
-            cur = cur.addYears(-2)
-            self.ui.dateEdit_start.setDate(cur)
+        cur = QtCore.QDate.currentDate()
+        self.ui.dateEdit_forecast.setDate(cur)
+        cur = cur.addDays(-30 if test else -7)
+        self.ui.dateEdit_end.setDate(cur)
+        cur = cur.addYears(-2)
+        self.ui.dateEdit_start.setDate(cur)
 
         class List(QtWidgets.QListWidget):
             delete = QtCore.pyqtSignal()
