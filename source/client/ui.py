@@ -39,7 +39,7 @@ class GUI(QtWidgets.QMainWindow):
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)
-        cur = cur.addDays(-30 if test else -5)
+        cur = cur.addDays(-30 if test else -7)
         self.ui.dateEdit_end.setDate(cur)
         cur = cur.addYears(-2)
         self.ui.dateEdit_start.setDate(cur)
