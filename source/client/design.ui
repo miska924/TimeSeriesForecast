@@ -53,7 +53,7 @@
           <widget class="QWidget" name="lineEdit_series_wrapper" native="true">
            <property name="styleSheet">
             <string notr="true">QWidget#lineEdit_series_wrapper {
-	border: 2px solid rgba(255, 0, 0, .6);
+	border: 2px solid #a91010;
 	border-radius: 5px;
 }</string>
            </property>
@@ -94,7 +94,7 @@
           <widget class="QWidget" name="comboBox_model_wrapper" native="true">
            <property name="styleSheet">
             <string notr="true">QWidget#comboBox_model_wrapper {
-	border: 2px solid rgba(255, 0, 0, .6);
+	border: 2px solid #a91010;
 	border-radius: 5px;
 }</string>
            </property>
@@ -241,7 +241,7 @@
           <widget class="QWidget" name="comboBox_metric_wrapper" native="true">
            <property name="styleSheet">
             <string notr="true">QWidget#comboBox_metric_wrapper {
-	border: 2px solid rgba(255, 0, 0, .6);
+	border: 2px solid #a91010;
 	border-radius: 5px;
 }</string>
            </property>
@@ -279,7 +279,7 @@
           <widget class="QWidget" name="comboBox_method_wrapper" native="true">
            <property name="styleSheet">
             <string notr="true">QWidget#comboBox_method_wrapper {
-	border: 2px solid rgba(255, 0, 0, .6);
+	border: 2px solid #a91010;
 	border-radius: 5px;
 }</string>
            </property>
@@ -320,7 +320,7 @@
            </property>
            <property name="styleSheet">
             <string notr="true">QWidget#comboBox_type_wrapper {
-	border: 2px solid rgba(255, 0, 0, .6);
+	border: 2px solid #a91010;
 	border-radius: 5px;
 }</string>
            </property>
@@ -387,7 +387,10 @@
            <item>
             <widget class="QWidget" name="dateEdit_start_wrapper" native="true">
              <property name="styleSheet">
-              <string notr="true"/>
+              <string notr="true">QWidget#dateEdit_start_wrapper {
+	border: 2px solid #a91010;
+	border-radius: 5px;
+}</string>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_7">
               <property name="leftMargin">
@@ -448,7 +451,7 @@
             <widget class="QWidget" name="dateEdit_end_wrapper" native="true">
              <property name="styleSheet">
               <string notr="true">QWidget#dateEdit_end_wrapper {
-	border: 2px solid rgba(255, 0, 0, .6);
+	border: 2px solid #a91010;
 	border-radius: 5px;
 }</string>
              </property>
@@ -511,7 +514,7 @@
             <widget class="QWidget" name="dateEdit_forecast_wrapper" native="true">
              <property name="styleSheet">
               <string notr="true">QWidget#dateEdit_forecast_wrapper {
-	border: 2px solid rgba(255, 0, 0, .6);
+	border: 2px solid #a91010;
 	border-radius: 5px;
 }</string>
              </property>
@@ -569,7 +572,7 @@
           <widget class="QWidget" name="comboBox_offset_wrapper" native="true">
            <property name="styleSheet">
             <string notr="true">QWidget#comboBox_offset_wrapper {
-	border: 2px solid rgba(255, 0, 0, .6);
+	border: 2px solid #a91010;
 	border-radius: 5px;
 }</string>
            </property>
