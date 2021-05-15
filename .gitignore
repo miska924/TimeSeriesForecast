@@ -12,3 +12,4 @@ prepared/*
 .idea/*
 tmp/*
 *.pyc
+.vscode/
