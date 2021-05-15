@@ -32,7 +32,7 @@
      <widget class="QFrame" name="horizontalFrame">
       <property name="minimumSize">
        <size>
-        <width>280</width>
+        <width>270</width>
         <height>0</height>
        </size>
       </property>
@@ -356,6 +356,9 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <property name="spacing">
+            <number>3</number>
+           </property>
            <item>
             <widget class="QWidget" name="widget" native="true">
              <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -384,10 +387,7 @@
            <item>
             <widget class="QWidget" name="dateEdit_start_wrapper" native="true">
              <property name="styleSheet">
-              <string notr="true">QWidget#dateEdit_start_wrapper {
-	border: 2px solid red;
-	border-radius: 5px;
-}</string>
+              <string notr="true"/>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_7">
               <property name="leftMargin">
@@ -416,6 +416,9 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <property name="spacing">
+            <number>3</number>
+           </property>
            <item>
             <widget class="QWidget" name="widget_3" native="true">
              <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -476,6 +479,9 @@
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <property name="spacing">
+            <number>3</number>
+           </property>
            <item>
             <widget class="QWidget" name="widget_4" native="true">
              <layout class="QHBoxLayout" name="horizontalLayout_11">
