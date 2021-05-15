@@ -39,7 +39,7 @@ class UiMainWindow(object):
         self.verticalLayout_2.addWidget(self.label, 0, QtCore.Qt.AlignHCenter)
         self.lineEdit_series_wrapper = QtWidgets.QWidget(self.horizontalFrame)
         self.lineEdit_series_wrapper.setStyleSheet("QWidget#lineEdit_series_wrapper {\n"
-"    border: 2px solid red;\n"
+"    border: 2px solid rgba(255, 0, 0, .6);\n"
 "    border-radius: 5px;\n"
 "}")
         self.lineEdit_series_wrapper.setObjectName("lineEdit_series_wrapper")
@@ -56,7 +56,7 @@ class UiMainWindow(object):
         self.verticalLayout_2.addWidget(self.label_2, 0, QtCore.Qt.AlignHCenter)
         self.comboBox_model_wrapper = QtWidgets.QWidget(self.horizontalFrame)
         self.comboBox_model_wrapper.setStyleSheet("QWidget#comboBox_model_wrapper {\n"
-"    border: 2px solid red;\n"
+"    border: 2px solid rgba(255, 0, 0, .6);\n"
 "    border-radius: 5px;\n"
 "}")
         self.comboBox_model_wrapper.setObjectName("comboBox_model_wrapper")
@@ -127,7 +127,7 @@ class UiMainWindow(object):
         self.verticalLayout_2.addWidget(self.label_4, 0, QtCore.Qt.AlignHCenter)
         self.comboBox_metric_wrapper = QtWidgets.QWidget(self.horizontalFrame)
         self.comboBox_metric_wrapper.setStyleSheet("QWidget#comboBox_metric_wrapper {\n"
-"    border: 2px solid red;\n"
+"    border: 2px solid rgba(255, 0, 0, .6);\n"
 "    border-radius: 5px;\n"
 "}")
         self.comboBox_metric_wrapper.setObjectName("comboBox_metric_wrapper")
@@ -144,7 +144,7 @@ class UiMainWindow(object):
         self.verticalLayout_2.addWidget(self.label_5, 0, QtCore.Qt.AlignHCenter)
         self.comboBox_method_wrapper = QtWidgets.QWidget(self.horizontalFrame)
         self.comboBox_method_wrapper.setStyleSheet("QWidget#comboBox_method_wrapper {\n"
-"    border: 2px solid red;\n"
+"    border: 2px solid rgba(255, 0, 0, .6);\n"
 "    border-radius: 5px;\n"
 "}")
         self.comboBox_method_wrapper.setObjectName("comboBox_method_wrapper")
@@ -162,7 +162,7 @@ class UiMainWindow(object):
         self.comboBox_type_wrapper = QtWidgets.QWidget(self.horizontalFrame)
         self.comboBox_type_wrapper.setAutoFillBackground(False)
         self.comboBox_type_wrapper.setStyleSheet("QWidget#comboBox_type_wrapper {\n"
-"    border: 2px solid red;\n"
+"    border: 2px solid rgba(255, 0, 0, .6);\n"
 "    border-radius: 5px;\n"
 "}")
         self.comboBox_type_wrapper.setObjectName("comboBox_type_wrapper")
@@ -215,7 +215,7 @@ class UiMainWindow(object):
         self.horizontalLayout_6.addWidget(self.widget_3)
         self.dateEdit_end_wrapper = QtWidgets.QWidget(self.horizontalFrame)
         self.dateEdit_end_wrapper.setStyleSheet("QWidget#dateEdit_end_wrapper {\n"
-"    border: 2px solid red;\n"
+"    border: 2px solid rgba(255, 0, 0, .6);\n"
 "    border-radius: 5px;\n"
 "}")
         self.dateEdit_end_wrapper.setObjectName("dateEdit_end_wrapper")
@@ -242,7 +242,7 @@ class UiMainWindow(object):
         self.horizontalLayout_4.addWidget(self.widget_4)
         self.dateEdit_forecast_wrapper = QtWidgets.QWidget(self.horizontalFrame)
         self.dateEdit_forecast_wrapper.setStyleSheet("QWidget#dateEdit_forecast_wrapper {\n"
-"    border: 2px solid red;\n"
+"    border: 2px solid rgba(255, 0, 0, .6);\n"
 "    border-radius: 5px;\n"
 "}")
         self.dateEdit_forecast_wrapper.setObjectName("dateEdit_forecast_wrapper")
@@ -266,7 +266,7 @@ class UiMainWindow(object):
         self.verticalLayout_2.addWidget(self.label_10, 0, QtCore.Qt.AlignHCenter)
         self.comboBox_offset_wrapper = QtWidgets.QWidget(self.horizontalFrame)
         self.comboBox_offset_wrapper.setStyleSheet("QWidget#comboBox_offset_wrapper {\n"
-"    border: 2px solid red;\n"
+"    border: 2px solid rgba(255, 0, 0, .6);\n"
 "    border-radius: 5px;\n"
 "}")
         self.comboBox_offset_wrapper.setObjectName("comboBox_offset_wrapper")
