@@ -144,7 +144,7 @@ if __name__ == '__main__':
         end_date=end_date,
         forecast_date='2021-01-09',
         offset=offset,
-        cv_period=300,
+        cv_period=127,
         cv_shift=15,
         cv_predict_days=2
     )
@@ -158,8 +158,9 @@ if __name__ == '__main__':
         end_date=end_date,
         forecast_date='2021-01-09',
         offset=offset,
-        cv_period=300,
+        cv_period=127,
         cv_shift=15,
         cv_predict_days=2
     )
+    #run(tmp_params)
     print(cross_validation(tmp_params))
