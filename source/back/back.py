@@ -7,14 +7,13 @@ import pandas as pd
 import numpy as np
 from copy import copy
 from multiprocessing import Queue, Manager
-
 from tqdm import tqdm
+from dateutil import parser
 
 from source import config as cfg
 from source._helpers import PredictParams, get_values, save_file, dates_from_array
 from source.back.data_process import DataProcess
-from source.back.models import Models
-from dateutil import parser
+from source.back.models import *
 from source.config import PredictionData
 
 
@@ -61,21 +60,15 @@ def run(params: PredictParams):
         date_range = pd.date_range(parser.parse(params.end_date) + datetime.timedelta(days=1),
                                    params.forecast_date, freq=params.offset.value)
 
-        df = DataProcess.get_processed(params) \
-            .join(pd.DataFrame(index=date_range), how="outer")
+        model = linear_regression.Model()
+        model.load(params)
+
         res_y, res_index = [], []
         for i, date in tqdm(enumerate(date_range), desc="Predicting"):
-            for col in df.columns:
-                if col != 'Y':
-                    df[col] = df[col].shift(1)
-            df_train = df.dropna(axis=0, how='any')
-            filtered_columns = DataProcess.get_filtered_data_frame_columns(df_train, mrmr=False)
-            model = Models.train_linear_regression(df_train[filtered_columns])
-            res_y.append(model.predict(df.loc[[date], filtered_columns[1:]])[0])
+            model.train(i + 1)
+            res_y.append(model.predict())
             res_index.append(date)
             # print(str(date)[:10], res_y[-1])
-
-        save_file(df, f"{params.ticker}.csv")
 
         real_df = DataProcess.load_data_from_moex(
             params.ticker,
@@ -84,6 +77,7 @@ def run(params: PredictParams):
             params.offset.value
         )
     except:
+        print(traceback.format_exc())
         return PredictionData(status=cfg.Status.fail, data=cfg.PREDICTION_FAILED)
 
     return PredictionData(
