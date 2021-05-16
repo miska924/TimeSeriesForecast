@@ -15,6 +15,9 @@ class Model(BaseModel):
     df: pd.DataFrame
     filtered_columns: List[str]
 
+    def __init__(self, df=None):
+        self.df = df
+
     def load(self, params: PredictParams):
         self.df = DataProcess.get_processed(params)
 
@@ -24,7 +27,7 @@ class Model(BaseModel):
             if col != 'Y':
                 df_copy[col] = df_copy[col].shift(shift)
         df_copy = df_copy.dropna(axis=0, how='any')
-        self.filtered_columns = DataProcess.get_filtered_data_frame_columns(df_copy, mrmr=False)
+        self.filtered_columns = self.df.columns#DataProcess.get_filtered_data_frame_columns(df_copy, mrmr=False)
 
         df_copy = df_copy[self.filtered_columns].to_numpy()
         x = df_copy[:, 1:]

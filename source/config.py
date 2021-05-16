@@ -13,7 +13,7 @@ INVALID_PARAMS_ERROR = "Invalid params."
 PREDICTION_FAILED = "Prediction failed."
 
 TICKERS = {
-    'GAZP': ['MOEX', 'MOEXOG'],  # 'USDRUB_TOM'
+    'GAZP': ['IMOEX', 'MOEXOG'],  # 'USDRUB_TOM'
     'CBOM': ['PIKK', 'GAZP', 'PIKK']
 }
 

@@ -23,9 +23,14 @@ class PredictParams:
     end_date: str
     forecast_date: str
     offset: cfg.Offset
+    cv_shift: int
+    cv_period: int
+    cv_predict_days: int
 
-    def __init__(self, ticker: str, model: str, exogenous_variables: list, metrics: str, prediction_method: str,
-                 prediction_type: str, start_date: str, end_date: str, forecast_date: str, offset):
+    def __init__(self, ticker: str = None, model: str = None, exogenous_variables: list = None, metrics: str = None,
+                 prediction_method: str = None, prediction_type: str = None, start_date: str = None,
+                 end_date: str = None, forecast_date: str = None, offset=None, cv_shift: int = None,
+                 cv_period: int = None, cv_predict_days: int = None):
         self.ticker = ticker
         self.model = model
         self.exogenous_variables = exogenous_variables
@@ -39,7 +44,9 @@ class PredictParams:
             self.offset = cfg.Offset(offset)
         else:
             self.offset = offset
-
+        self.cv_shift = cv_shift
+        self.cv_period = cv_period
+        self.cv_predict_days = cv_predict_days
 
 
 def stderr_print(*args, **kwargs):

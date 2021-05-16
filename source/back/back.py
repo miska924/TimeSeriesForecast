@@ -9,6 +9,7 @@ from copy import copy
 from multiprocessing import Queue, Manager
 from tqdm import tqdm
 from dateutil import parser
+from sklearn import metrics
 
 from source import config as cfg
 from source._helpers import PredictParams, get_values, save_file, dates_from_array
@@ -91,6 +92,27 @@ def run(params: PredictParams):
     )
 
 
+def cross_validation(params: PredictParams):
+    df = DataProcess.get_processed(params)
+    mse = []
+
+    for i in range(0, df.shape[0] - params.cv_period - params.cv_predict_days, params.cv_shift):
+        model = linear_regression.Model(df.iloc[i:i + params.cv_period])
+        res = [[], []]
+        for days in range(1, params.cv_predict_days + 1):
+            model.train(days)
+            res[0].append(model.predict())
+        res[1] = list(df.iloc[i + params.cv_period:i + params.cv_period + params.cv_predict_days, 0])
+
+        mse.append(metrics.mean_squared_error(res[0], res[1]))
+
+        if mse[-1] > 18000:
+            print(mse[-1], df.index[i], df.index[i + params.cv_period - 1],
+                  df.index[i + params.cv_period + params.cv_predict_days - 1])
+
+    return sum(mse) / len(mse)
+
+
 if __name__ == '__main__':
     if len(sys.argv) != 4:
         raise Exception(f'WRONG FORMAT\nExample:\n\t{sys.argv[0]} 2016-06-01 2020-06-01 BM')
@@ -111,15 +133,15 @@ if __name__ == '__main__':
         offset = cfg.Offset.default
 
     tmp_params = PredictParams(
-        list(cfg.TICKERS.keys())[0],
-        None,
-        None,
-        None,
-        None,
-        None,
-        start_date,
-        end_date,
-        '2021-01-09',
-        offset
+        ticker=list(cfg.TICKERS.keys())[0],
+        exogenous_variables=['IMOEX', 'MOEXOG'],
+        start_date=start_date,
+        end_date=end_date,
+        forecast_date='2021-01-09',
+        offset=offset,
+        cv_period=127,
+        cv_shift=15,
+        cv_predict_days=2
     )
-    run(tmp_params)
+    #run(tmp_params)
+    print(cross_validation(tmp_params))
