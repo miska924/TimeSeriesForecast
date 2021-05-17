@@ -1,5 +1,4 @@
 import json
-from os import error
 import time
 
 import requests
@@ -82,7 +81,7 @@ class GUI(QtWidgets.QMainWindow):
         widget = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget_name)
         widget.setStyleSheet(
             "QWidget#" + widget_name + " {\n"
-            "background-color: " + color + ";\n"
+            "border: 2px solid " + color + ";\n"
             "border-radius: 5px;\n"
             "}"
         )
