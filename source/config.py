@@ -34,6 +34,7 @@ class Metrics(enum.Enum):
 
 class Model(enum.Enum):
     linear_reg = 'Линейная регрессия'
+    naive = 'Наивная'
 
 
 class Offset(enum.Enum):
