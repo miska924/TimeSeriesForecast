@@ -9,19 +9,14 @@ TRANSLATE = {
 }
 
 tmp_app = QtWidgets.QApplication([])
-tmp = QtWidgets.QComboBox()
-correct_cb_color = tmp.palette().color(QtGui.QPalette.Button)
-tmp = QtWidgets.QLineEdit()
-correct_le_color = tmp.palette().color(QtGui.QPalette.Base)
-font_color = tmp.palette().color(QtGui.QPalette.WindowText)
-tmp = QtWidgets.QDateEdit()
-correct_de_color = tmp.palette().color(QtGui.QPalette.Base)
-del tmp_app
+tmp = QtWidgets.QWidget()
+correct_color = tmp.palette().color(QtGui.QPalette.Window)
 del tmp
+del tmp_app
 
-if font_color.red() <= 127:
-    error_color = QtGui.QColor(255, 209, 220)
+if correct_color.red() > 127:
+    error_color = "red"
 else:
-    error_color = QtGui.QColor(143, 20, 57)
+    error_color = "red"
 
-print(error_color.getRgb(), correct_cb_color.getRgb(), correct_le_color.getRgb(), correct_de_color.getRgb(), font_color.getRgb(), sep='\n')
+correct_color = correct_color.name()
