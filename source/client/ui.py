@@ -74,25 +74,31 @@ class GUI(QtWidgets.QMainWindow):
         for item in selected:
             self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
 
-    def paint_widget(self, widget, color, role=QtGui.QPalette.Button):
-        pal = widget.palette()
-        pal.setColor(role, QtGui.QColor(*color))
-        widget.setPalette(pal)
+    def paint_widget(self, widget, color: str):
+        widget_name = widget.objectName() + "_wrapper"
+        widget = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget_name)
+        widget.setStyleSheet(
+            "QWidget#" + widget_name + " {\n"
+            "border: 2px solid " + color + ";\n"
+            "border-radius: 5px;\n"
+            "}"
+        )
+        
 
     def check_empty_cb(self, cb: QtWidgets.QComboBox):
         if not cb.currentText():
             self.paint_widget(cb, ui_cfg.error_color)
             return True
         else:
-            self.paint_widget(cb, ui_cfg.correct_cb_color)
+            self.paint_widget(cb, ui_cfg.correct_color)
             return False
 
     def check_empty_le(self, le: QtWidgets.QLineEdit):
         if not le.text():
-            self.paint_widget(le, ui_cfg.error_color, QtGui.QPalette.Base)
+            self.paint_widget(le, ui_cfg.error_color)
             return True
         else:
-            self.paint_widget(le, ui_cfg.correct_le_color, QtGui.QPalette.Base)
+            self.paint_widget(le, ui_cfg.correct_color)
             return False
 
     def predict_series(self):
@@ -101,23 +107,42 @@ class GUI(QtWidgets.QMainWindow):
         if self.check_empty_le(self.ui.lineEdit_series):
             flag_correct = False
 
-        for widget in self.ui.horizontalFrame.children():
-            if isinstance(widget, QtWidgets.QComboBox):
-                if self.check_empty_cb(widget):
-                    flag_correct = False
-
-        if self.ui.dateEdit_end.date() <= self.ui.dateEdit_start.date():
+        if self.check_empty_cb(self.ui.comboBox_model):
             flag_correct = False
-            self.paint_widget(self.ui.dateEdit_end, ui_cfg.error_color, QtGui.QPalette.Base)
+
+        if self.check_empty_cb(self.ui.comboBox_metric):
+            flag_correct = False
+
+        if self.check_empty_cb(self.ui.comboBox_method):
+            flag_correct = False
+
+        if self.check_empty_cb(self.ui.comboBox_type):
+            flag_correct = False
+
+        if self.check_empty_cb(self.ui.comboBox_offset):
+            flag_correct = False
+
+        cur = QtCore.QDate.currentDate()
+        if self.ui.dateEdit_start.date() > cur:
+            flag_correct = False
+            self.paint_widget(self.ui.dateEdit_start, ui_cfg.error_color)
         else:
-            self.paint_widget(self.ui.dateEdit_end, ui_cfg.correct_de_color, QtGui.QPalette.Base)
+            self.paint_widget(self.ui.dateEdit_start, ui_cfg.correct_color)
+
+        if self.ui.dateEdit_end.date() <= self.ui.dateEdit_start.date() or \
+            self.ui.dateEdit_end.date() > cur:
+            flag_correct = False
+            self.paint_widget(self.ui.dateEdit_end, ui_cfg.error_color)
+        else:
+            self.paint_widget(self.ui.dateEdit_end, ui_cfg.correct_color)
 
         if self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_end.date() or \
                 self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_start.date():
             flag_correct = False
-            self.paint_widget(self.ui.dateEdit_forecast, ui_cfg.error_color, QtGui.QPalette.Base)
+            self.paint_widget(self.ui.dateEdit_forecast, ui_cfg.error_color)
         else:
-            self.paint_widget(self.ui.dateEdit_forecast, ui_cfg.correct_de_color, QtGui.QPalette.Base)
+            self.paint_widget(self.ui.dateEdit_forecast, ui_cfg.correct_color)
+
         if not flag_correct:
             print("WARNING: Incorrect input!")
             return
