@@ -223,12 +223,6 @@
             </item>
             <item>
              <widget class="QListWidget" name="listWidget">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>255</verstretch>
-               </sizepolicy>
-              </property>
              </widget>
             </item>
            </layout>
