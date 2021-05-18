@@ -52,10 +52,7 @@
          <item>
           <widget class="QWidget" name="lineEdit_series_wrapper" native="true">
            <property name="styleSheet">
-            <string notr="true">QWidget#lineEdit_series_wrapper {
-	background-color: red;
-	border-radius: 5px
-}</string>
+            <string notr="true"/>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <property name="leftMargin">
@@ -93,10 +90,7 @@
          <item>
           <widget class="QWidget" name="comboBox_model_wrapper" native="true">
            <property name="styleSheet">
-            <string notr="true">QWidget#comboBox_model_wrapper {
-	background-color: red;
-	border-radius: 5px;
-}</string>
+            <string notr="true"/>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <property name="leftMargin">
@@ -228,7 +222,14 @@
              </layout>
             </item>
             <item>
-             <widget class="QListWidget" name="listWidget"/>
+             <widget class="QListWidget" name="listWidget">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -243,10 +244,7 @@
          <item>
           <widget class="QWidget" name="comboBox_metric_wrapper" native="true">
            <property name="styleSheet">
-            <string notr="true">QWidget#comboBox_metric_wrapper {
-	background-color: red;
-	border-radius: 5px;
-}</string>
+            <string notr="true"/>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <property name="leftMargin">
@@ -281,10 +279,7 @@
          <item>
           <widget class="QWidget" name="comboBox_method_wrapper" native="true">
            <property name="styleSheet">
-            <string notr="true">QWidget#comboBox_method_wrapper {
-	background-color: red;
-	border-radius: 5px;
-}</string>
+            <string notr="true"/>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_7">
             <property name="leftMargin">
@@ -322,10 +317,7 @@
             <bool>false</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">QWidget#comboBox_type_wrapper {
-	background-color: red;
-	border-radius: 5px;
-}</string>
+            <string notr="true"/>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">
             <property name="leftMargin">
@@ -402,10 +394,7 @@
               <item>
                <widget class="QWidget" name="dateEdit_start_wrapper" native="true">
                 <property name="styleSheet">
-                 <string notr="true">QWidget#dateEdit_start_wrapper {
-	background-color: red;
-	border-radius: 5px;
-}</string>
+                 <string notr="true"/>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_7">
                  <property name="leftMargin">
@@ -450,10 +439,7 @@
               <item>
                <widget class="QWidget" name="dateEdit_end_wrapper" native="true">
                 <property name="styleSheet">
-                 <string notr="true">QWidget#dateEdit_end_wrapper {
-	background-color: red;
-	border-radius: 5px;
-}</string>
+                 <string notr="true"/>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_8">
                  <property name="leftMargin">
@@ -498,10 +484,7 @@
               <item>
                <widget class="QWidget" name="dateEdit_forecast_wrapper" native="true">
                 <property name="styleSheet">
-                 <string notr="true">QWidget#dateEdit_forecast_wrapper {
-	background-color: red;
-	border-radius: 5px;
-}</string>
+                 <string notr="true"/>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_9">
                  <property name="leftMargin">
@@ -541,10 +524,7 @@
          <item>
           <widget class="QWidget" name="comboBox_offset_wrapper" native="true">
            <property name="styleSheet">
-            <string notr="true">QWidget#comboBox_offset_wrapper {
-	background-color: red;
-	border-radius: 5px;
-}</string>
+            <string notr="true"/>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_10">
             <property name="leftMargin">
