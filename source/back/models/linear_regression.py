@@ -19,7 +19,9 @@ class Model(BaseModel):
         self.df = df
 
     def load(self, params: PredictParams):
-        self.df = DataProcess.get_processed(params)
+        loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
+                                                    params.offset.value, params.exogenous_variables)
+        self.df = DataProcess.get_prepared_data_frame(loaded_df, predict_day=0)
 
     def train(self, shift: int):
         df_copy = self.df.copy()

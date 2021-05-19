@@ -97,7 +97,9 @@ def run(params: PredictParams):
 
 
 def cross_validation(params: PredictParams):
-    df = DataProcess.get_processed(params)
+    loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
+                                                params.offset.value, params.exogenous_variables)
+    df = DataProcess.get_prepared_data_frame(loaded_df, predict_day=0)
     mse = []
 
     for i in range(0, df.shape[0] - params.cv_period - params.cv_predict_days, params.cv_shift):

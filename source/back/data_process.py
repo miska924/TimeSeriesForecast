@@ -55,7 +55,7 @@ class DataProcess:
         # process:
         loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
                                                     params.offset.value, params.exogenous_variables)
-        prepared_df = DataProcess._get_prepared_data_frame(loaded_df, predict_day=0)
+        prepared_df = DataProcess.get_prepared_data_frame(loaded_df, predict_day=0)
         # filtered_df = DataProcess._get_filtered_data_frame(prepared_df)
 
         return prepared_df
@@ -117,7 +117,7 @@ class DataProcess:
         )
 
     @staticmethod
-    def _get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5, predict_day=0):
+    def get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5, predict_day=0):
         # rename index & columns:
         index = df.index
         df.set_axis(index, axis=0, inplace=True)
