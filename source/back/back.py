@@ -5,7 +5,7 @@ import traceback
 
 import pandas as pd
 import numpy as np
-from copy import copy
+import copy
 from multiprocessing import Queue, Manager
 from tqdm import tqdm
 from dateutil import parser
@@ -98,23 +98,26 @@ def run(params: PredictParams):
 
 def cross_validation(params: PredictParams):
     loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
-                                                params.offset.value, params.exogenous_variables)
-    df = DataProcess.get_prepared_data_frame(loaded_df, predict_day=0)
-    mse = []
+                                                params.offset.value, [])
 
-    for i in range(0, df.shape[0] - params.cv_period - params.cv_predict_days, params.cv_shift):
-        model = getattr(source.back.models, params.model.value).Model(df.iloc[i:i + params.cv_period])
+    mse = []
+    for i in range(0, loaded_df.shape[0] - params.cv_period - params.cv_predict_days, params.cv_shift):
+        model = getattr(source.back.models, params.model.value).Model()
+        local_params = copy.deepcopy(params)
+        local_params.start_date, local_params.end_date = loaded_df.index[i], loaded_df.index[i + params.cv_period - 1]
+        model.load(local_params)
+
         res = [[], []]
         for days in range(1, params.cv_predict_days + 1):
             model.train(days)
             res[0].append(model.predict())
-        res[1] = list(df.iloc[i + params.cv_period:i + params.cv_period + params.cv_predict_days, 0])
+        res[1] = list(loaded_df.iloc[i + params.cv_period:i + params.cv_period + params.cv_predict_days, 0])
 
         mse.append(metrics.mean_squared_error(res[0], res[1]))
 
         if mse[-1] > 18000:
-            print(mse[-1], df.index[i], df.index[i + params.cv_period - 1],
-                  df.index[i + params.cv_period + params.cv_predict_days - 1])
+            print(mse[-1], loaded_df.index[i], loaded_df.index[i + params.cv_period - 1],
+                  loaded_df.index[i + params.cv_period + params.cv_predict_days - 1])
 
     return sum(mse) / len(mse)
 
@@ -140,20 +143,20 @@ if __name__ == '__main__':
     else:
         offset = cfg.Offset(offset)
 
-    # tmp_params = PredictParams(
-    #     model=cfg.Model.linear_reg,
-    #     ticker=list(cfg.TICKERS.keys())[0],
-    #     exogenous_variables=['IMOEX', 'MOEXOG'],
-    #     start_date=start_date,
-    #     end_date=end_date,
-    #     forecast_date='2021-01-09',
-    #     offset=offset,
-    #     cv_period=127,
-    #     cv_shift=15,
-    #     cv_predict_days=2
-    # )
-    # # run(tmp_params)
-    # print(cross_validation(tmp_params))
+    tmp_params = PredictParams(
+        model=cfg.Model.linear_reg,
+        ticker=list(cfg.TICKERS.keys())[0],
+        exogenous_variables=['IMOEX', 'MOEXOG'],
+        start_date=start_date,
+        end_date=end_date,
+        forecast_date='2021-01-09',
+        offset=offset,
+        cv_period=127,
+        cv_shift=15,
+        cv_predict_days=2
+    )
+    # run(tmp_params)
+    print(cross_validation(tmp_params))
     # tmp_params = PredictParams(
     #     model=cfg.Model.naive,
     #     ticker=list(cfg.TICKERS.keys())[0],
@@ -168,16 +171,16 @@ if __name__ == '__main__':
     # )
     # # run(tmp_params)
     # print(cross_validation(tmp_params))
-    tmp_params = PredictParams(
-        model=cfg.Model.stationary_linear_regression,
-        ticker=list(cfg.TICKERS.keys())[0],
-        exogenous_variables=['IMOEX', 'MOEXOG'],
-        start_date=start_date,
-        end_date=end_date,
-        forecast_date='2021-01-09',
-        offset=offset,
-        cv_period=127,
-        cv_shift=15,
-        cv_predict_days=2
-    )
-    print(cross_validation(tmp_params))
+    # tmp_params = PredictParams(
+    #     model=cfg.Model.stationary_linear_regression,
+    #     ticker=list(cfg.TICKERS.keys())[0],
+    #     exogenous_variables=['IMOEX', 'MOEXOG'],
+    #     start_date=start_date,
+    #     end_date=end_date,
+    #     forecast_date='2021-01-09',
+    #     offset=offset,
+    #     cv_period=127,
+    #     cv_shift=50,
+    #     cv_predict_days=2
+    # )
+    # print(cross_validation(tmp_params))
