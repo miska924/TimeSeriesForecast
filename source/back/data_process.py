@@ -33,12 +33,25 @@ class DataProcess:
     # filters relevant columns using mutual info or mrmr method
     @staticmethod
     def get_filtered_data_frame_columns(df: pd.DataFrame, mrmr=False, features_left_cnt=10):
+        if features_left_cnt >= len(df.columns) - 1:
+            return df.columns
+
         if mrmr and len(df.columns) - features_left_cnt < 10:
             import pymrmr
             return [df.columns.values[0]] + pymrmr.mRMR(df, 'MID', features_left_cnt)
         else:
             data = df.to_numpy()
-            columns = sorted(feature_selection.mutual_info_regression(data[:, 1:], data[:, 0]))[:features_left_cnt]
+            correlations = feature_selection.mutual_info_regression(data[:, 1:], data[:, 0])
+            treshold = sorted(correlations, reverse=True)[features_left_cnt]
+
+            columns = []
+            for i, col in enumerate(df.columns[1:]):
+                if len(columns) < features_left_cnt and correlations[i] > treshold:
+                    columns.append(col)
+            for i, col in enumerate(df.columns[1:]):
+                if len(columns) < features_left_cnt and correlations[i] == treshold:
+                    columns.append(col)
+
             return [df.columns.values[0]] + columns
 
     # [THE POINT OF ENTRANCE]:
@@ -115,6 +128,15 @@ class DataProcess:
             ).rename(columns={a.name: name}),
             how='outer'
         )
+
+    @staticmethod
+    def replace_with_diff(df, a: str, shift=0):
+        if shift == 0:
+            stderr_print('replace_with_diff shift 0')
+            return
+
+        df[a] = df[a] - df[a].shift(shift)
+        return df
 
     @staticmethod
     def get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5, predict_day=0):

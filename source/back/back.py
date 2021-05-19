@@ -137,9 +137,39 @@ if __name__ == '__main__':
 
     if offset == '-':
         offset = cfg.Offset.default
+    else:
+        offset = cfg.Offset(offset)
 
+    # tmp_params = PredictParams(
+    #     model=cfg.Model.linear_reg,
+    #     ticker=list(cfg.TICKERS.keys())[0],
+    #     exogenous_variables=['IMOEX', 'MOEXOG'],
+    #     start_date=start_date,
+    #     end_date=end_date,
+    #     forecast_date='2021-01-09',
+    #     offset=offset,
+    #     cv_period=127,
+    #     cv_shift=15,
+    #     cv_predict_days=2
+    # )
+    # # run(tmp_params)
+    # print(cross_validation(tmp_params))
+    # tmp_params = PredictParams(
+    #     model=cfg.Model.naive,
+    #     ticker=list(cfg.TICKERS.keys())[0],
+    #     exogenous_variables=['IMOEX', 'MOEXOG'],
+    #     start_date=start_date,
+    #     end_date=end_date,
+    #     forecast_date='2021-01-09',
+    #     offset=offset,
+    #     cv_period=127,
+    #     cv_shift=15,
+    #     cv_predict_days=2
+    # )
+    # # run(tmp_params)
+    # print(cross_validation(tmp_params))
     tmp_params = PredictParams(
-        model=cfg.Model.linear_reg,
+        model=cfg.Model.stationary_linear_regression,
         ticker=list(cfg.TICKERS.keys())[0],
         exogenous_variables=['IMOEX', 'MOEXOG'],
         start_date=start_date,
@@ -147,34 +177,6 @@ if __name__ == '__main__':
         forecast_date='2021-01-09',
         offset=offset,
         cv_period=127,
-        cv_shift=15,
-        cv_predict_days=2
-    )
-    # run(tmp_params)
-    print(cross_validation(tmp_params))
-    tmp_params = PredictParams(
-        model=cfg.Model.naive,
-        ticker=list(cfg.TICKERS.keys())[0],
-        exogenous_variables=['IMOEX', 'MOEXOG'],
-        start_date=start_date,
-        end_date=end_date,
-        forecast_date='2021-01-09',
-        offset=offset,
-        cv_period=300,
-        cv_shift=15,
-        cv_predict_days=2
-    )
-    # run(tmp_params)
-    print(cross_validation(tmp_params))
-    tmp_params = PredictParams(
-        model=cfg.Model.naive,
-        ticker=list(cfg.TICKERS.keys())[0],
-        exogenous_variables=['IMOEX', 'MOEXOG'],
-        start_date=start_date,
-        end_date=end_date,
-        forecast_date='2021-01-09',
-        offset=offset,
-        cv_period=300,
         cv_shift=15,
         cv_predict_days=2
     )
