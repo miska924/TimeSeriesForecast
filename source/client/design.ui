@@ -149,9 +149,6 @@
                   <height>0</height>
                  </size>
                 </property>
-                <property name="text">
-                 <string/>
-                </property>
                 <property name="placeholderText">
                  <string>EXOGENOUS</string>
                 </property>
@@ -170,9 +167,6 @@
                   <width>55</width>
                   <height>0</height>
                  </size>
-                </property>
-                <property name="text">
-                 <string/>
                 </property>
                 <property name="icon">
                  <iconset resource="resources.qrc">
@@ -200,15 +194,6 @@
                 <property name="icon">
                  <iconset resource="resources.qrc">
                   <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
-                </property>
-                <property name="autoDefault">
-                 <bool>false</bool>
-                </property>
-                <property name="default">
-                 <bool>false</bool>
-                </property>
-                <property name="flat">
-                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -285,9 +270,6 @@
          </item>
          <item>
           <widget class="QWidget" name="comboBox_type_wrapper" native="true">
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">
             <property name="leftMargin">
              <number>2</number>
@@ -340,12 +322,6 @@
               <property name="spacing">
                <number>3</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
               <item>
                <widget class="QLabel" name="label_8">
                 <property name="text">
@@ -384,9 +360,6 @@
               <property name="spacing">
                <number>3</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
               <item>
                <widget class="QLabel" name="label_9">
                 <property name="text">
@@ -421,9 +394,6 @@
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <property name="spacing">
                <number>3</number>
-              </property>
-              <property name="leftMargin">
-               <number>0</number>
               </property>
               <item>
                <widget class="QLabel" name="label_12">
@@ -489,9 +459,6 @@
          <item>
           <widget class="QWidget" name="pushButton_forecast_wrapper" native="true">
            <layout class="QVBoxLayout" name="verticalLayout_5">
-            <property name="spacing">
-             <number>0</number>
-            </property>
             <property name="leftMargin">
              <number>2</number>
             </property>
