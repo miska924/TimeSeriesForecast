@@ -47,15 +47,11 @@ class GUI(QtWidgets.QMainWindow):
         class List(QtWidgets.QListWidget):
             delete = QtCore.pyqtSignal()
 
-            def __new__(cls, a):
-                a.__class__ = cls
-                return a
-
             def keyPressEvent(self, event):
                 if event.key() == QtCore.Qt.Key_Delete:
                     self.delete.emit()
 
-        self.ui.listWidget = List(self.ui.listWidget)
+        self.ui.listWidget.__class__ = List
         self.ui.listWidget.delete.connect(self.del_exogenous)
         self.ui.listWidget.setSelectionMode(QtWidgets.QListWidget.MultiSelection)
 
