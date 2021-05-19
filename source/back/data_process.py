@@ -32,14 +32,14 @@ class DataProcess:
 
     # filters relevant columns using mutual info or mrmr method
     @staticmethod
-    def get_filtered_data_frame_columns(df: pd.DataFrame, mrmr=False, treshold=0.5, features_left_cnt=10):
-        if mrmr:
+    def get_filtered_data_frame_columns(df: pd.DataFrame, mrmr=False, features_left_cnt=10):
+        if mrmr and len(df.columns) - features_left_cnt < 10:
             import pymrmr
             return [df.columns.values[0]] + pymrmr.mRMR(df, 'MID', features_left_cnt)
         else:
             data = df.to_numpy()
-            mask = feature_selection.mutual_info_regression(data[:, 1:], data[:, 0]) > treshold
-            return [df.columns.values[0]] + list(df.columns.values[1:][mask == 1])
+            columns = sorted(feature_selection.mutual_info_regression(data[:, 1:], data[:, 0]))[:features_left_cnt]
+            return [df.columns.values[0]] + columns
 
     # [THE POINT OF ENTRANCE]:
     @staticmethod
