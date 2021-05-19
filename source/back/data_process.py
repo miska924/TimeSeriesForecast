@@ -96,7 +96,7 @@ class DataProcess:
                 if ticker in DataProcess.cache:
                     cached = DataProcess.cache[ticker]
                     if cached.index[0] <= date_range[0] and date_range[-1] <= cached.index[-1]:
-                        result = result.join(cached.copy().loc[date_range[0]:date_range[-1] + datetime.timedelta(days=1)],
+                        result = result.join(cached.copy().loc[date_range[0]:date_range[-1]],
                                              how='outer')
                         continue
 

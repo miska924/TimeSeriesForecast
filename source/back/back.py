@@ -187,4 +187,5 @@ if __name__ == '__main__':
     #     cv_predict_days=2
     # )
     print(run(tmp_params))
+    print(run(tmp_params))
     # print(cross_validation(tmp_params))
