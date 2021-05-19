@@ -14,14 +14,14 @@ from source._helpers import send_request
 
 import source.client.config as ui_cfg
 import source.config as cfg
-from source.client.design import UiMainWindow
+from source.client.design import Ui_MainWindow
 
 
 class GUI(QtWidgets.QMainWindow):
     def __init__(self, test):
         super(GUI, self).__init__()
-        self.ui = UiMainWindow()
-        self.ui.setup_ui(self)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
         self.setWindowTitle("TimeSeries Forecast")
 
         if not test:

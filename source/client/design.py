@@ -11,11 +11,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class UiMainWindow(object):
-    def setup_ui(self, main_window):
-        main_window.setObjectName("MainWindow")
-        main_window.resize(800, 600)
-        self.centralwidget = QtWidgets.QWidget(main_window)
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(804, 648)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.centralwidget)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
@@ -38,7 +38,6 @@ class UiMainWindow(object):
         self.label.setObjectName("label")
         self.verticalLayout_2.addWidget(self.label, 0, QtCore.Qt.AlignHCenter)
         self.lineEdit_series_wrapper = QtWidgets.QWidget(self.horizontalFrame)
-        self.lineEdit_series_wrapper.setStyleSheet("")
         self.lineEdit_series_wrapper.setObjectName("lineEdit_series_wrapper")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.lineEdit_series_wrapper)
         self.verticalLayout_3.setContentsMargins(2, 2, 2, 2)
@@ -51,7 +50,6 @@ class UiMainWindow(object):
         self.label_2.setObjectName("label_2")
         self.verticalLayout_2.addWidget(self.label_2, 0, QtCore.Qt.AlignHCenter)
         self.comboBox_model_wrapper = QtWidgets.QWidget(self.horizontalFrame)
-        self.comboBox_model_wrapper.setStyleSheet("")
         self.comboBox_model_wrapper.setObjectName("comboBox_model_wrapper")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.comboBox_model_wrapper)
         self.verticalLayout_4.setContentsMargins(2, 2, 2, 2)
@@ -119,7 +117,6 @@ class UiMainWindow(object):
         self.label_4.setObjectName("label_4")
         self.verticalLayout_2.addWidget(self.label_4, 0, QtCore.Qt.AlignHCenter)
         self.comboBox_metric_wrapper = QtWidgets.QWidget(self.horizontalFrame)
-        self.comboBox_metric_wrapper.setStyleSheet("")
         self.comboBox_metric_wrapper.setObjectName("comboBox_metric_wrapper")
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.comboBox_metric_wrapper)
         self.verticalLayout_6.setContentsMargins(2, 2, 2, 2)
@@ -132,7 +129,6 @@ class UiMainWindow(object):
         self.label_5.setObjectName("label_5")
         self.verticalLayout_2.addWidget(self.label_5, 0, QtCore.Qt.AlignHCenter)
         self.comboBox_method_wrapper = QtWidgets.QWidget(self.horizontalFrame)
-        self.comboBox_method_wrapper.setStyleSheet("")
         self.comboBox_method_wrapper.setObjectName("comboBox_method_wrapper")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.comboBox_method_wrapper)
         self.verticalLayout_7.setContentsMargins(2, 2, 2, 2)
@@ -146,7 +142,6 @@ class UiMainWindow(object):
         self.verticalLayout_2.addWidget(self.label_6, 0, QtCore.Qt.AlignHCenter)
         self.comboBox_type_wrapper = QtWidgets.QWidget(self.horizontalFrame)
         self.comboBox_type_wrapper.setAutoFillBackground(False)
-        self.comboBox_type_wrapper.setStyleSheet("")
         self.comboBox_type_wrapper.setObjectName("comboBox_type_wrapper")
         self.verticalLayout_8 = QtWidgets.QVBoxLayout(self.comboBox_type_wrapper)
         self.verticalLayout_8.setContentsMargins(2, 2, 2, 2)
@@ -172,7 +167,6 @@ class UiMainWindow(object):
         self.label_8.setObjectName("label_8")
         self.horizontalLayout_3.addWidget(self.label_8)
         self.dateEdit_start_wrapper = QtWidgets.QWidget(self.date_wrapper)
-        self.dateEdit_start_wrapper.setStyleSheet("")
         self.dateEdit_start_wrapper.setObjectName("dateEdit_start_wrapper")
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout(self.dateEdit_start_wrapper)
         self.horizontalLayout_7.setContentsMargins(2, 1, 2, 1)
@@ -190,7 +184,6 @@ class UiMainWindow(object):
         self.label_9.setObjectName("label_9")
         self.horizontalLayout_6.addWidget(self.label_9)
         self.dateEdit_end_wrapper = QtWidgets.QWidget(self.date_wrapper)
-        self.dateEdit_end_wrapper.setStyleSheet("")
         self.dateEdit_end_wrapper.setObjectName("dateEdit_end_wrapper")
         self.horizontalLayout_8 = QtWidgets.QHBoxLayout(self.dateEdit_end_wrapper)
         self.horizontalLayout_8.setContentsMargins(2, 1, 2, 1)
@@ -208,7 +201,6 @@ class UiMainWindow(object):
         self.label_12.setObjectName("label_12")
         self.horizontalLayout_4.addWidget(self.label_12)
         self.dateEdit_forecast_wrapper = QtWidgets.QWidget(self.date_wrapper)
-        self.dateEdit_forecast_wrapper.setStyleSheet("")
         self.dateEdit_forecast_wrapper.setObjectName("dateEdit_forecast_wrapper")
         self.horizontalLayout_9 = QtWidgets.QHBoxLayout(self.dateEdit_forecast_wrapper)
         self.horizontalLayout_9.setContentsMargins(2, 1, 2, 1)
@@ -223,7 +215,6 @@ class UiMainWindow(object):
         self.label_10.setObjectName("label_10")
         self.verticalLayout_2.addWidget(self.label_10, 0, QtCore.Qt.AlignHCenter)
         self.comboBox_offset_wrapper = QtWidgets.QWidget(self.horizontalFrame)
-        self.comboBox_offset_wrapper.setStyleSheet("")
         self.comboBox_offset_wrapper.setObjectName("comboBox_offset_wrapper")
         self.verticalLayout_10 = QtWidgets.QVBoxLayout(self.comboBox_offset_wrapper)
         self.verticalLayout_10.setContentsMargins(2, 2, 2, 2)
@@ -245,17 +236,17 @@ class UiMainWindow(object):
         self.verticalLayout_2.addWidget(self.pushButton_forecast_wrapper)
         self.horizontalLayout.addLayout(self.verticalLayout_2)
         self.horizontalLayout_2.addWidget(self.horizontalFrame)
-        main_window.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(main_window)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
-        main_window.setStatusBar(self.statusbar)
+        MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslate_ui(main_window)
-        QtCore.QMetaObject.connectSlotsByName(main_window)
+        self.retranslateUi(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def retranslate_ui(self, main_window):
+    def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        main_window.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label.setText(_translate("MainWindow", "Прогнозный ряд"))
         self.lineEdit_series.setPlaceholderText(_translate("MainWindow", "TICKER"))
         self.label_2.setText(_translate("MainWindow", "Модель прогнозирования"))
