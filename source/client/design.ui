@@ -36,6 +36,12 @@
         <height>0</height>
        </size>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>260</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -209,8 +215,7 @@
              </layout>
             </item>
             <item>
-             <widget class="QListWidget" name="listWidget">
-             </widget>
+             <widget class="QListWidget" name="listWidget"/>
             </item>
            </layout>
           </widget>
