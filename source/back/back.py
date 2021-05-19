@@ -162,7 +162,7 @@ if __name__ == '__main__':
         cv_shift=15,
         cv_predict_days=2
     )
-    #run(tmp_params)
+    # run(tmp_params)
     print(cross_validation(tmp_params))
     tmp_params = PredictParams(
         model=cfg.Model.naive,
