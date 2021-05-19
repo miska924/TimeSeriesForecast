@@ -37,11 +37,11 @@ class GUI(QtWidgets.QMainWindow):
             for cb in self.comboBoxes:
                 cb.addItem("")
 
-        self.ui.comboBox_model.addItems(hlp.get_values(cfg.Model))
-        self.ui.comboBox_metric.addItems(hlp.get_values(cfg.Metrics))
-        self.ui.comboBox_method.addItems(hlp.get_values(cfg.Methods))
-        self.ui.comboBox_type.addItems(hlp.get_values(cfg.Type))
-        self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.keys())
+        self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.value.keys())
+        self.ui.comboBox_metric.addItems(ui_cfg.TRANSLATE.Metrics.value.keys())
+        self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.value.keys())
+        self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.value.keys())
+        self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.value.keys())
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)
@@ -155,15 +155,15 @@ class GUI(QtWidgets.QMainWindow):
 
         params = hlp.PredictParams(
             self.ui.lineEdit_series.text(),
-            self.ui.comboBox_model.currentText(),
+            ui_cfg.TRANSLATE.Model.value[self.ui.comboBox_model.currentText()],
             [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
-            self.ui.comboBox_metric.currentText(),
-            self.ui.comboBox_method.currentText(),
-            self.ui.comboBox_type.currentText(),
+            ui_cfg.TRANSLATE.Metrics.value[self.ui.comboBox_metric.currentText()],
+            ui_cfg.TRANSLATE.Method.value[self.ui.comboBox_method.currentText()],
+            ui_cfg.TRANSLATE.Type.value[self.ui.comboBox_type.currentText()],
             self.ui.dateEdit_start.date().toString("yyyy-MM-dd"),
             self.ui.dateEdit_end.date().toString("yyyy-MM-dd"),
             self.ui.dateEdit_forecast.date().toString("yyyy-MM-dd"),
-            ui_cfg.TRANSLATE[self.ui.comboBox_offset.currentText()]
+            ui_cfg.TRANSLATE.Offset.value[self.ui.comboBox_offset.currentText()]
         )
 
         print(params.__dict__)

@@ -1,13 +1,33 @@
 import source.config as cfg
 from PyQt5 import QtWidgets, QtGui, QtWebEngineWidgets
 import numpy as np
+import enum
 
-TRANSLATE = {
-    "День": cfg.Offset.business_day,
-    "Неделя": cfg.Offset.week,
-    "Месяц": cfg.Offset.business_month,
-    "Год": cfg.Offset.business_year
-}
+class TRANSLATE(enum.Enum):
+    Model = {
+        "Линейная регрессия": cfg.Model.linear_reg 
+    }
+
+    Metrics = {
+        "MSE": cfg.Metrics.mse
+    }
+
+    Method = {
+        "Прямой": cfg.Methods.straight,
+        "Рекурсивный": cfg.Methods.recursive
+    }
+
+    Type = {
+        "Значения": cfg.Type.values,
+        "Тренд": cfg.Type.trend
+    }
+
+    Offset = {
+        "День": cfg.Offset.business_day,
+        "Неделя": cfg.Offset.week,
+        "Месяц": cfg.Offset.business_month,
+        "Год": cfg.Offset.business_year
+    }
 
 tmp_app = QtWidgets.QApplication([])
 tmp = QtWidgets.QWidget()
