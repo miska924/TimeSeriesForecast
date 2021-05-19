@@ -34,7 +34,7 @@ class DataProcess:
 
     # filters relevant columns using mutual info or mrmr method
     @staticmethod
-    def get_filtered_data_frame_columns(df: pd.DataFrame, mrmr=False, features_left_cnt=50):
+    def get_filtered_data_frame_columns(df: pd.DataFrame, mrmr=False, features_left_cnt=10):
         if features_left_cnt >= len(df.columns) - 1:
             return df.columns
 
@@ -96,7 +96,7 @@ class DataProcess:
                 if ticker in DataProcess.cache:
                     cached = DataProcess.cache[ticker]
                     if cached.index[0] <= date_range[0] and date_range[-1] <= cached.index[-1]:
-                        result = result.join(cached.loc[date_range[0]:date_range[-1] + datetime.timedelta(days=1)],
+                        result = result.join(cached.copy().loc[date_range[0]:date_range[-1] + datetime.timedelta(days=1)],
                                              how='outer')
                         continue
 
@@ -149,7 +149,7 @@ class DataProcess:
         return df
 
     @staticmethod
-    def get_prepared_data_frame(df, diffs_count=10, x_lags=10, y_lags=10, average_y_days=10, predict_day=0):
+    def get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5, predict_day=0):
         # rename index & columns:
         index = df.index
         df.set_axis(index, axis=0, inplace=True)

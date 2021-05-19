@@ -11,14 +11,11 @@ from source.back.models._model import BaseModel
 
 
 class Model(BaseModel):
-    model: LR
-    df: pd.DataFrame
-    df_prepared: pd.DataFrame
-    filtered_columns: List[str]
-    right: int
-
-    def __init__(self, df=None):
-        self.df = df
+    def __init__(self):
+        self.model = None
+        self.df = None
+        self.df_prepared = None
+        self.filtered_columns = None
 
     def load(self, params: PredictParams):
         self.df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,

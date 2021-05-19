@@ -101,7 +101,9 @@ def cross_validation(params: PredictParams):
                                                 params.offset.value, params.exogenous_variables)
 
     mse = []
+    mape = []
     for i in range(0, loaded_df.shape[0] - params.cv_period - params.cv_predict_days, params.cv_shift):
+        print(params.model.value)
         model = getattr(source.back.models, params.model.value).Model()
         local_params = copy.deepcopy(params)
         local_params.start_date, local_params.end_date = loaded_df.index[i], loaded_df.index[i + params.cv_period - 1]
@@ -113,13 +115,14 @@ def cross_validation(params: PredictParams):
             res[0].append(model.predict())
         res[1] = list(loaded_df.iloc[i + params.cv_period:i + params.cv_period + params.cv_predict_days, 0])
 
-        mse.append(metrics.mean_squared_error(res[0], res[1]))
+        mse.append(metrics.mean_squared_error(res[1], res[0]))
+        mape.append(metrics.mean_absolute_percentage_error(res[1], res[0]))
 
         if mse[-1] > 18000:
             print(mse[-1], loaded_df.index[i], loaded_df.index[i + params.cv_period - 1],
                   loaded_df.index[i + params.cv_period + params.cv_predict_days - 1])
 
-    return sum(mse) / len(mse)
+    return sum(mse) / len(mse), sum(mape) / len(mape)
 
 
 if __name__ == '__main__':
@@ -144,44 +147,44 @@ if __name__ == '__main__':
         offset = cfg.Offset(offset)
 
     tmp_params = PredictParams(
-        model=cfg.Model.stationary_linear_regression,
+        model=cfg.Model.ansamble,
         ticker=list(cfg.TICKERS.keys())[0],
         exogenous_variables=['IMOEX', 'MOEXOG'],
         start_date=start_date,
         end_date=end_date,
-        forecast_date='2021-01-09',
+        forecast_date='2021-05-09',
         offset=offset,
         cv_period=127,
         cv_shift=15,
         cv_predict_days=2
     )
     # run(tmp_params)
-    print(cross_validation(tmp_params))
-    tmp_params = PredictParams(
-        model=cfg.Model.linear_reg,
-        ticker=list(cfg.TICKERS.keys())[0],
-        exogenous_variables=['IMOEX', 'MOEXOG'],
-        start_date=start_date,
-        end_date=end_date,
-        forecast_date='2021-01-09',
-        offset=offset,
-        cv_period=127,
-        cv_shift=15,
-        cv_predict_days=2
-    )
-    # run(tmp_params)
-    print(cross_validation(tmp_params))
-    tmp_params = PredictParams(
-        model=cfg.Model.naive,
-        ticker=list(cfg.TICKERS.keys())[0],
-        exogenous_variables=['IMOEX', 'MOEXOG'],
-        start_date=start_date,
-        end_date=end_date,
-        forecast_date='2021-01-09',
-        offset=offset,
-        cv_period=127,
-        cv_shift=15,
-        cv_predict_days=2
-    )
-    # run(tmp_params)
-    print(cross_validation(tmp_params))
+    #print(cross_validation(tmp_params))
+    # tmp_params = PredictParams(
+    #     model=cfg.Model.linear_reg,
+    #     ticker=list(cfg.TICKERS.keys())[0],
+    #     exogenous_variables=['IMOEX', 'MOEXOG'],
+    #     start_date=start_date,
+    #     end_date=end_date,
+    #     forecast_date='2021-01-09',
+    #     offset=offset,
+    #     cv_period=127,
+    #     cv_shift=15,
+    #     cv_predict_days=2
+    # )
+    # # run(tmp_params)
+    # print(cross_validation(tmp_params))
+    # tmp_params = PredictParams(
+    #     model=cfg.Model.naive,
+    #     ticker=list(cfg.TICKERS.keys())[0],
+    #     exogenous_variables=['IMOEX', 'MOEXOG'],
+    #     start_date=start_date,
+    #     end_date=end_date,
+    #     forecast_date='2021-01-09',
+    #     offset=offset,
+    #     cv_period=127,
+    #     cv_shift=15,
+    #     cv_predict_days=2
+    # )
+    print(run(tmp_params))
+    # print(cross_validation(tmp_params))

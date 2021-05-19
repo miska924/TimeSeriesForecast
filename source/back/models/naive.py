@@ -11,9 +11,10 @@ from source.back.models._model import BaseModel
 
 
 class Model(BaseModel):
-    model: LR
-    df: pd.DataFrame
-    filtered_columns: List[str]
+    def __init__(self):
+        self.model = None
+        self.df = None
+        self.filtered_columns = None
 
     def __init__(self, df=None):
         self.df = df

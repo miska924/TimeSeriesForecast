@@ -11,12 +11,10 @@ from source.back.models._model import BaseModel
 
 
 class Model(BaseModel):
-    model: LR
-    df: pd.DataFrame
-    filtered_columns: List[str]
-
-    def __init__(self, df=None):
-        self.df = df
+    def __init__(self):
+        self.model = None
+        self.df = None
+        self.filtered_columns = None
 
     def load(self, params: PredictParams):
         loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
@@ -38,4 +36,8 @@ class Model(BaseModel):
         self.model.fit(x, y)
 
     def predict(self):
-        return self.model.predict(self.df.tail(1)[self.filtered_columns[1:]])[0]
+        try:
+            return self.model.predict(self.df.tail(1)[self.filtered_columns[1:]])[0]
+        except Exception as e:
+            print(self.df.tail(1)[self.filtered_columns[1:]])
+            raise e
