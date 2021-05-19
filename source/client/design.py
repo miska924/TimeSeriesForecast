@@ -106,6 +106,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.addWidget(self.pushButton_del_ex)
         self.verticalLayout_9.addLayout(self.horizontalLayout_5)
         self.listWidget = QtWidgets.QListWidget(self.exogenous_wrapper)
+        self.listWidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.listWidget.setObjectName("listWidget")
         self.verticalLayout_9.addWidget(self.listWidget)
         self.verticalLayout_2.addWidget(self.exogenous_wrapper)
