@@ -11,6 +11,7 @@ from tqdm import tqdm
 from dateutil import parser
 from sklearn import metrics
 
+import source.back.models
 from source import config as cfg
 from source._helpers import PredictParams, get_values, save_file, dates_from_array
 from source.back.data_process import DataProcess
@@ -61,12 +62,8 @@ def run(params: PredictParams):
         date_range = pd.date_range(parser.parse(params.end_date) + datetime.timedelta(days=1),
                                    params.forecast_date, freq=params.offset.value)
 
-        model = None
         print("DEBUD:", params.model, " -> ", cfg.Model(params.model))
-        if cfg.Model(params.model) == cfg.Model.linear_reg:
-            model = linear_regression.Model()
-        else:
-            model = naive.Model()
+        model = getattr(source.back.models, cfg.Model(params.model).value).Model()
 
         # model = linear_regression.Model()
         model.load(params)
@@ -104,11 +101,7 @@ def cross_validation(params: PredictParams):
     mse = []
 
     for i in range(0, df.shape[0] - params.cv_period - params.cv_predict_days, params.cv_shift):
-        model = None
-        if params.model == cfg.Model.linear_reg:
-            model = linear_regression.Model(df.iloc[i:i + params.cv_period])
-        else:
-            model = naive.Model(df.iloc[i:i + params.cv_period])
+        model = getattr(source.back.models, params.model.value).Model(df.iloc[i:i + params.cv_period])
         res = [[], []]
         for days in range(1, params.cv_predict_days + 1):
             model.train(days)
