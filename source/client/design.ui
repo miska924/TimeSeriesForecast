@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>804</width>
-    <height>648</height>
+    <width>800</width>
+    <height>639</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,6 +36,12 @@
         <height>0</height>
        </size>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>260</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -51,9 +57,6 @@
          </item>
          <item>
           <widget class="QWidget" name="lineEdit_series_wrapper" native="true">
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
             <property name="leftMargin">
              <number>2</number>
@@ -69,9 +72,6 @@
             </property>
             <item>
              <widget class="QLineEdit" name="lineEdit_series">
-              <property name="styleSheet">
-               <string notr="true"/>
-              </property>
               <property name="placeholderText">
                <string>TICKER</string>
               </property>
@@ -89,9 +89,6 @@
          </item>
          <item>
           <widget class="QWidget" name="comboBox_model_wrapper" native="true">
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <property name="leftMargin">
              <number>2</number>
@@ -106,11 +103,7 @@
              <number>2</number>
             </property>
             <item>
-             <widget class="QComboBox" name="comboBox_model">
-              <property name="styleSheet">
-               <string notr="true"/>
-              </property>
-             </widget>
+             <widget class="QComboBox" name="comboBox_model"/>
             </item>
            </layout>
           </widget>
@@ -156,9 +149,6 @@
                   <height>0</height>
                  </size>
                 </property>
-                <property name="text">
-                 <string/>
-                </property>
                 <property name="placeholderText">
                  <string>EXOGENOUS</string>
                 </property>
@@ -177,9 +167,6 @@
                   <width>55</width>
                   <height>0</height>
                  </size>
-                </property>
-                <property name="text">
-                 <string/>
                 </property>
                 <property name="icon">
                  <iconset resource="resources.qrc">
@@ -208,21 +195,15 @@
                  <iconset resource="resources.qrc">
                   <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
                 </property>
-                <property name="autoDefault">
-                 <bool>false</bool>
-                </property>
-                <property name="default">
-                 <bool>false</bool>
-                </property>
-                <property name="flat">
-                 <bool>false</bool>
-                </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
              <widget class="QListWidget" name="listWidget">
+              <property name="selectionMode">
+               <enum>QAbstractItemView::ExtendedSelection</enum>
+              </property>
              </widget>
             </item>
            </layout>
@@ -237,9 +218,6 @@
          </item>
          <item>
           <widget class="QWidget" name="comboBox_metric_wrapper" native="true">
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <property name="leftMargin">
              <number>2</number>
@@ -254,11 +232,7 @@
              <number>2</number>
             </property>
             <item>
-             <widget class="QComboBox" name="comboBox_metric">
-              <property name="styleSheet">
-               <string notr="true"/>
-              </property>
-             </widget>
+             <widget class="QComboBox" name="comboBox_metric"/>
             </item>
            </layout>
           </widget>
@@ -272,9 +246,6 @@
          </item>
          <item>
           <widget class="QWidget" name="comboBox_method_wrapper" native="true">
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
            <layout class="QVBoxLayout" name="verticalLayout_7">
             <property name="leftMargin">
              <number>2</number>
@@ -289,11 +260,7 @@
              <number>2</number>
             </property>
             <item>
-             <widget class="QComboBox" name="comboBox_method">
-              <property name="styleSheet">
-               <string notr="true"/>
-              </property>
-             </widget>
+             <widget class="QComboBox" name="comboBox_method"/>
             </item>
            </layout>
           </widget>
@@ -307,12 +274,6 @@
          </item>
          <item>
           <widget class="QWidget" name="comboBox_type_wrapper" native="true">
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">
             <property name="leftMargin">
              <number>2</number>
@@ -327,11 +288,7 @@
              <number>2</number>
             </property>
             <item>
-             <widget class="QComboBox" name="comboBox_type">
-              <property name="styleSheet">
-               <string notr="true"/>
-              </property>
-             </widget>
+             <widget class="QComboBox" name="comboBox_type"/>
             </item>
            </layout>
           </widget>
@@ -369,12 +326,6 @@
               <property name="spacing">
                <number>3</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
               <item>
                <widget class="QLabel" name="label_8">
                 <property name="text">
@@ -387,9 +338,6 @@
               </item>
               <item>
                <widget class="QWidget" name="dateEdit_start_wrapper" native="true">
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_7">
                  <property name="leftMargin">
                   <number>2</number>
@@ -404,11 +352,7 @@
                   <number>1</number>
                  </property>
                  <item>
-                  <widget class="QDateEdit" name="dateEdit_start">
-                   <property name="styleSheet">
-                    <string notr="true"/>
-                   </property>
-                  </widget>
+                  <widget class="QDateEdit" name="dateEdit_start"/>
                  </item>
                 </layout>
                </widget>
@@ -420,9 +364,6 @@
               <property name="spacing">
                <number>3</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
               <item>
                <widget class="QLabel" name="label_9">
                 <property name="text">
@@ -432,9 +373,6 @@
               </item>
               <item>
                <widget class="QWidget" name="dateEdit_end_wrapper" native="true">
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_8">
                  <property name="leftMargin">
                   <number>2</number>
@@ -449,11 +387,7 @@
                   <number>1</number>
                  </property>
                  <item>
-                  <widget class="QDateEdit" name="dateEdit_end">
-                   <property name="styleSheet">
-                    <string notr="true"/>
-                   </property>
-                  </widget>
+                  <widget class="QDateEdit" name="dateEdit_end"/>
                  </item>
                 </layout>
                </widget>
@@ -465,9 +399,6 @@
               <property name="spacing">
                <number>3</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
               <item>
                <widget class="QLabel" name="label_12">
                 <property name="text">
@@ -477,9 +408,6 @@
               </item>
               <item>
                <widget class="QWidget" name="dateEdit_forecast_wrapper" native="true">
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_9">
                  <property name="leftMargin">
                   <number>2</number>
@@ -494,11 +422,7 @@
                   <number>1</number>
                  </property>
                  <item>
-                  <widget class="QDateEdit" name="dateEdit_forecast">
-                   <property name="styleSheet">
-                    <string notr="true"/>
-                   </property>
-                  </widget>
+                  <widget class="QDateEdit" name="dateEdit_forecast"/>
                  </item>
                 </layout>
                </widget>
@@ -517,9 +441,6 @@
          </item>
          <item>
           <widget class="QWidget" name="comboBox_offset_wrapper" native="true">
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
            <layout class="QVBoxLayout" name="verticalLayout_10">
             <property name="leftMargin">
              <number>2</number>
@@ -534,11 +455,7 @@
              <number>2</number>
             </property>
             <item>
-             <widget class="QComboBox" name="comboBox_offset">
-              <property name="styleSheet">
-               <string notr="true"/>
-              </property>
-             </widget>
+             <widget class="QComboBox" name="comboBox_offset"/>
             </item>
            </layout>
           </widget>
@@ -546,9 +463,6 @@
          <item>
           <widget class="QWidget" name="pushButton_forecast_wrapper" native="true">
            <layout class="QVBoxLayout" name="verticalLayout_5">
-            <property name="spacing">
-             <number>0</number>
-            </property>
             <property name="leftMargin">
              <number>2</number>
             </property>

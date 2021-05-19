@@ -1,41 +1,47 @@
 import json
 import time
-
 import requests
-from PyQt5 import QtWidgets, QtCore, QtGui
 import sys
+
+from PyQt5 import QtWidgets, QtCore, QtGui
+
 import plotly
 import plotly.graph_objs as go
 
 from source.back import back
-
 import source._helpers as hlp
 from source._helpers import send_request
-
 import source.client.config as ui_cfg
 import source.config as cfg
-from source.client.design import UiMainWindow
+from source.client.design import Ui_MainWindow
+import source.client.custom_widgets as cw
 
 
 class GUI(QtWidgets.QMainWindow):
     def __init__(self, test):
         super(GUI, self).__init__()
-        self.ui = UiMainWindow()
-        self.ui.setup_ui(self)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
         self.setWindowTitle("TimeSeries Forecast")
 
-        if not test:
-            self.ui.comboBox_model.addItem("")
-            self.ui.comboBox_metric.addItem("")
-            self.ui.comboBox_method.addItem("")
-            self.ui.comboBox_type.addItem("")
-            self.ui.comboBox_offset.addItem("")
+        self.lineEdits = [self.ui.lineEdit_series]
+        self.comboBoxes = [
+            self.ui.comboBox_model,
+            self.ui.comboBox_metric,
+            self.ui.comboBox_method,
+            self.ui.comboBox_type,
+            self.ui.comboBox_offset
+        ]
 
-        self.ui.comboBox_model.addItems(hlp.get_values(cfg.Model))
-        self.ui.comboBox_metric.addItems(hlp.get_values(cfg.Metrics))
-        self.ui.comboBox_method.addItems(hlp.get_values(cfg.Methods))
-        self.ui.comboBox_type.addItems(hlp.get_values(cfg.Type))
-        self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.keys())
+        if not test:
+            for cb in self.comboBoxes:
+                cb.addItem("")
+
+        self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.value.keys())
+        self.ui.comboBox_metric.addItems(ui_cfg.TRANSLATE.Metrics.value.keys())
+        self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.value.keys())
+        self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.value.keys())
+        self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.value.keys())
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)
@@ -44,17 +50,9 @@ class GUI(QtWidgets.QMainWindow):
         cur = cur.addYears(-2)
         self.ui.dateEdit_start.setDate(cur)
 
-        class List(QtWidgets.QListWidget):
-            delete = QtCore.pyqtSignal()
+        self.ui.listWidget.__class__ = cw.List
 
-            def keyPressEvent(self, event):
-                if event.key() == QtCore.Qt.Key_Delete:
-                    self.delete.emit()
-
-        self.ui.listWidget.__class__ = List
         self.ui.listWidget.delete.connect(self.del_exogenous)
-        self.ui.listWidget.setSelectionMode(QtWidgets.QListWidget.MultiSelection)
-
         self.ui.pushButton_forecast.clicked.connect(self.predict_series)
         self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
         self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
@@ -79,100 +77,17 @@ class GUI(QtWidgets.QMainWindow):
             "border-radius: 5px;\n"
             "}"
         )
-        
 
-    def check_empty_cb(self, cb: QtWidgets.QComboBox):
-        if not cb.currentText():
-            self.paint_widget(cb, ui_cfg.error_color)
-            return True
-        else:
-            self.paint_widget(cb, ui_cfg.correct_color)
+    def check_correct(self, widget, data):
+        if not data:
+            self.paint_widget(widget, ui_cfg.error_color)
             return False
-
-    def check_empty_le(self, le: QtWidgets.QLineEdit):
-        if not le.text():
-            self.paint_widget(le, ui_cfg.error_color)
+        else:
+            self.paint_widget(widget, ui_cfg.correct_color)
             return True
-        else:
-            self.paint_widget(le, ui_cfg.correct_color)
-            return False
 
-    def predict_series(self):
-        flag_correct = True
-
-        if self.check_empty_le(self.ui.lineEdit_series):
-            flag_correct = False
-
-        if self.check_empty_cb(self.ui.comboBox_model):
-            flag_correct = False
-
-        if self.check_empty_cb(self.ui.comboBox_metric):
-            flag_correct = False
-
-        if self.check_empty_cb(self.ui.comboBox_method):
-            flag_correct = False
-
-        if self.check_empty_cb(self.ui.comboBox_type):
-            flag_correct = False
-
-        if self.check_empty_cb(self.ui.comboBox_offset):
-            flag_correct = False
-
-        cur = QtCore.QDate.currentDate()
-        if self.ui.dateEdit_start.date() > cur:
-            flag_correct = False
-            self.paint_widget(self.ui.dateEdit_start, ui_cfg.error_color)
-        else:
-            self.paint_widget(self.ui.dateEdit_start, ui_cfg.correct_color)
-
-        if self.ui.dateEdit_end.date() <= self.ui.dateEdit_start.date() or \
-            self.ui.dateEdit_end.date() > cur:
-            flag_correct = False
-            self.paint_widget(self.ui.dateEdit_end, ui_cfg.error_color)
-        else:
-            self.paint_widget(self.ui.dateEdit_end, ui_cfg.correct_color)
-
-        if self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_end.date() or \
-                self.ui.dateEdit_forecast.date() <= self.ui.dateEdit_start.date():
-            flag_correct = False
-            self.paint_widget(self.ui.dateEdit_forecast, ui_cfg.error_color)
-        else:
-            self.paint_widget(self.ui.dateEdit_forecast, ui_cfg.correct_color)
-
-        if not flag_correct:
-            print("WARNING: Incorrect input!")
-            return
-
-        params = hlp.PredictParams(
-            self.ui.lineEdit_series.text(),
-            self.ui.comboBox_model.currentText(),
-            [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
-            self.ui.comboBox_metric.currentText(),
-            self.ui.comboBox_method.currentText(),
-            self.ui.comboBox_type.currentText(),
-            self.ui.dateEdit_start.date().toString("yyyy-MM-dd"),
-            self.ui.dateEdit_end.date().toString("yyyy-MM-dd"),
-            self.ui.dateEdit_forecast.date().toString("yyyy-MM-dd"),
-            ui_cfg.TRANSLATE[self.ui.comboBox_offset.currentText()]
-        )
-
-        # Getting forecast and time series from backend
-        req_res = self._predict_request(params)
-        while not req_res.get('success', False):
-            req_res = self._predict_request(params)
-            time.sleep(1)
-
-        print(req_res)
-        data = self._get_request(req_res['id'])
-
-        if data.get('status', None) is not cfg.Status.ready:
-            print(data)
-            return
-
-        data = data['data']
+    def plot(self, data):
         x, y, x_pred, y_pred = data["X"], data["Y"], data["PredictedX"], data["PredictedY"]
-
-        print(x, y)
 
         fig = go.Figure()
 
@@ -201,6 +116,74 @@ class GUI(QtWidgets.QMainWindow):
         html += '</body></html>'
 
         self.ui.webView.setHtml(html)
+
+    def handle_errors(self):
+        flag_correct = True
+
+        for le in self.lineEdits:
+            if not self.check_correct(le, le.text()):
+                flag_correct = False
+        
+        for cb in self.comboBoxes:
+            if not self.check_correct(cb, cb.currentText()):
+                flag_correct = False
+
+        dates = [
+            self.ui.dateEdit_start.date(), 
+            self.ui.dateEdit_end.date(), 
+            self.ui.dateEdit_forecast.date()
+        ]
+        cur = QtCore.QDate.currentDate()
+        
+        flag_start = dates[0] <= cur and dates[0] not in dates[1:]
+        flag_end = dates[1] <= cur and dates[1] not in [dates[0], dates[2]]
+        flag_forecast = dates[2] not in dates[:2]
+
+        flag_start &= (dates[0] < dates[1]) and (dates[0] < dates[2])
+        flag_end &= (dates[1] > dates[0]) and (dates[1] < dates[2])
+        flag_forecast &= (dates[2] > dates[1]) and (dates[2] > dates[0])
+
+        self.check_correct(self.ui.dateEdit_start, flag_start)
+        self.check_correct(self.ui.dateEdit_end, flag_end)
+        self.check_correct(self.ui.dateEdit_forecast, flag_forecast)
+
+        flag_correct &= flag_start & flag_end & flag_forecast
+
+        return flag_correct
+
+    def predict_series(self):
+        if not self.handle_errors():
+            print("WARNING: Incorrect input!")
+            return
+
+        params = hlp.PredictParams(
+            self.ui.lineEdit_series.text(),
+            ui_cfg.TRANSLATE.Model.value[self.ui.comboBox_model.currentText()],
+            [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
+            ui_cfg.TRANSLATE.Metrics.value[self.ui.comboBox_metric.currentText()],
+            ui_cfg.TRANSLATE.Method.value[self.ui.comboBox_method.currentText()],
+            ui_cfg.TRANSLATE.Type.value[self.ui.comboBox_type.currentText()],
+            self.ui.dateEdit_start.date().toString("yyyy-MM-dd"),
+            self.ui.dateEdit_end.date().toString("yyyy-MM-dd"),
+            self.ui.dateEdit_forecast.date().toString("yyyy-MM-dd"),
+            ui_cfg.TRANSLATE.Offset.value[self.ui.comboBox_offset.currentText()]
+        )
+
+        print(params.__dict__)
+        # Getting forecast and time series from backend
+        req_res = self._predict_request(params)
+        while not req_res.get('success', False):
+            req_res = self._predict_request(params)
+            time.sleep(1)
+
+        print(req_res)
+        data = self._get_request(req_res['id'])
+
+        if data.get('status', None) is not cfg.Status.ready:
+            print(data)
+            return
+
+        self.plot(data['data'])
 
     @staticmethod
     def _predict_request(params):
