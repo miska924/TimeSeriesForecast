@@ -61,7 +61,14 @@ def run(params: PredictParams):
         date_range = pd.date_range(parser.parse(params.end_date) + datetime.timedelta(days=1),
                                    params.forecast_date, freq=params.offset.value)
 
-        model = linear_regression.Model()
+        model = None
+        print("DEBUD:", params.model, " -> ", cfg.Model(params.model))
+        if cfg.Model(params.model) == cfg.Model.linear_reg:
+            model = linear_regression.Model()
+        else:
+            model = naive.Model()
+
+        # model = linear_regression.Model()
         model.load(params)
 
         res_y, res_index = [], []
@@ -148,7 +155,7 @@ if __name__ == '__main__':
         cv_shift=15,
         cv_predict_days=2
     )
-    #run(tmp_params)
+    # run(tmp_params)
     print(cross_validation(tmp_params))
     tmp_params = PredictParams(
         model=cfg.Model.naive,
