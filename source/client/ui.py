@@ -68,7 +68,7 @@ class GUI(QtWidgets.QMainWindow):
         for item in selected:
             self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
 
-    def paint_widget(self, widget, color):
+    def paint_widget(self, widget, color: str):
         widget_name = widget.objectName() + "_wrapper"
         widget = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget_name)
         widget.setStyleSheet(
@@ -117,7 +117,7 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.webView.setHtml(html)
 
-    def predict_series(self):
+    def handle_errors(self):
         flag_correct = True
 
         for le in self.lineEdits:
@@ -149,7 +149,10 @@ class GUI(QtWidgets.QMainWindow):
 
         flag_correct &= flag_start & flag_end & flag_forecast
 
-        if not flag_correct:
+        return flag_correct
+
+    def predict_series(self):
+        if not self.handle_errors():
             print("WARNING: Incorrect input!")
             return
 
