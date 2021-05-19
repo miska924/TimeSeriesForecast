@@ -5,7 +5,8 @@ import enum
 
 class TRANSLATE(enum.Enum):
     Model = {
-        "Линейная регрессия": cfg.Model.linear_reg 
+        "Линейная регрессия": cfg.Model.linear_reg,
+        "Наивная модель": cfg.Model.naive
     }
 
     Metrics = {
