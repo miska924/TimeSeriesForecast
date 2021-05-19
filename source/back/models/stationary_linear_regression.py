@@ -27,9 +27,9 @@ class Model(BaseModel):
     def train(self, shift: int):
         df_copy = self.df.copy()
 
-        for col in df_copy.columns:
-            df_copy = DataProcess.replace_with_diff(df_copy, col, shift)
-            if col != 'Y':
+        for i, col in enumerate(df_copy.columns):
+            df_copy = DataProcess.replace_with_diff(df_copy.copy(), col, shift)
+            if i != 0:
                 df_copy[col] = df_copy[col].shift(shift)
 
         df_copy = DataProcess.get_prepared_data_frame(df_copy)
