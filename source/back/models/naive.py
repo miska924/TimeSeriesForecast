@@ -22,19 +22,7 @@ class Model(BaseModel):
         self.df = DataProcess.get_processed(params)
 
     def train(self, shift: int):
-        df_copy = self.df.copy()
-        for col in df_copy.columns:
-            if col != 'Y':
-                df_copy[col] = df_copy[col].shift(shift)
-        df_copy = df_copy.dropna(axis=0, how='any')
-        self.filtered_columns = self.df.columns
-        DataProcess.get_filtered_data_frame_columns(df_copy, mrmr=False)
-
-        df_copy = df_copy[self.filtered_columns].to_numpy()
-        x = df_copy[:, 1:]
-        y = df_copy[:, 0]
-        self.model = LR()
-        self.model.fit(x, y)
+        pass
 
     def predict(self):
-        return self.model.predict(self.df.tail(1)[self.filtered_columns[1:]])[0]
+        return self.df['Y'][-1]

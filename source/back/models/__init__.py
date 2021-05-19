@@ -1,3 +1,4 @@
 __all__ = [
-    'linear_regression'
+    'linear_regression',
+    'naive'
 ]
