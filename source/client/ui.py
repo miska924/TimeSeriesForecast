@@ -25,17 +25,21 @@ class GUI(QtWidgets.QMainWindow):
         self.setWindowTitle("TimeSeries Forecast")
 
         self.lineEdits = [self.ui.lineEdit_series]
-        self.comboBoxes = [
+        self.comboBoxes_general = [
             self.ui.comboBox_model,
-            self.ui.comboBox_metric,
             self.ui.comboBox_method,
             self.ui.comboBox_type,
             self.ui.comboBox_offset
         ]
+        self.comboBoxes_cv = [self.ui.comboBox_metric]
+        self.spinBoxes = [self.ui.spinBox_shift, self.ui.spinBox_period, self.ui.spinBox_preddays]
 
         if not test:
-            for cb in self.comboBoxes:
+            for cb in self.comboBoxes_general:
                 cb.addItem("")
+            for cb in self.comboBoxes_cv:
+                cb.addItem("")
+                
 
         self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.value.keys())
         self.ui.comboBox_metric.addItems(ui_cfg.TRANSLATE.Metrics.value.keys())
@@ -52,11 +56,15 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.listWidget.__class__ = cw.List
 
+        self.ui.cv_wrapper.hide()
+
         self.ui.listWidget.delete.connect(self.del_exogenous)
         self.ui.pushButton_forecast.clicked.connect(self.predict_series)
         self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
         self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
         self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
+        self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
+
 
     def add_exogenous(self):
         if self.ui.lineEdit_exogenous.text():
@@ -67,6 +75,14 @@ class GUI(QtWidgets.QMainWindow):
         selected = self.ui.listWidget.selectedItems()
         for item in selected:
             self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
+
+    def update_cv(self, state):
+        if state:
+            self.ui.cv_wrapper.show()
+            self.ui.pushButton_forecast.setText("Оценить")
+        else:
+            self.ui.cv_wrapper.hide()
+            self.ui.pushButton_forecast.setText("Спрогнозировать")
 
     def paint_widget(self, widget, color: str):
         widget_name = widget.objectName() + "_wrapper"
@@ -124,7 +140,7 @@ class GUI(QtWidgets.QMainWindow):
             if not self.check_correct(le, le.text()):
                 flag_correct = False
         
-        for cb in self.comboBoxes:
+        for cb in self.comboBoxes_general:
             if not self.check_correct(cb, cb.currentText()):
                 flag_correct = False
 
@@ -149,6 +165,15 @@ class GUI(QtWidgets.QMainWindow):
 
         flag_correct &= flag_start & flag_end & flag_forecast
 
+        if self.ui.checkBox_cv.isChecked():
+            for cb in self.comboBoxes_cv:
+                if not self.check_correct(cb, cb.currentText()):
+                    flag_correct = False
+
+            for sb in self.spinBoxes:
+                if not self.check_correct(sb, sb.value()):
+                    flag_correct = False
+
         return flag_correct
 
     def predict_series(self):
@@ -166,24 +191,31 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.dateEdit_start.date().toString("yyyy-MM-dd"),
             self.ui.dateEdit_end.date().toString("yyyy-MM-dd"),
             self.ui.dateEdit_forecast.date().toString("yyyy-MM-dd"),
-            ui_cfg.TRANSLATE.Offset.value[self.ui.comboBox_offset.currentText()]
+            ui_cfg.TRANSLATE.Offset.value[self.ui.comboBox_offset.currentText()],
+            self.ui.spinBox_shift.value(),
+            self.ui.spinBox_period.value(),
+            self.ui.spinBox_preddays.value()
         )
 
         print(params.__dict__)
-        # Getting forecast and time series from backend
-        req_res = self._predict_request(params)
-        while not req_res.get('success', False):
-            req_res = self._predict_request(params)
-            time.sleep(1)
-
-        print(req_res)
-        data = self._get_request(req_res['id'])
-
-        if data.get('status', None) is not cfg.Status.ready:
-            print(data)
+        if self.ui.checkBox_cv.isChecked():
+            pass
+        else:
             return
+            # Getting forecast and time series from backend
+            req_res = self._predict_request(params)
+            while not req_res.get('success', False):
+                req_res = self._predict_request(params)
+                time.sleep(1)
 
-        self.plot(data['data'])
+            print(req_res)
+            data = self._get_request(req_res['id'])
+
+            if data.get('status', None) is not cfg.Status.ready:
+                print(data)
+                return
+
+            self.plot(data['data'])
 
     @staticmethod
     def _predict_request(params):
