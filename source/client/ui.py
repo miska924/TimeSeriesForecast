@@ -57,6 +57,11 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.spinBox_period.setMaximum(10000)
         self.ui.spinBox_preddays.setMaximum(10000)
 
+        if test:
+            self.ui.spinBox_period.setValue(120)
+            self.ui.spinBox_shift.setValue(15)
+            self.ui.spinBox_preddays.setValue(2)
+
         self.ui.listWidget.delete.connect(self.del_exogenous)
         self.ui.pushButton_forecast.clicked.connect(self.predict_series)
         self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
