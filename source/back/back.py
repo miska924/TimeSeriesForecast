@@ -17,6 +17,7 @@ from source._helpers import PredictParams, get_values, save_file, dates_from_arr
 from source.back.data_process import DataProcess
 from source.back.models import *
 from source.config import PredictionData
+from source.server.config import ExecType
 
 
 def clean(predictions: dict):
@@ -29,13 +30,13 @@ def clean(predictions: dict):
             del predictions[key]
 
 
-def predictor(requests: Queue, predictions: dict):
+def executor(requests: Queue, results: dict):
     counter = 0
     while True:
         if counter == cfg.CLEAN_PREDICT_CNT:
-            print("before cleaning:\n", predictions.keys())
-            clean(predictions)
-            print("after cleaning:\n", predictions.keys())
+            print("before cleaning:\n", results.keys())
+            clean(results)
+            print("after cleaning:\n", results.keys())
 
             counter = 0
             continue
@@ -43,21 +44,23 @@ def predictor(requests: Queue, predictions: dict):
         counter += 1
 
         data = requests.get()
-        uid, data = data['id'], data['data']
-        predictions[uid] = PredictionData(status=cfg.Status.process)
+        uid, data, type = data['id'], data['data'], data['type']
+        results[uid] = PredictionData(status=cfg.Status.process)
 
         try:
             params = PredictParams(**data)
             print(params)
         except:
             print(traceback.format_exc())
-            predictions[uid] = PredictionData(status=cfg.Status.fail, data=cfg.INVALID_PARAMS_ERROR)
+            results[uid] = PredictionData(status=cfg.Status.fail, data=cfg.INVALID_PARAMS_ERROR)
             continue
+        if type == ExecType.predict:
+            results[uid] = run_prediction(params)
+        else:
+            results[uid] = run_cross_validation(params)
 
-        predictions[uid] = run(params)
 
-
-def run(params: PredictParams):
+def run_prediction(params: PredictParams):
     try:
         date_range = pd.date_range(parser.parse(params.end_date) + datetime.timedelta(days=1),
                                    params.forecast_date, freq=params.offset.value)
@@ -96,7 +99,8 @@ def run(params: PredictParams):
     )
 
 
-def cross_validation(params: PredictParams):
+# Returns MSE and MAPE
+def run_cross_validation(params: PredictParams):
     loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
                                                 params.offset.value, params.exogenous_variables)
 
@@ -122,7 +126,13 @@ def cross_validation(params: PredictParams):
             print(mse[-1], loaded_df.index[i], loaded_df.index[i + params.cv_period - 1],
                   loaded_df.index[i + params.cv_period + params.cv_predict_days - 1])
 
-    return sum(mse) / len(mse), sum(mape) / len(mape)
+    return PredictionData(
+        data={
+            "mse": sum(mse) / len(mse),
+            "mape": sum(mape) / len(mape)
+        },
+        status=cfg.Status.ready
+    )
 
 
 if __name__ == '__main__':
@@ -186,6 +196,6 @@ if __name__ == '__main__':
     #     cv_shift=15,
     #     cv_predict_days=2
     # )
-    print(run(tmp_params))
-    print(run(tmp_params))
+    print(run_prediction(tmp_params))
+    print(run_prediction(tmp_params))
     # print(cross_validation(tmp_params))

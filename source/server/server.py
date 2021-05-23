@@ -5,9 +5,10 @@ import uuid
 from flask import request, Flask
 
 from source import config as cfg
-from source.back.back import predictor
+from source.back.back import executor
 from source.config import PredictionData
 from source._helpers import as_enum
+from source.server.config import ExecType
 
 app = Flask(__name__)
 
@@ -20,10 +21,31 @@ def predict():
 
     requests.put({
         'data': json.loads(request.get_data(), object_hook=as_enum),
-        'id': uid
+        'id': uid,
+        'type': ExecType.predict
     })
 
-    predictions[uid] = PredictionData(status=cfg.Status.wait)
+    results[uid] = PredictionData(status=cfg.Status.wait)
+
+    return {
+        "success": True,
+        "id": uid
+    }
+
+
+@app.route('/cross-validate', methods=['POST'])
+def cross_validate():
+    uid = str(uuid.uuid4())
+
+    print(json.loads(request.get_data(), object_hook=as_enum))
+
+    requests.put({
+        'data': json.loads(request.get_data(), object_hook=as_enum),
+        'id': uid,
+        'type': ExecType.cross_validate
+    })
+
+    results[uid] = PredictionData(status=cfg.Status.wait)
 
     return {
         "success": True,
@@ -38,19 +60,19 @@ def test():
 
 @app.route('/get', methods=['GET'])
 def get():
-    if ('id' not in request.args) or (request.args['id'] not in predictions):
+    if ('id' not in request.args) or (request.args['id'] not in results):
         return PredictionData(status=cfg.Status.invalid).format()
 
-    res = predictions[request.args['id']]
+    res = results[request.args['id']]
     if res.status not in [cfg.Status.wait, cfg.Status.process]:
-        del predictions[request.args['id']]
+        del results[request.args['id']]
 
     return res.format()
 
 
 if __name__ == '__main__':
     requests = mp.Queue(cfg.MAX_QUEUE_SIZE)
-    predictions = mp.Manager().dict()
-    mp.Process(target=predictor, args=(requests, predictions)).start()
+    results = mp.Manager().dict()
+    mp.Process(target=executor, args=(requests, results)).start()
 
     app.run(host="10.0.0.5", port="8080")

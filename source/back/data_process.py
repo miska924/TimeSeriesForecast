@@ -5,7 +5,6 @@ import traceback
 import pandas as pd
 import requests
 import apimoex
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 from sklearn import feature_selection
 
