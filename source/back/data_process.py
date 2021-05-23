@@ -91,7 +91,7 @@ class DataProcess:
 
         # load tickers' series from moex:
         with requests.Session() as session:
-            for ticker in tqdm(tickers):
+            for ticker in tickers:
                 if ticker in DataProcess.cache:
                     cached = DataProcess.cache[ticker]
                     if cached.index[0] <= date_range[0] and date_range[-1] <= cached.index[-1]:

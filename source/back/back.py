@@ -6,7 +6,7 @@ import traceback
 import pandas as pd
 import numpy as np
 import copy
-from multiprocessing import Queue, Manager
+from multiprocessing import Queue, Lock
 from tqdm import tqdm
 from dateutil import parser
 from sklearn import metrics
@@ -20,22 +20,23 @@ from source.config import PredictionData
 from source.server.config import ExecType
 
 
-def clean(predictions: dict):
+def clean(results: dict):
     current_time = time.time_ns()
-    predictions_dict = dict(
-        sorted(filter(lambda item: current_time - item[1].timestamp < cfg.CLEAN_TIMEOUT, predictions.items()),
+    results_dict = dict(
+        sorted(filter(lambda item: current_time - item[1].timestamp < cfg.CLEAN_TIMEOUT, results.items()),
                key=lambda item: item[1].timestamp, reverse=True)[:cfg.MAX_PREDICTIONS_SIZE])
-    for key, value in predictions.items():
-        if key not in predictions_dict:
-            del predictions[key]
+    for key, value in results.items():
+        if key not in results_dict:
+            del results[key]
 
 
-def executor(requests: Queue, results: dict):
+def executor(requests: Queue, results: dict, requests_lock: Lock, results_lock: Lock):
     counter = 0
     while True:
         if counter == cfg.CLEAN_PREDICT_CNT:
             print("before cleaning:\n", results.keys())
-            clean(results)
+            with results_lock:
+                clean(results)
             print("after cleaning:\n", results.keys())
 
             counter = 0
@@ -45,19 +46,25 @@ def executor(requests: Queue, results: dict):
 
         data = requests.get()
         uid, data, type = data['id'], data['data'], data['type']
-        results[uid] = PredictionData(status=cfg.Status.process)
+        with results_lock:
+            results[uid] = PredictionData(status=cfg.Status.process)
 
         try:
             params = PredictParams(**data)
             print(params)
         except:
             print(traceback.format_exc())
-            results[uid] = PredictionData(status=cfg.Status.fail, data=cfg.INVALID_PARAMS_ERROR)
+            with results_lock:
+                results[uid] = PredictionData(status=cfg.Status.fail, data=cfg.INVALID_PARAMS_ERROR)
             continue
+
         if type == ExecType.predict:
-            results[uid] = run_prediction(params)
+            tmp = run_prediction(params)
         else:
-            results[uid] = run_cross_validation(params)
+            tmp = run_cross_validation(params)
+
+        with results_lock:
+            results[uid] = tmp
 
 
 def run_prediction(params: PredictParams):
@@ -101,30 +108,34 @@ def run_prediction(params: PredictParams):
 
 # Returns MSE and MAPE
 def run_cross_validation(params: PredictParams):
-    loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
-                                                params.offset.value, params.exogenous_variables)
+    try:
+        loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
+                                                    params.offset.value, params.exogenous_variables)
 
-    mse = []
-    mape = []
-    for i in range(0, loaded_df.shape[0] - params.cv_period - params.cv_predict_days, params.cv_shift):
-        print(params.model.value)
-        model = getattr(source.back.models, params.model.value).Model()
-        local_params = copy.deepcopy(params)
-        local_params.start_date, local_params.end_date = loaded_df.index[i], loaded_df.index[i + params.cv_period - 1]
-        model.load(local_params)
+        mse = []
+        mape = []
+        for i in tqdm(range(0, loaded_df.shape[0] - params.cv_period - params.cv_predict_days, params.cv_shift)):
+            print(params.model.value)
+            model = getattr(source.back.models, params.model.value).Model()
+            local_params = copy.deepcopy(params)
+            local_params.start_date, local_params.end_date = loaded_df.index[i], loaded_df.index[i + params.cv_period - 1]
+            model.load(local_params)
 
-        res = [[], []]
-        for days in range(1, params.cv_predict_days + 1):
-            model.train(days)
-            res[0].append(model.predict())
-        res[1] = list(loaded_df.iloc[i + params.cv_period:i + params.cv_period + params.cv_predict_days, 0])
+            res = [[], []]
+            for days in range(1, params.cv_predict_days + 1):
+                model.train(days)
+                res[0].append(model.predict())
+            res[1] = list(loaded_df.iloc[i + params.cv_period:i + params.cv_period + params.cv_predict_days, 0])
 
-        mse.append(metrics.mean_squared_error(res[1], res[0]))
-        mape.append(metrics.mean_absolute_percentage_error(res[1], res[0]))
+            mse.append(metrics.mean_squared_error(res[1], res[0]))
+            mape.append(metrics.mean_absolute_percentage_error(res[1], res[0]))
 
-        if mse[-1] > 18000:
-            print(mse[-1], loaded_df.index[i], loaded_df.index[i + params.cv_period - 1],
-                  loaded_df.index[i + params.cv_period + params.cv_predict_days - 1])
+            if mse[-1] > 18000:
+                print(mse[-1], loaded_df.index[i], loaded_df.index[i + params.cv_period - 1],
+                      loaded_df.index[i + params.cv_period + params.cv_predict_days - 1])
+    except:
+        print(traceback.format_exc())
+        return PredictionData(status=cfg.Status.fail, data=cfg.CROSS_VALIDATION_FAILED)
 
     return PredictionData(
         data={

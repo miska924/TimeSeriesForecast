@@ -5,6 +5,7 @@ import uuid
 from flask import request, Flask
 
 from source import config as cfg
+from source.server import config as server_cfg
 from source.back.back import executor
 from source.config import PredictionData
 from source._helpers import as_enum
@@ -25,7 +26,8 @@ def predict():
         'type': ExecType.predict
     })
 
-    results[uid] = PredictionData(status=cfg.Status.wait)
+    with results_lock:
+        results[uid] = PredictionData(status=cfg.Status.wait)
 
     return {
         "success": True,
@@ -45,7 +47,8 @@ def cross_validate():
         'type': ExecType.cross_validate
     })
 
-    results[uid] = PredictionData(status=cfg.Status.wait)
+    with results_lock:
+        results[uid] = PredictionData(status=cfg.Status.wait)
 
     return {
         "success": True,
@@ -60,12 +63,13 @@ def test():
 
 @app.route('/get', methods=['GET'])
 def get():
-    if ('id' not in request.args) or (request.args['id'] not in results):
-        return PredictionData(status=cfg.Status.invalid).format()
+    with results_lock:
+        if ('id' not in request.args) or (request.args['id'] not in results):
+            return PredictionData(status=cfg.Status.invalid).format()
 
-    res = results[request.args['id']]
-    if res.status not in [cfg.Status.wait, cfg.Status.process]:
-        del results[request.args['id']]
+        res = results[request.args['id']]
+        if res.status not in [cfg.Status.wait, cfg.Status.process]:
+            del results[request.args['id']]
 
     return res.format()
 
@@ -73,6 +77,10 @@ def get():
 if __name__ == '__main__':
     requests = mp.Queue(cfg.MAX_QUEUE_SIZE)
     results = mp.Manager().dict()
-    mp.Process(target=executor, args=(requests, results)).start()
+    requests_lock = mp.Lock()
+    results_lock = mp.Lock()
+
+    for i in range(server_cfg.PROCESSES_COUNT):
+        mp.Process(target=executor, args=(requests, results, requests_lock, results_lock)).start()
 
     app.run(host="10.0.0.5", port="8080")
