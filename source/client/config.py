@@ -8,25 +8,15 @@ import enum
 @dataclass
 class ModelParams:
     backend: cfg.Model
-<<<<<<< HEAD
     widgets: List[str]
 
     def __init__(self, backend: cfg.Model, widgets: List[str]):
         self.backend = backend
-=======
-    name: str
-    widgets: List[str]
-
-    def __init__(self, backend: cfg.Model, name: str, widgets: List[str]):
-        self.backend = backend
-        self.name = name
->>>>>>> 7b9274521bafb9343d67094fd0960ca76ef3b840
         self.widgets = widgets
 
 class TRANSLATE(enum.Enum):
     Model = {
         "Линейная регрессия" : ModelParams(
-<<<<<<< HEAD
             backend=cfg.Model.linear_reg, 
             widgets=["exogenous_wrapper"]
         ),
@@ -41,16 +31,6 @@ class TRANSLATE(enum.Enum):
         "Волшебный Ансамбль": ModelParams(
             backend=cfg.Model.ansamble,
             widgets=["exogenous_wrapper"]
-=======
-            cfg.Model.linear_reg, 
-            "Линейная регрессия", 
-            ["exogenous_wrapper"]
-        ),
-        "Наивная модель" : ModelParams(
-            cfg.Model.naive, 
-            "Наивная модель", 
-            []
->>>>>>> 7b9274521bafb9343d67094fd0960ca76ef3b840
         )
     }
     Metrics = {
