@@ -38,6 +38,7 @@ class Model(enum.Enum):
     naive = 'naive'
     stationary_linear_regression = 'stationary_linear_regression'
     ansamble = 'ansamble'
+    ets = 'ets'
 
 
 class Offset(enum.Enum):

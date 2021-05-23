@@ -168,9 +168,9 @@ if __name__ == '__main__':
         offset = cfg.Offset(offset)
 
     tmp_params = PredictParams(
-        model=cfg.Model.ansamble,
+        model=cfg.Model.ets,
         ticker=list(cfg.TICKERS.keys())[0],
-        exogenous_variables=['IMOEX', 'MOEXOG'],
+        exogenous_variables=[],
         start_date=start_date,
         end_date=end_date,
         forecast_date='2021-05-09',
@@ -179,6 +179,22 @@ if __name__ == '__main__':
         cv_shift=15,
         cv_predict_days=2
     )
+    res = run_cross_validation(tmp_params)
+    print(res.data)
+    tmp_params = PredictParams(
+        model=cfg.Model.naive,
+        ticker=list(cfg.TICKERS.keys())[0],
+        exogenous_variables=[],
+        start_date=start_date,
+        end_date=end_date,
+        forecast_date='2021-05-09',
+        offset=offset,
+        cv_period=127,
+        cv_shift=15,
+        cv_predict_days=2
+    )
+    res = run_cross_validation(tmp_params)
+    print(res.data)
     # run(tmp_params)
     #print(cross_validation(tmp_params))
     # tmp_params = PredictParams(
