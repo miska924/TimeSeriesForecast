@@ -11,6 +11,7 @@ CLEAN_TIMEOUT = 60 * 60 * 1000 * 1000
 
 INVALID_PARAMS_ERROR = "Invalid params."
 PREDICTION_FAILED = "Prediction failed."
+CROSS_VALIDATION_FAILED = "Cross validation failed."
 
 TICKERS = {
     'GAZP': ['IMOEX', 'MOEXOG'],  # 'USDRUB_TOM'
@@ -35,6 +36,8 @@ class Metrics(enum.Enum):
 class Model(enum.Enum):
     linear_reg = 'linear_regression'
     naive = 'naive'
+    stationary_linear_regression = 'stationary_linear_regression'
+    ansamble = 'ansamble'
 
 
 class Offset(enum.Enum):

@@ -1,10 +1,10 @@
+import datetime
 import os
 import traceback
 
 import pandas as pd
 import requests
 import apimoex
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 from sklearn import feature_selection
 
@@ -14,6 +14,7 @@ from source import config as cfg
 
 
 class DataProcess:
+    cache = {}
 
     def __init__(self):
         pass
@@ -33,12 +34,25 @@ class DataProcess:
     # filters relevant columns using mutual info or mrmr method
     @staticmethod
     def get_filtered_data_frame_columns(df: pd.DataFrame, mrmr=False, features_left_cnt=10):
+        if features_left_cnt >= len(df.columns) - 1:
+            return df.columns
+
         if mrmr and len(df.columns) - features_left_cnt < 10:
             import pymrmr
             return [df.columns.values[0]] + pymrmr.mRMR(df, 'MID', features_left_cnt)
         else:
             data = df.to_numpy()
-            columns = sorted(feature_selection.mutual_info_regression(data[:, 1:], data[:, 0]))[:features_left_cnt]
+            correlations = feature_selection.mutual_info_regression(data[:, 1:], data[:, 0])
+            treshold = sorted(correlations, reverse=True)[features_left_cnt]
+
+            columns = []
+            for i, col in enumerate(df.columns[1:]):
+                if len(columns) < features_left_cnt and correlations[i] > treshold:
+                    columns.append(col)
+            for i, col in enumerate(df.columns[1:]):
+                if len(columns) < features_left_cnt and correlations[i] == treshold:
+                    columns.append(col)
+
             return [df.columns.values[0]] + columns
 
     # [THE POINT OF ENTRANCE]:
@@ -55,7 +69,7 @@ class DataProcess:
         # process:
         loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
                                                     params.offset.value, params.exogenous_variables)
-        prepared_df = DataProcess._get_prepared_data_frame(loaded_df, predict_day=0)
+        prepared_df = DataProcess.get_prepared_data_frame(loaded_df, predict_day=0)
         # filtered_df = DataProcess._get_filtered_data_frame(prepared_df)
 
         return prepared_df
@@ -77,7 +91,14 @@ class DataProcess:
 
         # load tickers' series from moex:
         with requests.Session() as session:
-            for ticker in tqdm(tickers):
+            for ticker in tickers:
+                if ticker in DataProcess.cache:
+                    cached = DataProcess.cache[ticker]
+                    if cached.index[0] <= date_range[0] and date_range[-1] <= cached.index[-1]:
+                        result = result.join(cached.copy().loc[date_range[0]:date_range[-1]],
+                                             how='outer')
+                        continue
+
                 info = MoexAPI.get_ticker_info(session, ticker)
                 data = apimoex.get_board_history(session, ticker, date_start, date_end, market=info['market'],
                                                  board=info['boardid'], engine=info['engine'])
@@ -89,7 +110,8 @@ class DataProcess:
                     item['TRADEDATE'] = pd.to_datetime(item['TRADEDATE'])
 
                 df = pd.DataFrame(data)[['TRADEDATE', 'CLOSE']].rename(columns={'CLOSE': ticker})
-                result = result.join(df.set_index('TRADEDATE'), how='outer')
+                DataProcess.cache[ticker] = df.set_index('TRADEDATE')
+                result = result.join(DataProcess.cache[ticker], how='outer')
 
         # cut useless indexes:
         result = result.resample(offset).apply('last')
@@ -117,7 +139,16 @@ class DataProcess:
         )
 
     @staticmethod
-    def _get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5, predict_day=0):
+    def replace_with_diff(df, a: str, shift=0):
+        if shift == 0:
+            stderr_print('replace_with_diff shift 0')
+            return
+
+        df[a] = df[a] - df[a].shift(shift)
+        return df
+
+    @staticmethod
+    def get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5, predict_day=0):
         # rename index & columns:
         index = df.index
         df.set_axis(index, axis=0, inplace=True)
