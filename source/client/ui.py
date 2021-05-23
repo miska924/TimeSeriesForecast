@@ -58,6 +58,9 @@ class GUI(QtWidgets.QMainWindow):
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
 
+        if test:
+            self.change_model(self.ui.comboBox_model.currentText())
+
         self.ui.listWidget.delete.connect(self.del_exogenous)
         self.ui.pushButton_forecast.clicked.connect(self.predict_series)
         self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
