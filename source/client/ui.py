@@ -32,18 +32,13 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.comboBox_type,
             self.ui.comboBox_offset
         ]
-        self.comboBoxes_cv = [self.ui.comboBox_metric]
-        self.spinBoxes = [self.ui.spinBox_shift, self.ui.spinBox_period, self.ui.spinBox_preddays]
+        self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
 
         if not test:
             for cb in self.comboBoxes_general:
-                cb.addItem("")
-            for cb in self.comboBoxes_cv:
-                cb.addItem("")
-                
+                cb.addItem("")                
 
         self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.value.keys())
-        self.ui.comboBox_metric.addItems(ui_cfg.TRANSLATE.Metrics.value.keys())
         self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.value.keys())
         self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.value.keys())
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.value.keys())
@@ -58,6 +53,9 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.listWidget.__class__ = cw.List
 
         self.ui.cv_wrapper.hide()
+        self.ui.spinBox_shift.setMaximum(10000)
+        self.ui.spinBox_period.setMaximum(10000)
+        self.ui.spinBox_preddays.setMaximum(10000)
 
         self.ui.listWidget.delete.connect(self.del_exogenous)
         self.ui.pushButton_forecast.clicked.connect(self.predict_series)
@@ -79,11 +77,13 @@ class GUI(QtWidgets.QMainWindow):
 
     def update_cv(self, state):
         if state:
-            self.ui.cv_wrapper.show()
+            self.ui.forecast_wrapper.hide()
             self.ui.pushButton_forecast.setText("Оценить")
+            self.ui.cv_wrapper.show()
         else:
             self.ui.cv_wrapper.hide()
             self.ui.pushButton_forecast.setText("Спрогнозировать")
+            self.ui.forecast_wrapper.show()
 
     def paint_widget(self, widget, color: str):
         widget_name = widget.objectName() + "_wrapper"
@@ -146,7 +146,7 @@ class GUI(QtWidgets.QMainWindow):
         
     @staticmethod
     def prettify_cv_data(errors):
-        errors['mape'] = f"{errors['mape'] * 100 :.{3}f}%"
+        errors['mape'] = f"{errors['mape'] * 100 :.{3}f}"
         errors['mse'] = f"{errors['mse']:.{3}f}"
 
     def print_cv(self, model: str, error_model, baseline: str, error_baseline):
@@ -224,26 +224,29 @@ class GUI(QtWidgets.QMainWindow):
         
         flag_start = dates[0] <= cur and dates[0] not in dates[1:]
         flag_end = dates[1] <= cur and dates[1] not in [dates[0], dates[2]]
-        flag_forecast = dates[2] not in dates[:2]
 
         flag_start &= (dates[0] < dates[1]) and (dates[0] < dates[2])
         flag_end &= (dates[1] > dates[0]) and (dates[1] < dates[2])
-        flag_forecast &= (dates[2] > dates[1]) and (dates[2] > dates[0])
 
         self.check_correct(self.ui.dateEdit_start, flag_start)
         self.check_correct(self.ui.dateEdit_end, flag_end)
-        self.check_correct(self.ui.dateEdit_forecast, flag_forecast)
 
-        flag_correct &= flag_start & flag_end & flag_forecast
+        flag_correct &= flag_start & flag_end
+
+        if not self.ui.checkBox_cv.isChecked():
+            flag_forecast = dates[2] not in dates[:2]
+            flag_forecast &= (dates[2] > dates[1]) and (dates[2] > dates[0])
+            self.check_correct(self.ui.dateEdit_forecast, flag_forecast)
+            flag_correct &= flag_forecast
 
         if self.ui.checkBox_cv.isChecked():
-            for cb in self.comboBoxes_cv:
-                if not self.check_correct(cb, cb.currentText()):
-                    flag_correct = False
-
-            for sb in self.spinBoxes:
+            for sb in self.spinBoxes[1:]:
                 if not self.check_correct(sb, sb.value()):
                     flag_correct = False
+        
+        days = dates[0].daysTo(dates[1])
+        if not self.check_correct(self.ui.spinBox_period, sb.value() < days and sb.value() > 0):
+            flag_correct = False
 
         return flag_correct
 
@@ -256,7 +259,7 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.lineEdit_series.text(),
             ui_cfg.TRANSLATE.Model.value[self.ui.comboBox_model.currentText()],
             [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
-            ui_cfg.TRANSLATE.Metrics.value[self.ui.comboBox_metric.currentText()],
+            cfg.Metrics.mse,
             ui_cfg.TRANSLATE.Method.value[self.ui.comboBox_method.currentText()],
             ui_cfg.TRANSLATE.Type.value[self.ui.comboBox_type.currentText()],
             self.ui.dateEdit_start.date().toString("yyyy-MM-dd"),
@@ -271,6 +274,7 @@ class GUI(QtWidgets.QMainWindow):
         print(params.__dict__)
         if self.ui.checkBox_cv.isChecked():
             data_cur = self.process_request(params, "cross-validate")
+            params.model = cfg.Model.naive
             data_baseline = self.process_request(params, "cross-validate")
             print(data_cur)
             print(data_baseline)
