@@ -1,4 +1,5 @@
 import json
+from os import error
 import time
 import requests
 import sys
@@ -133,6 +134,76 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.webView.setHtml(html)
 
+    @staticmethod
+    def get_html_table_row(contents, header: bool = False):
+        res = "<tr>"
+        sep_start = "<th>" if header else "<td>"
+        sep_end = "</th>" if header else "</td>"
+        for elem in contents:
+            res += sep_start + elem + sep_end
+        res += "</tr>"
+        return res
+        
+    @staticmethod
+    def prettify_cv_data(errors):
+        errors['mape'] = f"{errors['mape'] * 100 :.{3}f}%"
+        errors['mse'] = f"{errors['mse']:.{3}f}"
+
+    def print_cv(self, model: str, error_model, baseline: str, error_baseline):
+        self.prettify_cv_data(error_model)
+        self.prettify_cv_data(error_baseline)
+        headers = ["Model"] + [error for error in error_model.keys()]
+        contents = [
+            [model],
+            [baseline]
+        ]
+        for i in range(1, len(headers)):
+            contents[0].append(error_model[headers[i]])
+        for i in range(1, len(headers)):
+            contents[1].append(error_baseline[headers[i]])
+            headers[i] = headers[i].upper()
+        HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            width:100%;
+        }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        tr:nth-child(even) {
+            background-color: #eee;
+        }
+        tr:nth-child(odd) {
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Cross-validation results</h1>
+
+<table>
+"""
+        HTML += self.get_html_table_row(headers, True)
+        HTML += self.get_html_table_row(contents[0])
+        HTML += self.get_html_table_row(contents[1])
+        HTML += """
+</table>
+
+</body>
+</html>
+        """
+        self.ui.webView.setHtml(HTML)
+        
+
     def handle_errors(self):
         flag_correct = True
 
@@ -199,32 +270,44 @@ class GUI(QtWidgets.QMainWindow):
 
         print(params.__dict__)
         if self.ui.checkBox_cv.isChecked():
-            pass
-        else:
-            return
-            # Getting forecast and time series from backend
-            req_res = self._predict_request(params)
-            while not req_res.get('success', False):
-                req_res = self._predict_request(params)
-                time.sleep(1)
-
-            print(req_res)
-            data = self._get_request(req_res['id'])
-
-            if data.get('status', None) is not cfg.Status.ready:
-                print(data)
+            data_cur = self.process_request(params, "cross-validate")
+            data_baseline = self.process_request(params, "cross-validate")
+            print(data_cur)
+            print(data_baseline)
+            if not data_cur or not data_baseline:
                 return
+            self.print_cv(
+                self.ui.comboBox_model.currentText(),
+                data_cur['data'],
+                "Наивная модель",
+                data_baseline['data']
+            )
 
-            self.plot(data['data'])
-
-    @staticmethod
-    def _predict_request(params):
+    def process_request(self, params: hlp.PredictParams, request: str) -> any:
         headers = {'Content-type': 'application/json'}
-        return send_request(method='POST', url='http://158.101.168.149:8080/predict', headers=headers,
-                            data=json.dumps(params.__dict__, cls=hlp.EnumEncoder))
+        req_res = send_request(
+            method='POST', 
+            url='http://158.101.168.149:8080/' + request, 
+            headers=headers,
+            data=json.dumps(params.__dict__, cls=hlp.EnumEncoder)
+        )
+        while not req_res.get('success', False):
+            req_res = send_request(
+                method='POST', 
+                url='http://158.101.168.149:8080/' + request, 
+                headers=headers,
+                data=json.dumps(params.__dict__, cls=hlp.EnumEncoder)
+            )
+            time.sleep(1)
+        data = self.get_request(req_res['id'])
+        if data.get('status', None) is not cfg.Status.ready:
+            print(data)
+            return None
+        else:
+            return data
 
     @staticmethod
-    def _get_request(uid):
+    def get_request(uid):
         params = {
             'id': uid
         }
