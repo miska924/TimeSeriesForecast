@@ -3,7 +3,7 @@ import time
 import requests
 import sys
 
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore
 
 import plotly
 import plotly.graph_objs as go
@@ -23,6 +23,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("TimeSeries Forecast")
+        self.ui.verticalLayout_2.setAlignment(QtCore.Qt.AlignTop)
 
         self.lineEdits = [self.ui.lineEdit_series]
         self.comboBoxes = [
@@ -52,11 +53,17 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.listWidget.__class__ = cw.List
 
+        for model in ui_cfg.TRANSLATE.Model.value.values():
+            for widget in model.widgets:
+                curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
+                curr.hide()
+
         self.ui.listWidget.delete.connect(self.del_exogenous)
         self.ui.pushButton_forecast.clicked.connect(self.predict_series)
         self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
         self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
         self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
+        self.ui.comboBox_model.currentTextChanged.connect(self.change_model)
 
     def add_exogenous(self):
         if self.ui.lineEdit_exogenous.text():
@@ -67,6 +74,16 @@ class GUI(QtWidgets.QMainWindow):
         selected = self.ui.listWidget.selectedItems()
         for item in selected:
             self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
+
+    def change_model(self, model_name):
+        for model in ui_cfg.TRANSLATE.Model.value.values():
+            for widget in model.widgets:
+                curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
+                curr.hide()
+        model = ui_cfg.TRANSLATE.Model.value[model_name]
+        for widgets in model.widgets:
+            curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
+            curr.show()
 
     def paint_widget(self, widget, color: str):
         widget_name = widget.objectName() + "_wrapper"
@@ -158,7 +175,7 @@ class GUI(QtWidgets.QMainWindow):
 
         params = hlp.PredictParams(
             self.ui.lineEdit_series.text(),
-            ui_cfg.TRANSLATE.Model.value[self.ui.comboBox_model.currentText()],
+            ui_cfg.TRANSLATE.Model.value[self.ui.comboBox_model.currentText()].backend,
             [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
             ui_cfg.TRANSLATE.Metrics.value[self.ui.comboBox_metric.currentText()],
             ui_cfg.TRANSLATE.Method.value[self.ui.comboBox_method.currentText()],
