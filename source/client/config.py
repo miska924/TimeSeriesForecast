@@ -1,16 +1,44 @@
+from dataclasses import dataclass
+from typing import List
 import source.config as cfg
 from PyQt5 import QtWidgets, QtGui, QtWebEngineWidgets
 import numpy as np
 import enum
 
+@dataclass
+class ModelParams:
+    backend: cfg.Model
+    name: str
+    widgets: List[str]
+
+    def __init__(self, backend: cfg.Model, name: str, widgets: List[str]):
+        self.backend = backend
+        self.name = name
+        self.widgets = widgets
+
 class TRANSLATE(enum.Enum):
     Model = {
-        "Линейная регрессия": cfg.Model.linear_reg,
-        "Наивная модель": cfg.Model.naive,
-        "Стационарный лин. рег.": cfg.Model.stationary_linear_regression,
-        "Волшебный Ансамбль": cfg.Model.ansamble
+        "Линейная регрессия" : ModelParams(
+            cfg.Model.linear_reg, 
+            "Линейная регрессия", 
+            ["exogenous_wrapper"]
+        ),
+        "Наивная модель" : ModelParams(
+            cfg.Model.naive, 
+            "Наивная модель", 
+            []
+        ),
+        "Стационарный лин. рег.": ModelParams(
+            cfg.Model.stationary_linear_regression,
+            "Стационарный лин. рег.",
+            ["exogenous_wrapper"]
+        ),
+        "Волшебный Ансамбль": ModelParams(
+            cfg.Model.ansamble,
+            "Волшебный Ансамбль",
+            ["exogenous_wrapper"]
+        )
     }
-
     Metrics = {
         "MSE": cfg.Metrics.mse
     }
