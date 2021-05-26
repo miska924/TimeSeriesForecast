@@ -32,14 +32,12 @@ class TRANSLATE:
         ),
         "Волшебный Ансамбль": ModelParams(
             backend=cfg.Model.ansamble,
-            widgets=["exogenous_wrapper"],
-            params=["exogenous_variables"]
+            widgets=["exogenous_wrapper"]
         ),
-        # "ETS": ModelParams(
-        #     backend=cfg.Model.ets,
-        #     widgets=[],
-        #     params=[]
-        # )
+        "ETS": ModelParams(
+            backend=None,
+            widgets=["ets_wrapper"]
+        ) 
     }
 
     Method = {
