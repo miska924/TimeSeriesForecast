@@ -31,7 +31,7 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.comboBox_model,
             self.ui.comboBox_method,
             self.ui.comboBox_type,
-            self.ui.comboBox_offset,
+            self.ui.comboBox_offset
         ]
         self.comboBoxes_ets = [self.ui.comboBox_trend]
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
