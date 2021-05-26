@@ -4,7 +4,7 @@ import time
 import requests
 import sys
 
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore
 
 import plotly
 import plotly.graph_objs as go
@@ -24,6 +24,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("TimeSeries Forecast")
+        self.ui.verticalLayout_2.setAlignment(QtCore.Qt.AlignTop)
 
         self.lineEdits = [self.ui.lineEdit_series]
         self.comboBoxes_general = [
@@ -52,6 +53,13 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.listWidget.__class__ = cw.List
 
+        for model in ui_cfg.TRANSLATE.Model.value.values():
+            for widget in model.widgets:
+                curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
+                curr.hide()
+
+        if test:
+            self.change_model(self.ui.comboBox_model.currentText())
         self.ui.cv_wrapper.hide()
         self.ui.spinBox_shift.setMaximum(10000)
         self.ui.spinBox_period.setMaximum(10000)
@@ -67,8 +75,8 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
         self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
         self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
+        self.ui.comboBox_model.currentTextChanged.connect(self.change_model)
         self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
-
 
     def add_exogenous(self):
         if self.ui.lineEdit_exogenous.text():
@@ -79,6 +87,16 @@ class GUI(QtWidgets.QMainWindow):
         selected = self.ui.listWidget.selectedItems()
         for item in selected:
             self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
+
+    def change_model(self, model_name):
+        for model in ui_cfg.TRANSLATE.Model.value.values():
+            for widget in model.widgets:
+                curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
+                curr.hide()
+        model = ui_cfg.TRANSLATE.Model.value[model_name]
+        for widgets in model.widgets:
+            curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
+            curr.show()
 
     def update_cv(self, state):
         if state:
@@ -262,7 +280,7 @@ class GUI(QtWidgets.QMainWindow):
 
         params = hlp.PredictParams(
             self.ui.lineEdit_series.text(),
-            ui_cfg.TRANSLATE.Model.value[self.ui.comboBox_model.currentText()],
+            ui_cfg.TRANSLATE.Model.value[self.ui.comboBox_model.currentText()].backend,
             [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
             cfg.Metrics.mse,
             ui_cfg.TRANSLATE.Method.value[self.ui.comboBox_method.currentText()],

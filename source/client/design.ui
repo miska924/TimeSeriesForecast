@@ -108,13 +108,6 @@
            </layout>
           </widget>
          </item>
-         <item alignment="Qt::AlignHCenter">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Внешние переменные</string>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QWidget" name="exogenous_wrapper" native="true">
            <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -133,6 +126,13 @@
             <property name="bottomMargin">
              <number>0</number>
             </property>
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Внешние переменные</string>
+              </property>
+             </widget>
+            </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_5">
               <item>
