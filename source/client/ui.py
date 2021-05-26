@@ -31,7 +31,8 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.comboBox_model,
             self.ui.comboBox_method,
             self.ui.comboBox_type,
-            self.ui.comboBox_offset
+            self.ui.comboBox_offset,
+            self.ui.comboBox_trend
         ]
         self.comboBoxes_ets = [self.ui.comboBox_trend]
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
@@ -58,7 +59,12 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.listWidget.__class__ = cw.List
 
         self.ui.spinBox_seasonality.setMaximum(10000)
+<<<<<<< HEAD
         for model in ui_cfg.TRANSLATE.Model.values():
+=======
+
+        for model in ui_cfg.TRANSLATE.Model.value.values():
+>>>>>>> Add layout for ETS
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
@@ -115,8 +121,14 @@ class GUI(QtWidgets.QMainWindow):
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
+<<<<<<< HEAD
         model = ui_cfg.TRANSLATE.Model[model_name]
         for widgets in model.widgets:
+=======
+
+        model = ui_cfg.TRANSLATE.Model.value[model_name]
+        for widget in model.widgets:
+>>>>>>> Add layout for ETS
             curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
             curr.show()
 
