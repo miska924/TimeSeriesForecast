@@ -32,7 +32,11 @@ class TRANSLATE(enum.Enum):
         "Волшебный Ансамбль": ModelParams(
             backend=cfg.Model.ansamble,
             widgets=["exogenous_wrapper"]
-        )
+        ),
+        "ETS": ModelParams(
+            backend=None,
+            widgets=["ets_wrapper"]
+        ) 
     }
 
     Method = {
@@ -50,6 +54,11 @@ class TRANSLATE(enum.Enum):
         "Неделя": cfg.Offset.week,
         "Месяц": cfg.Offset.business_month,
         "Год": cfg.Offset.business_year
+    }
+
+    ETS_Trend = {
+        "Аддитивный": None,
+        "Мультипликативный": None
     }
 
 tmp_app = QtWidgets.QApplication([])
