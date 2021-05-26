@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from typing import List
-import source.config as cfg
 from PyQt5 import QtWidgets, QtGui, QtWebEngineWidgets
 import numpy as np
 import enum
+
+import source.config as cfg
 
 @dataclass
 class ModelParams:
