@@ -31,7 +31,8 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.comboBox_model,
             self.ui.comboBox_method,
             self.ui.comboBox_type,
-            self.ui.comboBox_offset
+            self.ui.comboBox_offset,
+            self.ui.comboBox_trend
         ]
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
 
@@ -39,10 +40,11 @@ class GUI(QtWidgets.QMainWindow):
             for cb in self.comboBoxes_general:
                 cb.addItem("")                
 
-        self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.keys())
-        self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.keys())
-        self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.keys())
-        self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.keys())
+        self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.value.keys())
+        self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.value.keys())
+        self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.value.keys())
+        self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.value.keys())
+        self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETS_Trend.value.keys())
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)
@@ -53,13 +55,17 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.listWidget.__class__ = cw.List
 
+        self.ui.spinBox_seasonality.setMaximum(10000)
         for model in ui_cfg.TRANSLATE.Model.values():
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
+        self.ui.checkBox_dumped.hide()
+        self.ui.horizontalWidget_seasonality.hide()
 
         if test:
             self.change_model(self.ui.comboBox_model.currentText())
+
         self.ui.cv_wrapper.hide()
         self.ui.spinBox_shift.setMaximum(10000)
         self.ui.spinBox_period.setMaximum(10000)
@@ -77,6 +83,8 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
         self.ui.comboBox_model.currentTextChanged.connect(self.change_model)
         self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
+        self.ui.comboBox_trend.currentTextChanged.connect(self.update_ets_trend)
+        self.ui.checkBox_seasonality.stateChanged.connect(self.update_seasonality)
 
     def add_exogenous(self):
         if self.ui.lineEdit_exogenous.text():
@@ -87,6 +95,18 @@ class GUI(QtWidgets.QMainWindow):
         selected = self.ui.listWidget.selectedItems()
         for item in selected:
             self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
+
+    def update_ets_trend(self, trend_name):
+        if trend_name:
+            self.ui.checkBox_dumped.show()
+        else:
+            self.ui.checkBox_dumped.hide()
+    
+    def update_seasonality(self, state):
+        if state:
+            self.ui.horizontalWidget_seasonality.show()
+        else:
+            self.ui.horizontalWidget_seasonality.hide()
 
     def change_model(self, model_name):
         for model in ui_cfg.TRANSLATE.Model.values():

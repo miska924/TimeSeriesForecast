@@ -59,6 +59,10 @@ class TRANSLATE:
         "Год": cfg.Offset.business_year
     }
 
+    ETS_Trend = {
+        "Аддитивный": None,
+        "Мультипликативный": None
+    }
 
 tmp_app = QtWidgets.QApplication([])
 tmp = QtWidgets.QWidget()
