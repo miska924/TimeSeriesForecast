@@ -32,12 +32,14 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.comboBox_method,
             self.ui.comboBox_type,
             self.ui.comboBox_offset,
-            self.ui.comboBox_trend
         ]
+        self.comboBoxes_ets = [self.ui.comboBox_trend]
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
 
         if not test:
             for cb in self.comboBoxes_general:
+                cb.addItem("")                
+            for cb in self.comboBoxes_ets:
                 cb.addItem("")                
 
         self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.value.keys())
@@ -260,6 +262,10 @@ class GUI(QtWidgets.QMainWindow):
             if not self.check_correct(cb, cb.currentText()):
                 flag_correct = False
 
+        if self.ui.comboBox_model.currentText() == "ETS" and self.ui.checkBox_seasonality.isChecked():
+            if not self.check_correct(self.ui.spinBox_seasonality, self.ui.spinBox_seasonality.value()):
+                flag_correct = False
+
         dates = [
             self.ui.dateEdit_start.date(), 
             self.ui.dateEdit_end.date(), 
@@ -289,9 +295,9 @@ class GUI(QtWidgets.QMainWindow):
                 if not self.check_correct(sb, sb.value()):
                     flag_correct = False
         
-        days = dates[0].daysTo(dates[1])
-        if not self.check_correct(self.ui.spinBox_period, sb.value() < days and sb.value() > 0):
-            flag_correct = False
+            days = dates[0].daysTo(dates[1])
+            if not self.check_correct(self.ui.spinBox_period, self.ui.spinBox_period.value() < days and self.ui.spinBox_period.value() > 0):
+                flag_correct = False
 
         return flag_correct
 
