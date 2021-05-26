@@ -11,10 +11,6 @@ class TRANSLATE(enum.Enum):
         "Волшебный Ансамбль": cfg.Model.ansamble
     }
 
-    Metrics = {
-        "MSE": cfg.Metrics.mse
-    }
-
     Method = {
         "Прямой": cfg.Methods.straight,
         "Рекурсивный": cfg.Methods.recursive
