@@ -34,9 +34,6 @@ class TRANSLATE(enum.Enum):
             widgets=["exogenous_wrapper"]
         )
     }
-    Metrics = {
-        "MSE": cfg.Metrics.mse
-    }
 
     Method = {
         "Прямой": cfg.Methods.straight,
