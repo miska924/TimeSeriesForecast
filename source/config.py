@@ -39,6 +39,7 @@ class Model(enum.Enum):
     stationary_linear_regression = 'stationary_linear_regression'
     ansamble = 'ansamble'
     ets = 'ets'
+    ansamble2 = 'ansamble2'
 
 
 class Offset(enum.Enum):

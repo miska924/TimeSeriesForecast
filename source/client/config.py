@@ -37,6 +37,10 @@ class TRANSLATE(enum.Enum):
         "ETS": ModelParams(
             backend=cfg.Model.ets,
             widgets=[]
+        ),
+        "Тестовый ансамбль": ModelParams(
+            backend=cfg.Model.ansamble2,
+            widgets=[]
         )
     }
 

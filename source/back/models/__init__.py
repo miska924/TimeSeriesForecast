@@ -3,5 +3,6 @@ __all__ = [
     'naive',
     'stationary_linear_regression',
     'ansamble',
-    'ets'
+    'ets',
+    'ansamble2'
 ]
