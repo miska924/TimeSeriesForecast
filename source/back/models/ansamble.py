@@ -1,10 +1,3 @@
-import datetime
-from typing import List
-
-import pandas as pd
-from dateutil import parser
-from sklearn.linear_model import LinearRegression as LR
-
 from source._helpers import PredictParams
 from source.back.data_process import DataProcess
 from source.back.models._model import BaseModel
@@ -14,7 +7,12 @@ from source import config as cfg
 
 
 class Model(BaseModel):
-    def __init__(self, models=(cfg.Model.linear_reg, cfg.Model.stationary_linear_regression), coefs=(0.4, 0.6)):
+    # Params:
+    # {
+    #
+    # }
+
+    def __init__(self, models=(cfg.Model.linear_reg, cfg.Model.stationary_linear_regression), coefs=(0.4, 0.6), params=({}, {})):
         if len(models) != len(coefs):
             raise Exception("invalid argumets. lengths of lists do not match!")
         self.models = []

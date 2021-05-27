@@ -72,9 +72,7 @@ def run_prediction(params: PredictParams):
         date_range = pd.date_range(parser.parse(params.end_date) + datetime.timedelta(days=1),
                                    params.forecast_date, freq=params.offset.value)
 
-        print("DEBUD:", params.model, " -> ", cfg.Model(params.model))
-        model = getattr(source.back.models, params.model.value).Model()
-
+        model = getattr(source.back.models, params.model.value).Model(params.params)
         model.load(params)
 
         res_y = model.train_and_predict(len(date_range))
@@ -105,12 +103,12 @@ def run_prediction(params: PredictParams):
 def run_cross_validation(params: PredictParams):
     try:
         loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
-                                                    params.offset.value, params.exogenous_variables)
+                                                    params.offset.value, params.params.get('exogenous_variables', []))
 
         mse = []
         mape = []
         for i in tqdm(range(0, loaded_df.shape[0] - params.cv_period - params.cv_predict_days, params.cv_shift)):
-            model = getattr(source.back.models, params.model.value).Model()
+            model = getattr(source.back.models, params.model.value).Model(params.params)
             local_params = copy.deepcopy(params)
             local_params.start_date, local_params.end_date = loaded_df.index[i], loaded_df.index[i + params.cv_period - 1]
             model.load(local_params)

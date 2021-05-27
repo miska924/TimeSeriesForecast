@@ -33,6 +33,11 @@ class Metrics(enum.Enum):
     mse = 'MSE'
 
 
+class ETSTrend(enum.Enum):
+    additive = 'add'
+    multiplicative = 'mul'
+
+
 class Model(enum.Enum):
     linear_reg = 'linear_regression'
     naive = 'naive'
