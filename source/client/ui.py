@@ -267,9 +267,9 @@ class GUI(QtWidgets.QMainWindow):
                 if not self.check_correct(sb, sb.value()):
                     flag_correct = False
         
-        days = dates[0].daysTo(dates[1])
-        if not self.check_correct(self.ui.spinBox_period, sb.value() < days and sb.value() > 0):
-            flag_correct = False
+            days = dates[0].daysTo(dates[1])
+            if not self.check_correct(self.ui.spinBox_period, self.ui.spinBox_period.value() < days and self.ui.spinBox_period.value() > 0):
+                flag_correct = False
 
         return flag_correct
 
@@ -309,6 +309,11 @@ class GUI(QtWidgets.QMainWindow):
                 "Наивная модель",
                 data_baseline['data']
             )
+        else:
+            data = self.process_request(params, 'predict')
+            if not data:
+                return
+            self.plot(data['data'])
 
     def process_request(self, params: hlp.PredictParams, request: str) -> any:
         headers = {'Content-type': 'application/json'}
