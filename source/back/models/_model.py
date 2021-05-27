@@ -18,6 +18,14 @@ class BaseModel:
     def predict(self):
         raise NotImplementedError()
 
+    def train_and_predict(self, period: int):
+        res = []
+        for i in range(period):
+            self.train(i + 1)
+            res.append(self.predict())
+
+        return res
+
     # returns string with values of the main metrics of the result
     @staticmethod
     def _regression_results(y_test, y_pred) -> str:

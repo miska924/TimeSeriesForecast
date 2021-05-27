@@ -33,6 +33,10 @@ class TRANSLATE(enum.Enum):
         "Волшебный Ансамбль": ModelParams(
             backend=cfg.Model.ansamble,
             widgets=["exogenous_wrapper"]
+        ),
+        "ETS": ModelParams(
+            backend=cfg.Model.ets,
+            widgets=[]
         )
     }
 
