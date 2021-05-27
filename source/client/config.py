@@ -15,6 +15,7 @@ class ModelParams:
         self.backend = backend
         self.widgets = widgets
 
+
 class TRANSLATE(enum.Enum):
     Model = {
         "Линейная регрессия" : ModelParams(
@@ -32,6 +33,10 @@ class TRANSLATE(enum.Enum):
         "Волшебный Ансамбль": ModelParams(
             backend=cfg.Model.ansamble,
             widgets=["exogenous_wrapper"]
+        ),
+        "ETS": ModelParams(
+            backend=cfg.Model.ets,
+            widgets=[]
         )
     }
 
@@ -51,6 +56,7 @@ class TRANSLATE(enum.Enum):
         "Месяц": cfg.Offset.business_month,
         "Год": cfg.Offset.business_year
     }
+
 
 tmp_app = QtWidgets.QApplication([])
 tmp = QtWidgets.QWidget()

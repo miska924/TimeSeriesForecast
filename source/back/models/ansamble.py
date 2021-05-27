@@ -37,3 +37,12 @@ class Model(BaseModel):
             res += model.predict() * self.coefs[i]
 
         return res / sum(self.coefs)
+
+    def train_and_predict(self, period: int):
+        res = [0] * period
+        coefs_sum = sum(self.coefs)
+        for i, model in enumerate(self.models):
+            for j, value in enumerate(model.train_and_predict(period)):
+                res[j] += value * self.coefs[i] / coefs_sum
+
+        return res

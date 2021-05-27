@@ -75,15 +75,10 @@ def run_prediction(params: PredictParams):
         print("DEBUD:", params.model, " -> ", cfg.Model(params.model))
         model = getattr(source.back.models, params.model.value).Model()
 
-        # model = linear_regression.Model()
         model.load(params)
 
-        res_y, res_index = [], []
-        for i, date in tqdm(enumerate(date_range), desc="Predicting"):
-            model.train(i + 1)
-            res_y.append(model.predict())
-            res_index.append(date)
-            # print(str(date)[:10], res_y[-1])
+        res_y = model.train_and_predict(len(date_range))
+        res_index = list(date_range)
 
         real_df = DataProcess.load_data_from_moex(
             params.ticker,
@@ -115,16 +110,13 @@ def run_cross_validation(params: PredictParams):
         mse = []
         mape = []
         for i in tqdm(range(0, loaded_df.shape[0] - params.cv_period - params.cv_predict_days, params.cv_shift)):
-            print(params.model.value)
             model = getattr(source.back.models, params.model.value).Model()
             local_params = copy.deepcopy(params)
             local_params.start_date, local_params.end_date = loaded_df.index[i], loaded_df.index[i + params.cv_period - 1]
             model.load(local_params)
 
             res = [[], []]
-            for days in range(1, params.cv_predict_days + 1):
-                model.train(days)
-                res[0].append(model.predict())
+            res[0] = model.train_and_predict(params.cv_predict_days)
             res[1] = list(loaded_df.iloc[i + params.cv_period:i + params.cv_period + params.cv_predict_days, 0])
 
             mse.append(metrics.mean_squared_error(res[1], res[0]))
@@ -168,9 +160,9 @@ if __name__ == '__main__':
         offset = cfg.Offset(offset)
 
     tmp_params = PredictParams(
-        model=cfg.Model.ansamble,
+        model=cfg.Model.ets,
         ticker=list(cfg.TICKERS.keys())[0],
-        exogenous_variables=['IMOEX', 'MOEXOG'],
+        exogenous_variables=[],
         start_date=start_date,
         end_date=end_date,
         forecast_date='2021-05-09',
@@ -179,6 +171,22 @@ if __name__ == '__main__':
         cv_shift=15,
         cv_predict_days=2
     )
+    res = run_cross_validation(tmp_params)
+    print(res.data)
+    tmp_params = PredictParams(
+        model=cfg.Model.naive,
+        ticker=list(cfg.TICKERS.keys())[0],
+        exogenous_variables=[],
+        start_date=start_date,
+        end_date=end_date,
+        forecast_date='2021-05-09',
+        offset=offset,
+        cv_period=127,
+        cv_shift=15,
+        cv_predict_days=2
+    )
+    res = run_cross_validation(tmp_params)
+    print(res.data)
     # run(tmp_params)
     #print(cross_validation(tmp_params))
     # tmp_params = PredictParams(
