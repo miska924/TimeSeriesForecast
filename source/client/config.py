@@ -35,11 +35,11 @@ class TRANSLATE:
             widgets=["exogenous_wrapper"],
             params=["exogenous_variables"]
         ),
-        "ETS": ModelParams(
-            backend=cfg.Model.ets,
-            widgets=[],
-            params=[]
-        )
+        # "ETS": ModelParams(
+        #     backend=cfg.Model.ets,
+        #     widgets=[],
+        #     params=[]
+        # )
     }
 
     Method = {
