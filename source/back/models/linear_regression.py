@@ -9,9 +9,6 @@ class Model(BaseModel):
     # Params:
     # {
     #     "exogenous_variables": list
-    #     "metrics": str
-    #     "prediction_method": str
-    #     "prediction_type": str
     # }
 
     def __init__(self, params: dict):
@@ -20,9 +17,6 @@ class Model(BaseModel):
         self.filtered_columns = None
 
         self.exogenous_variables = params['exogenous_variables']
-        self.metrics = params['metrics']
-        self.prediction_method = params['prediction_method']
-        self.prediction_type = params['prediction_type']
 
     def load(self, params: PredictParams):
         loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
