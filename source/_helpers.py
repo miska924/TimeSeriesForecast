@@ -48,6 +48,13 @@ def save_file(df, filename):
     df.to_csv(path)
 
 
+def safe_get_key(data, key, message=None):
+    if key not in data:
+        raise Exception(message if message else f"No key {key} in dict.")
+
+    return data[key]
+
+
 @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=1, max=5))
 def send_request(method: str, url: str, params=None, headers=None, cookies=None, data=None, json=None) -> any:
     with requests.Session() as session:
