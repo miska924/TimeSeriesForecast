@@ -29,8 +29,6 @@ class GUI(QtWidgets.QMainWindow):
         self.lineEdits = [self.ui.lineEdit_series]
         self.comboBoxes_general = [
             self.ui.comboBox_model,
-            self.ui.comboBox_method,
-            self.ui.comboBox_type,
             self.ui.comboBox_offset,
         ]
         self.comboBoxes_ets = [self.ui.comboBox_trend]
@@ -43,8 +41,6 @@ class GUI(QtWidgets.QMainWindow):
                 cb.addItem("")                
 
         self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.keys())
-        self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.keys())
-        self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.keys())
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.keys())
         self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETSTrend.keys())
 
