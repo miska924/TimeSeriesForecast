@@ -97,7 +97,7 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
 
     def update_ets_trend(self, trend_name):
-        if trend_name:
+        if trend_name and trend_name != "Без тренда":
             self.ui.checkBox_dumped.show()
         else:
             self.ui.checkBox_dumped.hide()
@@ -253,6 +253,11 @@ class GUI(QtWidgets.QMainWindow):
             if not self.check_correct(cb, cb.currentText()):
                 flag_correct = False
 
+        if "ets_wrapper" in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
+            for cb in self.comboBoxes_ets:
+                if not self.check_correct(cb, cb.currentText()):
+                    flag_correct = False
+        
         dates = [
             self.ui.dateEdit_start.date(), 
             self.ui.dateEdit_end.date(), 
