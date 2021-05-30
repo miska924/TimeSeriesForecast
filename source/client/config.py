@@ -35,9 +35,10 @@ class TRANSLATE:
             widgets=["exogenous_wrapper"]
         ),
         "ETS": ModelParams(
-            backend=None,
-            widgets=["ets_wrapper"]
-        ) 
+            backend=cfg.Model.ets,
+            widgets=["ets_wrapper"],
+            params=["trend", "dumped"]
+        )
     }
 
     Method = {

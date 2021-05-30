@@ -42,11 +42,11 @@ class GUI(QtWidgets.QMainWindow):
             for cb in self.comboBoxes_ets:
                 cb.addItem("")                
 
-        self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.value.keys())
-        self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.value.keys())
-        self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.value.keys())
-        self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.value.keys())
-        self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETS_Trend.value.keys())
+        self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.keys())
+        self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.keys())
+        self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.keys())
+        self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.keys())
+        self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETS_Trend.keys())
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)
@@ -57,13 +57,11 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.listWidget.__class__ = cw.List
 
-        self.ui.spinBox_seasonality.setMaximum(10000)
         for model in ui_cfg.TRANSLATE.Model.values():
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
         self.ui.checkBox_dumped.hide()
-        self.ui.horizontalWidget_seasonality.hide()
 
         if test:
             self.change_model(self.ui.comboBox_model.currentText())
@@ -86,7 +84,6 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.comboBox_model.currentTextChanged.connect(self.change_model)
         self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
         self.ui.comboBox_trend.currentTextChanged.connect(self.update_ets_trend)
-        self.ui.checkBox_seasonality.stateChanged.connect(self.update_seasonality)
 
     def add_exogenous(self):
         if self.ui.lineEdit_exogenous.text():
@@ -103,22 +100,17 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.checkBox_dumped.show()
         else:
             self.ui.checkBox_dumped.hide()
-    
-    def update_seasonality(self, state):
-        if state:
-            self.ui.horizontalWidget_seasonality.show()
-        else:
-            self.ui.horizontalWidget_seasonality.hide()
 
     def change_model(self, model_name):
         for model in ui_cfg.TRANSLATE.Model.values():
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
-        model = ui_cfg.TRANSLATE.Model[model_name]
-        for widgets in model.widgets:
-            curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
-            curr.show()
+        if model_name:
+            model = ui_cfg.TRANSLATE.Model[model_name]
+            for widget in model.widgets:
+                curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
+                curr.show()
 
     def update_cv(self, state):
         if state:
@@ -258,10 +250,6 @@ class GUI(QtWidgets.QMainWindow):
         
         for cb in self.comboBoxes_general:
             if not self.check_correct(cb, cb.currentText()):
-                flag_correct = False
-
-        if self.ui.comboBox_model.currentText() == "ETS" and self.ui.checkBox_seasonality.isChecked():
-            if not self.check_correct(self.ui.spinBox_seasonality, self.ui.spinBox_seasonality.value()):
                 flag_correct = False
 
         dates = [
