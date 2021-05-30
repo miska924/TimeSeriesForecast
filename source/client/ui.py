@@ -294,12 +294,10 @@ class GUI(QtWidgets.QMainWindow):
             return
 
         all_params = {
-            "exogenous_variables" : 
+            "exogenous_variables":
                 [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
-            "trend" : 
-                ui_cfg.TRANSLATE.ETSTrend[self.ui.comboBox_trend.currentText()]
-                    if self.ui.comboBox_trend.currentText() else None,
-            "dumped" : self.ui.checkBox_dumped.isChecked()
+            "trend": ui_cfg.TRANSLATE.ETSTrend[self.ui.comboBox_trend.currentText()],
+            "dumped": self.ui.checkBox_dumped.isChecked()
         }
 
         curr_params = { key: all_params[key]

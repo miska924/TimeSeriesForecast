@@ -28,8 +28,12 @@ class Model(BaseModel):
         self.df = self.df[self.df.columns[0]].reset_index(drop=True)
 
     def train(self, shift: int):
-        self.model = sm.tsa.ExponentialSmoothing(self.df, trend=self.trend.value, damped_trend=self.dumped,
-                                                 initialization_method='estimated').fit()
+        if self.trend != cfg.ETSTrend.no_trend:
+            self.model = sm.tsa.ExponentialSmoothing(self.df, trend=self.trend.value, damped_trend=self.dumped,
+                                                     initialization_method='estimated').fit()
+        else:
+            self.model = sm.tsa.ExponentialSmoothing(self.df, initialization_method='estimated').fit()
+
         self.shift = shift
 
     def predict(self):

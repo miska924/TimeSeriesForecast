@@ -60,7 +60,8 @@ class TRANSLATE:
 
     ETSTrend = {
         "Аддитивный": cfg.ETSTrend.additive,
-        "Мультипликативный": cfg.ETSTrend.multiplicative
+        "Мультипликативный": cfg.ETSTrend.multiplicative,
+        "": cfg.ETSTrend.no_trend
     }
 
 tmp_app = QtWidgets.QApplication([])

@@ -36,6 +36,7 @@ class Metrics(enum.Enum):
 class ETSTrend(enum.Enum):
     additive = 'add'
     multiplicative = 'mul'
+    no_trend = 'no_trend'
 
 
 class Model(enum.Enum):
