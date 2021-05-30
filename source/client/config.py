@@ -31,7 +31,8 @@ class TRANSLATE:
         ),
         "Волшебный Ансамбль": ModelParams(
             backend=cfg.Model.ansamble,
-            widgets=["exogenous_wrapper"]
+            widgets=["exogenous_wrapper"],
+            params=["exogenous_variables"]
         ),
         "ETS": ModelParams(
             backend=cfg.Model.ets,
