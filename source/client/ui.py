@@ -31,18 +31,22 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.comboBox_model,
             self.ui.comboBox_method,
             self.ui.comboBox_type,
-            self.ui.comboBox_offset
+            self.ui.comboBox_offset,
         ]
+        self.comboBoxes_ets = [self.ui.comboBox_trend]
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
 
         if not test:
             for cb in self.comboBoxes_general:
+                cb.addItem("")                
+            for cb in self.comboBoxes_ets:
                 cb.addItem("")                
 
         self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.keys())
         self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.keys())
         self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.keys())
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.keys())
+        self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETSTrend.keys())
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)
@@ -57,9 +61,12 @@ class GUI(QtWidgets.QMainWindow):
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
+        if not test:
+            self.ui.checkBox_dumped.hide()
 
         if test:
             self.change_model(self.ui.comboBox_model.currentText())
+
         self.ui.cv_wrapper.hide()
         self.ui.spinBox_shift.setMaximum(10000)
         self.ui.spinBox_period.setMaximum(10000)
@@ -77,6 +84,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
         self.ui.comboBox_model.currentTextChanged.connect(self.change_model)
         self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
+        self.ui.comboBox_trend.currentTextChanged.connect(self.update_ets_trend)
 
     def add_exogenous(self):
         if self.ui.lineEdit_exogenous.text():
@@ -88,15 +96,22 @@ class GUI(QtWidgets.QMainWindow):
         for item in selected:
             self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
 
+    def update_ets_trend(self, trend_name):
+        if trend_name and trend_name != "Без тренда":
+            self.ui.checkBox_dumped.show()
+        else:
+            self.ui.checkBox_dumped.hide()
+
     def change_model(self, model_name):
         for model in ui_cfg.TRANSLATE.Model.values():
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
-        model = ui_cfg.TRANSLATE.Model[model_name]
-        for widgets in model.widgets:
-            curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
-            curr.show()
+        if model_name:
+            model = ui_cfg.TRANSLATE.Model[model_name]
+            for widget in model.widgets:
+                curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
+                curr.show()
 
     def update_cv(self, state):
         if state:
@@ -238,6 +253,11 @@ class GUI(QtWidgets.QMainWindow):
             if not self.check_correct(cb, cb.currentText()):
                 flag_correct = False
 
+        if "ets_wrapper" in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
+            for cb in self.comboBoxes_ets:
+                if not self.check_correct(cb, cb.currentText()):
+                    flag_correct = False
+        
         dates = [
             self.ui.dateEdit_start.date(), 
             self.ui.dateEdit_end.date(), 
@@ -279,8 +299,10 @@ class GUI(QtWidgets.QMainWindow):
             return
 
         all_params = {
-            "exogenous_variables" : 
-                [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())]
+            "exogenous_variables":
+                [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
+            "trend": ui_cfg.TRANSLATE.ETSTrend[self.ui.comboBox_trend.currentText()],
+            "dumped": self.ui.checkBox_dumped.isChecked()
         }
 
         curr_params = { key: all_params[key]
