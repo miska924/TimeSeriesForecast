@@ -297,7 +297,8 @@ class GUI(QtWidgets.QMainWindow):
         all_params = {
             "exogenous_variables":
                 [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
-            "trend": ui_cfg.TRANSLATE.ETSTrend[self.ui.comboBox_trend.currentText()],
+            "trend": ui_cfg.TRANSLATE.ETSTrend[self.ui.comboBox_trend.currentText()] 
+                if self.ui.comboBox_trend.currentText() else None,
             "dumped": self.ui.checkBox_dumped.isChecked()
         }
 

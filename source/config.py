@@ -18,21 +18,6 @@ TICKERS = {
     'CBOM': ['PIKK', 'GAZP', 'PIKK']
 }
 
-
-class Type(enum.Enum):
-    values = 'Значения'
-    trend = 'Тренд'
-
-
-class Methods(enum.Enum):
-    straight = 'Прямой'
-    recursive = 'Рекурсивный'
-
-
-class Metrics(enum.Enum):
-    mse = 'MSE'
-
-
 class ETSTrend(enum.Enum):
     additive = 'add'
     multiplicative = 'mul'

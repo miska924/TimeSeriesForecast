@@ -41,16 +41,6 @@ class TRANSLATE:
         )
     }
 
-    Method = {
-        "Прямой": cfg.Methods.straight,
-        "Рекурсивный": cfg.Methods.recursive
-    }
-
-    Type = {
-        "Значения": cfg.Type.values,
-        "Тренд": cfg.Type.trend
-    }
-
     Offset = {
         "День": cfg.Offset.business_day,
         "Неделя": cfg.Offset.week,
