@@ -74,7 +74,8 @@ PUBLIC_ENUMS = {
     'Methods': cfg.Methods,
     'Metrics': cfg.Metrics,
     'Model': cfg.Model,
-    'Offset': cfg.Offset
+    'Offset': cfg.Offset,
+    'ETSTrend': cfg.ETSTrend
 }
 
 

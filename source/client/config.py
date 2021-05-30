@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import List
-from PyQt5 import QtWidgets, QtGui, QtWebEngineWidgets
+from PyQt5 import QtWidgets, QtGui
 import numpy as np
-import enum
 
 import source.config as cfg
 
@@ -58,9 +57,9 @@ class TRANSLATE:
         "Год": cfg.Offset.business_year
     }
 
-    ETS_Trend = {
-        "Аддитивный": None,
-        "Мультипликативный": None
+    ETSTrend = {
+        "Аддитивный": cfg.ETSTrend.additive,
+        "Мультипликативный": cfg.ETSTrend.multiplicative
     }
 
 tmp_app = QtWidgets.QApplication([])

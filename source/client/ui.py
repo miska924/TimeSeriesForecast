@@ -46,7 +46,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.keys())
         self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.keys())
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.keys())
-        self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETS_Trend.keys())
+        self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETSTrend.keys())
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)
@@ -61,7 +61,8 @@ class GUI(QtWidgets.QMainWindow):
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
-        self.ui.checkBox_dumped.hide()
+        if not test:
+            self.ui.checkBox_dumped.hide()
 
         if test:
             self.change_model(self.ui.comboBox_model.currentText())
@@ -294,7 +295,11 @@ class GUI(QtWidgets.QMainWindow):
 
         all_params = {
             "exogenous_variables" : 
-                [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())]
+                [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
+            "trend" : 
+                ui_cfg.TRANSLATE.ETSTrend[self.ui.comboBox_trend.currentText()]
+                    if self.ui.comboBox_trend.currentText() else None,
+            "dumped" : self.ui.checkBox_dumped.isChecked()
         }
 
         curr_params = { key: all_params[key]
