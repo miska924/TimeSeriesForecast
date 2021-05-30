@@ -10,34 +10,36 @@ import source.config as cfg
 class ModelParams:
     backend: cfg.Model
     widgets: List[str]
-
-    def __init__(self, backend: cfg.Model, widgets: List[str]):
-        self.backend = backend
-        self.widgets = widgets
+    params: List[str]
 
 
-class TRANSLATE(enum.Enum):
+class TRANSLATE:
     Model = {
         "Линейная регрессия" : ModelParams(
             backend=cfg.Model.linear_reg, 
-            widgets=["exogenous_wrapper"]
+            widgets=["exogenous_wrapper"],
+            params=["exogenous_variables"]
         ),
         "Наивная модель" : ModelParams(
             backend=cfg.Model.naive, 
-            widgets=[]
+            widgets=[],
+            params=[]
         ),
         "Стационарный лин. рег.": ModelParams(
             backend=cfg.Model.stationary_linear_regression,
-            widgets=["exogenous_wrapper"]
+            widgets=["exogenous_wrapper"],
+            params=["exogenous_variables"]
         ),
         "Волшебный Ансамбль": ModelParams(
             backend=cfg.Model.ansamble,
-            widgets=["exogenous_wrapper"]
+            widgets=["exogenous_wrapper"],
+            params=["exogenous_variables"]
         ),
-        "ETS": ModelParams(
-            backend=cfg.Model.ets,
-            widgets=[]
-        )
+        # "ETS": ModelParams(
+        #     backend=cfg.Model.ets,
+        #     widgets=[],
+        #     params=[]
+        # )
     }
 
     Method = {

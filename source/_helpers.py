@@ -13,37 +13,16 @@ from source import config as cfg
 # Класс характеризующий параметры, передающиеся из client в предиктор
 @dataclass
 class PredictParams:
-    ticker: str
-    model: cfg.Model
-    exogenous_variables: list
-    metrics: str
-    prediction_method: str
-    prediction_type: str
-    start_date: str
-    end_date: str
-    forecast_date: str
-    offset: cfg.Offset
-    cv_shift: int
-    cv_period: int
-    cv_predict_days: int
-
-    def __init__(self, ticker: str = None, model: cfg.Model = None, exogenous_variables: list = None,
-                 metrics: str = None, prediction_method: str = None, prediction_type: str = None,
-                 start_date: str = None, end_date: str = None, forecast_date: str = None, offset: cfg.Offset = None,
-                 cv_shift: int = None, cv_period: int = None, cv_predict_days: int = None):
-        self.ticker = ticker
-        self.model = model
-        self.exogenous_variables = exogenous_variables
-        self.metrics = metrics
-        self.prediction_method = prediction_method
-        self.prediction_type = prediction_type
-        self.start_date = start_date
-        self.end_date = end_date
-        self.forecast_date = forecast_date
-        self.offset = offset
-        self.cv_shift = cv_shift
-        self.cv_period = cv_period
-        self.cv_predict_days = cv_predict_days
+    ticker: str = None
+    model: cfg.Model = None
+    start_date: str = None
+    end_date: str = None
+    forecast_date: str = None
+    offset: cfg.Offset = None
+    cv_shift: int = None
+    cv_period: int = None
+    cv_predict_days: int = None
+    params: dict = None
 
 
 def stderr_print(*args, **kwargs):
@@ -67,6 +46,13 @@ def save_file(df, filename):
 
     path = os.path.join(tmp_dir, filename)
     df.to_csv(path)
+
+
+def safe_get_key(data, key, message=None):
+    if key not in data:
+        raise Exception(message if message else f"No key {key} in dict.")
+
+    return data[key]
 
 
 @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=1, max=5))

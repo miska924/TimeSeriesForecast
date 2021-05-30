@@ -1,24 +1,27 @@
-import datetime
-from typing import List
-
-import pandas as pd
-from dateutil import parser
 from sklearn.linear_model import LinearRegression as LR
 
-from source._helpers import PredictParams
+from source._helpers import PredictParams, safe_get_key
 from source.back.data_process import DataProcess
 from source.back.models._model import BaseModel
 
 
 class Model(BaseModel):
-    def __init__(self):
+    # Params:
+    # {
+    #     "exogenous_variables": list
+    # }
+
+    def __init__(self, params: dict):
         self.model = None
         self.df = None
         self.filtered_columns = None
 
+        self.exogenous_variables = safe_get_key(params, 'exogenous_variables',
+                                                'No key exogenous_variables in linear regression params')
+
     def load(self, params: PredictParams):
         loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
-                                                    params.offset.value, params.exogenous_variables)
+                                                    params.offset.value, self.exogenous_variables)
         self.df = DataProcess.get_prepared_data_frame(loaded_df, predict_day=0)
 
     def train(self, shift: int):

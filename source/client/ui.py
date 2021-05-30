@@ -39,10 +39,10 @@ class GUI(QtWidgets.QMainWindow):
             for cb in self.comboBoxes_general:
                 cb.addItem("")                
 
-        self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.value.keys())
-        self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.value.keys())
-        self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.value.keys())
-        self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.value.keys())
+        self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.keys())
+        self.ui.comboBox_method.addItems(ui_cfg.TRANSLATE.Method.keys())
+        self.ui.comboBox_type.addItems(ui_cfg.TRANSLATE.Type.keys())
+        self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.keys())
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)
@@ -53,7 +53,7 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.listWidget.__class__ = cw.List
 
-        for model in ui_cfg.TRANSLATE.Model.value.values():
+        for model in ui_cfg.TRANSLATE.Model.values():
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
@@ -89,11 +89,11 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
 
     def change_model(self, model_name):
-        for model in ui_cfg.TRANSLATE.Model.value.values():
+        for model in ui_cfg.TRANSLATE.Model.values():
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
-        model = ui_cfg.TRANSLATE.Model.value[model_name]
+        model = ui_cfg.TRANSLATE.Model[model_name]
         for widgets in model.widgets:
             curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
             curr.show()
@@ -278,20 +278,25 @@ class GUI(QtWidgets.QMainWindow):
             print("WARNING: Incorrect input!")
             return
 
+        all_params = {
+            "exogenous_variables" : 
+                [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())]
+        }
+
+        curr_params = { key: all_params[key]
+            for key in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].params }
+
         params = hlp.PredictParams(
-            self.ui.lineEdit_series.text(),
-            ui_cfg.TRANSLATE.Model.value[self.ui.comboBox_model.currentText()].backend,
-            [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
-            cfg.Metrics.mse,
-            ui_cfg.TRANSLATE.Method.value[self.ui.comboBox_method.currentText()],
-            ui_cfg.TRANSLATE.Type.value[self.ui.comboBox_type.currentText()],
-            self.ui.dateEdit_start.date().toString("yyyy-MM-dd"),
-            self.ui.dateEdit_end.date().toString("yyyy-MM-dd"),
-            self.ui.dateEdit_forecast.date().toString("yyyy-MM-dd"),
-            ui_cfg.TRANSLATE.Offset.value[self.ui.comboBox_offset.currentText()],
-            self.ui.spinBox_shift.value(),
-            self.ui.spinBox_period.value(),
-            self.ui.spinBox_preddays.value()
+            ticker=self.ui.lineEdit_series.text(),
+            model=ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].backend,
+            start_date=self.ui.dateEdit_start.date().toString("yyyy-MM-dd"),
+            end_date=self.ui.dateEdit_end.date().toString("yyyy-MM-dd"),
+            forecast_date=self.ui.dateEdit_forecast.date().toString("yyyy-MM-dd"),
+            offset=ui_cfg.TRANSLATE.Offset[self.ui.comboBox_offset.currentText()],
+            cv_shift=self.ui.spinBox_shift.value(),
+            cv_period=self.ui.spinBox_period.value(),
+            cv_predict_days=self.ui.spinBox_preddays.value(),
+            params=curr_params
         )
 
         print(params.__dict__)
