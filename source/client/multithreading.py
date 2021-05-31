@@ -25,6 +25,7 @@ class Worker(QRunnable):
         self.args    = args
         self.kwargs  = kwargs
         self.signals = WorkerSignals()
+        self.stop    = False
 
         #== Добавьте обратный вызов в наши kwargs ====================================###
         # kwargs['progress_callback'] = self.signals.progress
@@ -35,6 +36,8 @@ class Worker(QRunnable):
         # Получите args/kwargs здесь; и обработка с их использованием
         try:
             result = self.fn(*self.args, **self.kwargs) 
+            if not result:
+                return
         except:
             traceback.print_exc()
             exctype, value = sys.exc_info()[:2]

@@ -337,10 +337,10 @@ class GUI(QtWidgets.QMainWindow):
             params=curr_params
         )
 
-        worker = Worker(partial(self.predict_series, params, self.ui.checkBox_cv.isChecked()))
-        worker.signals.result.connect(self.print_predict)
-        worker.signals.finish.connect(partial(self.ui.pushButton_forecast.setEnabled, True))
-        self.threadpool.start(worker)
+        self.worker = Worker(partial(self.predict_series, params, self.ui.checkBox_cv.isChecked()))
+        self.worker.signals.result.connect(self.print_predict)
+        self.worker.signals.finish.connect(partial(self.ui.pushButton_forecast.setEnabled, True))
+        self.threadpool.start(self.worker)
     
     def predict_series(self, params, cv_flag):
 
@@ -355,8 +355,8 @@ class GUI(QtWidgets.QMainWindow):
             data_baseline = self.process_request(params, "cross-validate")
             print(data_cur)
             print(data_baseline)
-            if not data_cur or not data_baseline:
-                return
+            if not data_cur or not data_baseline or self.worker.stop:
+                return None
             print("CROSS-VALIDATION REQUEST")
             return {
                 "cur_model": cur_model,
@@ -367,8 +367,8 @@ class GUI(QtWidgets.QMainWindow):
             }
         else:
             data = self.process_request(params, 'predict')
-            if not data:
-                return
+            if not data or self.worker.stop:
+                return None
             print("PREDICT REQUEST")
             return {
                 "ticker": params.ticker,
@@ -378,6 +378,8 @@ class GUI(QtWidgets.QMainWindow):
 
     def process_request(self, params: hlp.PredictParams, request: str) -> any:
         headers = {'Content-type': 'application/json'}
+        if self.worker.stop:
+            return None
         req_res = send_request(
             method='POST', 
             url='http://158.101.168.149:8080/' + request, 
@@ -385,31 +387,42 @@ class GUI(QtWidgets.QMainWindow):
             data=json.dumps(params.__dict__, cls=hlp.EnumEncoder)
         )
         while not req_res.get('success', False):
+            if self.worker.stop:
+                return None
             req_res = send_request(
                 method='POST', 
                 url='http://158.101.168.149:8080/' + request, 
                 headers=headers,
                 data=json.dumps(params.__dict__, cls=hlp.EnumEncoder)
             )
-            time.sleep(1)
+            time.sleep(0.1)
         data = self.get_request(req_res['id'])
-        if data.get('status', None) is not cfg.Status.ready:
+        if not data or data.get('status', None) is not cfg.Status.ready:
             print(data)
             return None
         else:
             return data
 
-    @staticmethod
-    def get_request(uid):
+    def get_request(self, uid):
         params = {
             'id': uid
         }
+        if self.worker.stop:
+            return None
         res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
         while res.get('status', cfg.Status.fail) in [cfg.Status.wait, cfg.Status.process]:
+            if self.worker.stop:
+                return None
             res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
-            time.sleep(1)
+            time.sleep(0.1)
         return res
 
+    # потоки или процессы должны быть завершены    ###
+    def closeEvent(self, event):
+        # закрыть поток Worker(QRunnable)
+        self.worker.stop = True
+        self.threadpool.waitForDone(-1)
+        super(GUI, self).closeEvent(event)
 
 if __name__ == '__main__':
     test = False
