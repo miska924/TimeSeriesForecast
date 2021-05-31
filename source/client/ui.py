@@ -1,21 +1,20 @@
 import json
-from os import error
 import time
-import requests
 import sys
+from functools import partial
 
 from PyQt5 import QtWidgets, QtCore
 
 import plotly
 import plotly.graph_objs as go
 
-from source.back import back
 import source._helpers as hlp
 from source._helpers import send_request
 import source.client.config as ui_cfg
 import source.config as cfg
 from source.client.design import Ui_MainWindow
 import source.client.custom_widgets as cw
+from source.client.multithreading import Worker
 
 
 class GUI(QtWidgets.QMainWindow):
@@ -73,8 +72,15 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.spinBox_shift.setValue(15)
             self.ui.spinBox_preddays.setValue(2)
 
+        self.threadpool = QtCore.QThreadPool()
+        print("Max потоков, кот. будут использоваться=`%d`" % self.threadpool.maxThreadCount())
+
+        threadtest = QtCore.QThread(self)
+        idealthreadcount = threadtest.idealThreadCount()
+        print("Ваша машина может обрабатывать `{}` потокa оптимально.".format(idealthreadcount))
+
         self.ui.listWidget.delete.connect(self.del_exogenous)
-        self.ui.pushButton_forecast.clicked.connect(self.predict_series)
+        self.ui.pushButton_forecast.clicked.connect(self.predict_handler)
         self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
         self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
         self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
@@ -137,7 +143,18 @@ class GUI(QtWidgets.QMainWindow):
             self.paint_widget(widget, ui_cfg.correct_color)
             return True
 
-    def plot(self, data):
+    def print_predict(self, result):
+        if result["cv_flag"]:
+            self.print_cv(
+                result["cur_model"],
+                result["cur_data"],
+                result["baseline_model"],
+                result["baseline_data"]
+            )
+        else:
+            self.plot(result["data"], result["ticker"])
+
+    def plot(self, data, ticker):
         x, y, x_pred, y_pred = data["X"], data["Y"], data["PredictedX"], data["PredictedY"]
 
         fig = go.Figure()
@@ -146,7 +163,7 @@ class GUI(QtWidgets.QMainWindow):
         fig.add_trace(go.Scatter(x=x_pred, y=y_pred, mode='lines', name='Forecast'))
         fig.update_layout(
             title={
-                'text': self.ui.lineEdit_series.text(),
+                'text': ticker,
                 'y': 0.95,
                 'x': 0.5,
                 'xanchor': 'center',
@@ -289,10 +306,12 @@ class GUI(QtWidgets.QMainWindow):
 
         return flag_correct
 
-    def predict_series(self):
+    def predict_handler(self):
         if not self.handle_errors():
             print("WARNING: Incorrect input!")
             return
+
+        self.ui.pushButton_forecast.setEnabled(False)
 
         all_params = {
             "exogenous_variables":
@@ -318,8 +337,19 @@ class GUI(QtWidgets.QMainWindow):
             params=curr_params
         )
 
+        worker = Worker(partial(self.predict_series, params, self.ui.checkBox_cv.isChecked()))
+        worker.signals.result.connect(self.print_predict)
+        worker.signals.finish.connect(partial(self.ui.pushButton_forecast.setEnabled, True))
+        self.threadpool.start(worker)
+    
+    def predict_series(self, params, cv_flag):
+
         print(params.__dict__)
-        if self.ui.checkBox_cv.isChecked():
+        if cv_flag:
+            cur_model = ""
+            for key in ui_cfg.TRANSLATE.Model.keys():
+                if ui_cfg.TRANSLATE.Model[key].backend == params.model:
+                    cur_model = key
             data_cur = self.process_request(params, "cross-validate")
             params.model = cfg.Model.naive
             data_baseline = self.process_request(params, "cross-validate")
@@ -327,17 +357,24 @@ class GUI(QtWidgets.QMainWindow):
             print(data_baseline)
             if not data_cur or not data_baseline:
                 return
-            self.print_cv(
-                self.ui.comboBox_model.currentText(),
-                data_cur['data'],
-                "Наивная модель",
-                data_baseline['data']
-            )
+            print("CROSS-VALIDATION REQUEST")
+            return {
+                "cur_model": cur_model,
+                "cur_data": data_cur['data'],
+                "baseline_model": "Наивная модель",
+                "baseline_data": data_baseline['data'],
+                "cv_flag": True
+            }
         else:
             data = self.process_request(params, 'predict')
             if not data:
                 return
-            self.plot(data['data'])
+            print("PREDICT REQUEST")
+            return {
+                "ticker": params.ticker,
+                "data": data['data'],
+                "cv_flag": False
+            }
 
     def process_request(self, params: hlp.PredictParams, request: str) -> any:
         headers = {'Content-type': 'application/json'}
