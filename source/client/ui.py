@@ -2,6 +2,8 @@ import json
 import time
 import sys
 from functools import partial
+from typing import List
+import csv
 
 from PyQt5 import QtWidgets, QtCore
 
@@ -34,6 +36,7 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.horizontalWidget_series_wrapper.hide()
         self.filename = "Загрузите ряд"
+        self.uploaded_data = []
         if test:
             self.home_loc = ""
         else:
@@ -99,13 +102,29 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
         self.ui.pushButton_forecast.clicked.connect(self.predict_series)
 
+    def update_uploaded(self) -> List[str]:
+        with open(self.filename, newline='') as f:
+            reader = csv.reader(f)
+            self.uploaded_data = list(reader)
+            return self.uploaded_data[0][1:]
+
     def show_upload_series(self, state):
+        self.ui.listWidget.clear()
+        self.ui.lineEdit_series.clear()
         if state:
-            self.ui.lineEdit_series_wrapper.hide()
+            self.ui.horizontalWidget_exogenous.hide()
+            self.ui.lineEdit_series.setReadOnly(True)
+            self.ui.listWidget.delete.disconnect()
+            if self.filename != "Загрузите ряд":
+                headers = self.update_uploaded()
+                self.ui.listWidget.addItems(headers[1:])
+                self.ui.lineEdit_series.setText(headers[0])
             self.ui.horizontalWidget_series_wrapper.show()
         else:
             self.ui.horizontalWidget_series_wrapper.hide()
-            self.ui.lineEdit_series_wrapper.show()
+            self.ui.listWidget.delete.connect(self.del_exogenous)
+            self.ui.lineEdit_series.setReadOnly(False)
+            self.ui.horizontalWidget_exogenous.show()
 
     def upload_series(self):
         tmp_filename = QtWidgets.QFileDialog.getOpenFileName(
@@ -117,6 +136,10 @@ class GUI(QtWidgets.QMainWindow):
         if not tmp_filename:
             return
         self.filename = tmp_filename
+        headers = self.update_uploaded()
+        self.ui.lineEdit_series.setText(headers[0])
+        self.ui.listWidget.clear()
+        self.ui.listWidget.addItems(headers[1:])
         short_name = self.filename if '/' not in self.filename else \
             self.filename[self.filename.rfind('/') + 1:]
         self.ui.label_upload.setText(short_name)
