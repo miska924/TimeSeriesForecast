@@ -1,11 +1,5 @@
-import datetime
-import os
-import traceback
-
 import pandas as pd
 import requests
-import apimoex
-from tqdm import tqdm
 from sklearn import feature_selection
 
 from source._helpers import stderr_print, PredictParams
@@ -100,7 +94,7 @@ class DataProcess:
                         continue
 
                 info = MoexAPI.get_ticker_info(session, ticker)
-                data = apimoex.get_board_history(session, ticker, date_start, date_end, market=info['market'],
+                data = MoexAPI.get_board_history(session, ticker, date_start, date_end, market=info['market'],
                                                  board=info['boardid'], engine=info['engine'])
                 if not data:
                     print(f'Empty data for {ticker}')
