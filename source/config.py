@@ -28,7 +28,7 @@ class Model(enum.Enum):
     linear_reg = 'linear_regression'
     naive = 'naive'
     stationary_linear_regression = 'stationary_linear_regression'
-    ansamble = 'ansamble'
+    magic_ensemble = 'magic_ensemble'
     ets = 'ets'
 
 
