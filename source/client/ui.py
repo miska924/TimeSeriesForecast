@@ -125,7 +125,7 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.listWidget.delete.connect(self.del_exogenous)
             self.ui.lineEdit_series.setReadOnly(False)
             self.ui.horizontalWidget_exogenous.show()
-
+            
     def upload_series(self):
         tmp_filename = QtWidgets.QFileDialog.getOpenFileName(
             parent=None,
