@@ -35,6 +35,12 @@ class GUI(QtWidgets.QMainWindow):
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
 
         self.ui.horizontalWidget_series_wrapper.hide()
+        self.filename = "Загрузите ряд"
+        if test:
+            self.home_loc = ""
+        else:
+            self.home_loc = \
+                QtCore.QStandardPaths.standardLocations(QtCore.QStandardPaths.HomeLocation)[0]
 
         if not test:
             for cb in self.comboBoxes_general:
@@ -75,14 +81,35 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.spinBox_shift.setValue(15)
             self.ui.spinBox_preddays.setValue(2)
 
-        self.ui.listWidget.delete.connect(self.del_exogenous)
-        self.ui.pushButton_forecast.clicked.connect(self.predict_series)
-        self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
-        self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
-        self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
+        self.ui.checkBox_upload.stateChanged.connect(self.show_upload_series)
+        self.ui.pushButton_upload.clicked.connect(self.upload_series)
         self.ui.comboBox_model.currentTextChanged.connect(self.change_model)
-        self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
         self.ui.comboBox_trend.currentTextChanged.connect(self.update_ets_trend)
+        self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
+        self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
+        self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
+        self.ui.listWidget.delete.connect(self.del_exogenous)
+        self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
+        self.ui.pushButton_forecast.clicked.connect(self.predict_series)
+
+    def show_upload_series(self, state):
+        if state:
+            self.ui.lineEdit_series_wrapper.hide()
+            self.ui.horizontalWidget_series_wrapper.show()
+        else:
+            self.ui.horizontalWidget_series_wrapper.hide()
+            self.ui.lineEdit_series_wrapper.show()
+
+    def upload_series(self):
+        self.filename = QtWidgets.QFileDialog.getOpenFileName(
+            parent=None,
+            caption="Выберите ряд",
+            directory=self.home_loc,
+            filter="*.csv"
+        )[0]
+        short_name = self.filename if '/' not in self.filename else \
+            self.filename[self.filename.rfind('/') + 1:]
+        self.ui.label_upload.setText(short_name)
 
     def add_exogenous(self):
         if self.ui.lineEdit_exogenous.text():
