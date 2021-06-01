@@ -34,6 +34,8 @@ class GUI(QtWidgets.QMainWindow):
         self.comboBoxes_ets = [self.ui.comboBox_trend]
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
 
+        self.ui.horizontalWidget_series_wrapper.hide()
+
         if not test:
             for cb in self.comboBoxes_general:
                 cb.addItem("")                
