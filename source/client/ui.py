@@ -100,7 +100,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
         self.ui.listWidget.delete.connect(self.del_exogenous)
         self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
-        self.ui.pushButton_forecast.clicked.connect(self.predict_series)
+        self.ui.pushButton_forecast.clicked.connect(self.predict_handler)
 
     def update_uploaded(self) -> List[str]:
         with open(self.filename, newline='') as f:
@@ -396,7 +396,9 @@ class GUI(QtWidgets.QMainWindow):
             cv_shift=self.ui.spinBox_shift.value(),
             cv_period=self.ui.spinBox_period.value(),
             cv_predict_days=self.ui.spinBox_preddays.value(),
-            params=curr_params
+            params=curr_params,
+            upload=self.ui.checkBox_upload.isChecked(),
+            uploaded_data=self.uploaded_data if self.ui.checkBox_upload.isChecked() else []
         )
 
         self.worker = Worker(partial(self.predict_series, params, self.ui.checkBox_cv.isChecked()))

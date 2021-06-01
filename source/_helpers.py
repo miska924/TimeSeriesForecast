@@ -3,6 +3,7 @@ import json
 import os
 import sys
 from dataclasses import dataclass
+from typing import List
 
 import requests
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -23,6 +24,8 @@ class PredictParams:
     cv_period: int = None
     cv_predict_days: int = None
     params: dict = None
+    upload: bool = False
+    uploaded_data: List[List[str]] = None
 
 
 def stderr_print(*args, **kwargs):
