@@ -25,7 +25,6 @@ class GUI(QtWidgets.QMainWindow):
         self.setWindowTitle("TimeSeries Forecast")
         self.ui.verticalLayout_2.setAlignment(QtCore.Qt.AlignTop)
 
-        self.lineEdits = [self.ui.lineEdit_series]
         self.comboBoxes_general = [
             self.ui.comboBox_model,
             self.ui.comboBox_offset,
@@ -109,12 +108,15 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.lineEdit_series_wrapper.show()
 
     def upload_series(self):
-        self.filename = QtWidgets.QFileDialog.getOpenFileName(
+        tmp_filename = QtWidgets.QFileDialog.getOpenFileName(
             parent=None,
             caption="Выберите ряд",
             directory=self.home_loc,
             filter="*.csv"
         )[0]
+        if not tmp_filename:
+            return
+        self.filename = tmp_filename
         short_name = self.filename if '/' not in self.filename else \
             self.filename[self.filename.rfind('/') + 1:]
         self.ui.label_upload.setText(short_name)
@@ -289,15 +291,21 @@ class GUI(QtWidgets.QMainWindow):
     def handle_errors(self):
         flag_correct = True
 
-        for le in self.lineEdits:
-            if not self.check_correct(le, le.text()):
+        if self.ui.checkBox_upload.isChecked():
+            if not self.check_correct(
+                self.ui.horizontalWidget_series, 
+                self.filename != "Загрузите ряд"):
+                flag_correct = False
+        else:
+            if not self.check_correct(self.ui.lineEdit_series, self.ui.lineEdit_series.text()):
                 flag_correct = False
         
         for cb in self.comboBoxes_general:
             if not self.check_correct(cb, cb.currentText()):
                 flag_correct = False
 
-        if "ets_wrapper" in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
+        if self.ui.comboBox_model.currentText() and \
+             "ets_wrapper" in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
             for cb in self.comboBoxes_ets:
                 if not self.check_correct(cb, cb.currentText()):
                     flag_correct = False

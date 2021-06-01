@@ -64,7 +64,7 @@ class Ui_MainWindow(object):
         self.horizontalWidget_series = QtWidgets.QWidget(self.horizontalWidget_series_wrapper)
         self.horizontalWidget_series.setObjectName("horizontalWidget_series")
         self.horizontalLayout_10 = QtWidgets.QHBoxLayout(self.horizontalWidget_series)
-        self.horizontalLayout_10.setContentsMargins(0, 0, 0, 2)
+        self.horizontalLayout_10.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_10.setObjectName("horizontalLayout_10")
         self.label_upload = QtWidgets.QLabel(self.horizontalWidget_series)
         self.label_upload.setObjectName("label_upload")
