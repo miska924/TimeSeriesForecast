@@ -79,6 +79,8 @@ class GUI(QtWidgets.QMainWindow):
         idealthreadcount = threadtest.idealThreadCount()
         print("Ваша машина может обрабатывать `{}` потокa оптимально.".format(idealthreadcount))
 
+        self.mutex = QtCore.QMutex()
+
         self.ui.listWidget.delete.connect(self.del_exogenous)
         self.ui.pushButton_forecast.clicked.connect(self.predict_handler)
         self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
@@ -355,8 +357,11 @@ class GUI(QtWidgets.QMainWindow):
             data_baseline = self.process_request(params, "cross-validate")
             print(data_cur)
             print(data_baseline)
+            self.mutex.lock()
             if not data_cur or not data_baseline or self.worker.stop:
+                self.mutex.unlock()
                 return None
+            self.mutex.unlock()
             print("CROSS-VALIDATION REQUEST")
             return {
                 "cur_model": cur_model,
@@ -367,8 +372,11 @@ class GUI(QtWidgets.QMainWindow):
             }
         else:
             data = self.process_request(params, 'predict')
+            self.mutex.lock()
             if not data or self.worker.stop:
+                self.mutex.unlock()
                 return None
+            self.mutex.unlock()
             print("PREDICT REQUEST")
             return {
                 "ticker": params.ticker,
@@ -378,8 +386,11 @@ class GUI(QtWidgets.QMainWindow):
 
     def process_request(self, params: hlp.PredictParams, request: str) -> any:
         headers = {'Content-type': 'application/json'}
+        self.mutex.lock()
         if self.worker.stop:
+            self.mutex.unlock()
             return None
+        self.mutex.unlock()
         req_res = send_request(
             method='POST', 
             url='http://158.101.168.149:8080/' + request, 
@@ -387,8 +398,11 @@ class GUI(QtWidgets.QMainWindow):
             data=json.dumps(params.__dict__, cls=hlp.EnumEncoder)
         )
         while not req_res.get('success', False):
+            self.mutex.lock()
             if self.worker.stop:
+                self.mutex.unlock()
                 return None
+            self.mutex.unlock()
             req_res = send_request(
                 method='POST', 
                 url='http://158.101.168.149:8080/' + request, 
@@ -407,12 +421,18 @@ class GUI(QtWidgets.QMainWindow):
         params = {
             'id': uid
         }
+        self.mutex.lock()
         if self.worker.stop:
+            self.mutex.unlock()
             return None
+        self.mutex.unlock()
         res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
         while res.get('status', cfg.Status.fail) in [cfg.Status.wait, cfg.Status.process]:
+            self.mutex.lock()
             if self.worker.stop:
+                self.mutex.unlock()
                 return None
+            self.mutex.unlock()
             res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
             time.sleep(0.1)
         return res
@@ -420,7 +440,9 @@ class GUI(QtWidgets.QMainWindow):
     # потоки или процессы должны быть завершены    ###
     def closeEvent(self, event):
         # закрыть поток Worker(QRunnable)
+        self.mutex.lock()
         self.worker.stop = True
+        self.mutex.unlock()
         self.threadpool.waitForDone(-1)
         super(GUI, self).closeEvent(event)
 
