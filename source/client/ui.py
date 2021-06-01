@@ -1,21 +1,20 @@
 import json
-from os import error
 import time
-import requests
 import sys
+from functools import partial
 
 from PyQt5 import QtWidgets, QtCore
 
 import plotly
 import plotly.graph_objs as go
 
-from source.back import back
 import source._helpers as hlp
 from source._helpers import send_request
 import source.client.config as ui_cfg
 import source.config as cfg
 from source.client.design import Ui_MainWindow
 import source.client.custom_widgets as cw
+from source.client.multithreading import Worker
 
 
 class GUI(QtWidgets.QMainWindow):
@@ -73,8 +72,17 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.spinBox_shift.setValue(15)
             self.ui.spinBox_preddays.setValue(2)
 
+        self.threadpool = QtCore.QThreadPool()
+        print("Max потоков, кот. будут использоваться=`%d`" % self.threadpool.maxThreadCount())
+
+        threadtest = QtCore.QThread(self)
+        idealthreadcount = threadtest.idealThreadCount()
+        print("Ваша машина может обрабатывать `{}` потокa оптимально.".format(idealthreadcount))
+
+        self.mutex = QtCore.QMutex()
+
         self.ui.listWidget.delete.connect(self.del_exogenous)
-        self.ui.pushButton_forecast.clicked.connect(self.predict_series)
+        self.ui.pushButton_forecast.clicked.connect(self.predict_handler)
         self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
         self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
         self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
@@ -137,7 +145,18 @@ class GUI(QtWidgets.QMainWindow):
             self.paint_widget(widget, ui_cfg.correct_color)
             return True
 
-    def plot(self, data):
+    def print_predict(self, result):
+        if result["cv_flag"]:
+            self.print_cv(
+                result["cur_model"],
+                result["cur_data"],
+                result["baseline_model"],
+                result["baseline_data"]
+            )
+        else:
+            self.plot(result["data"], result["ticker"])
+
+    def plot(self, data, ticker):
         x, y, x_pred, y_pred = data["X"], data["Y"], data["PredictedX"], data["PredictedY"]
 
         fig = go.Figure()
@@ -146,7 +165,7 @@ class GUI(QtWidgets.QMainWindow):
         fig.add_trace(go.Scatter(x=x_pred, y=y_pred, mode='lines', name='Forecast'))
         fig.update_layout(
             title={
-                'text': self.ui.lineEdit_series.text(),
+                'text': ticker,
                 'y': 0.95,
                 'x': 0.5,
                 'xanchor': 'center',
@@ -289,10 +308,12 @@ class GUI(QtWidgets.QMainWindow):
 
         return flag_correct
 
-    def predict_series(self):
+    def predict_handler(self):
         if not self.handle_errors():
             print("WARNING: Incorrect input!")
             return
+
+        self.ui.pushButton_forecast.setEnabled(False)
 
         all_params = {
             "exogenous_variables":
@@ -318,29 +339,58 @@ class GUI(QtWidgets.QMainWindow):
             params=curr_params
         )
 
+        self.worker = Worker(partial(self.predict_series, params, self.ui.checkBox_cv.isChecked()))
+        self.worker.signals.result.connect(self.print_predict)
+        self.worker.signals.finish.connect(partial(self.ui.pushButton_forecast.setEnabled, True))
+        self.threadpool.start(self.worker)
+    
+    def predict_series(self, params, cv_flag):
+
         print(params.__dict__)
-        if self.ui.checkBox_cv.isChecked():
+        if cv_flag:
+            cur_model = ""
+            for key in ui_cfg.TRANSLATE.Model.keys():
+                if ui_cfg.TRANSLATE.Model[key].backend == params.model:
+                    cur_model = key
             data_cur = self.process_request(params, "cross-validate")
             params.model = cfg.Model.naive
             data_baseline = self.process_request(params, "cross-validate")
             print(data_cur)
             print(data_baseline)
-            if not data_cur or not data_baseline:
-                return
-            self.print_cv(
-                self.ui.comboBox_model.currentText(),
-                data_cur['data'],
-                "Наивная модель",
-                data_baseline['data']
-            )
+            self.mutex.lock()
+            if not data_cur or not data_baseline or self.worker.stop:
+                self.mutex.unlock()
+                return None
+            self.mutex.unlock()
+            print("CROSS-VALIDATION REQUEST")
+            return {
+                "cur_model": cur_model,
+                "cur_data": data_cur['data'],
+                "baseline_model": "Наивная модель",
+                "baseline_data": data_baseline['data'],
+                "cv_flag": True
+            }
         else:
             data = self.process_request(params, 'predict')
-            if not data:
-                return
-            self.plot(data['data'])
+            self.mutex.lock()
+            if not data or self.worker.stop:
+                self.mutex.unlock()
+                return None
+            self.mutex.unlock()
+            print("PREDICT REQUEST")
+            return {
+                "ticker": params.ticker,
+                "data": data['data'],
+                "cv_flag": False
+            }
 
     def process_request(self, params: hlp.PredictParams, request: str) -> any:
         headers = {'Content-type': 'application/json'}
+        self.mutex.lock()
+        if self.worker.stop:
+            self.mutex.unlock()
+            return None
+        self.mutex.unlock()
         req_res = send_request(
             method='POST', 
             url='http://158.101.168.149:8080/' + request, 
@@ -348,31 +398,53 @@ class GUI(QtWidgets.QMainWindow):
             data=json.dumps(params.__dict__, cls=hlp.EnumEncoder)
         )
         while not req_res.get('success', False):
+            self.mutex.lock()
+            if self.worker.stop:
+                self.mutex.unlock()
+                return None
+            self.mutex.unlock()
             req_res = send_request(
                 method='POST', 
                 url='http://158.101.168.149:8080/' + request, 
                 headers=headers,
                 data=json.dumps(params.__dict__, cls=hlp.EnumEncoder)
             )
-            time.sleep(1)
+            time.sleep(0.1)
         data = self.get_request(req_res['id'])
-        if data.get('status', None) is not cfg.Status.ready:
+        if not data or data.get('status', None) is not cfg.Status.ready:
             print(data)
             return None
         else:
             return data
 
-    @staticmethod
-    def get_request(uid):
+    def get_request(self, uid):
         params = {
             'id': uid
         }
+        self.mutex.lock()
+        if self.worker.stop:
+            self.mutex.unlock()
+            return None
+        self.mutex.unlock()
         res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
         while res.get('status', cfg.Status.fail) in [cfg.Status.wait, cfg.Status.process]:
+            self.mutex.lock()
+            if self.worker.stop:
+                self.mutex.unlock()
+                return None
+            self.mutex.unlock()
             res = send_request(method='GET', url='http://158.101.168.149:8080/get', params=params)
-            time.sleep(1)
+            time.sleep(0.1)
         return res
 
+    # потоки или процессы должны быть завершены    ###
+    def closeEvent(self, event):
+        # закрыть поток Worker(QRunnable)
+        self.mutex.lock()
+        self.worker.stop = True
+        self.mutex.unlock()
+        self.threadpool.waitForDone(-1)
+        super(GUI, self).closeEvent(event)
 
 if __name__ == '__main__':
     test = False
