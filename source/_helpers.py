@@ -5,6 +5,9 @@ import sys
 from dataclasses import dataclass
 from typing import List
 
+import numpy as np
+import pandas as pd
+
 import requests
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -92,3 +95,21 @@ def as_enum(d):
         return getattr(PUBLIC_ENUMS[name], member)
     else:
         return d
+
+
+def make_df(uploaded_data, start_date, end_date):
+    columns = uploaded_data[0][1:]
+    uploaded_data = np.array(uploaded_data[1:]).T
+
+    res = pd.DataFrame(
+        uploaded_data[1:, :].T,
+        columns=columns,
+        index=pd.to_datetime(uploaded_data[0, :])
+    )
+    res = res.apply(pd.to_numeric)
+    print(res.columns)
+
+    res = res.loc[start_date:end_date]
+    res.columns = res.columns.astype(str)
+
+    return res

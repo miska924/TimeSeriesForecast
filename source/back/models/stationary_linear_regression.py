@@ -1,6 +1,6 @@
 from sklearn.linear_model import LinearRegression as LR
 
-from source._helpers import PredictParams, safe_get_key
+from source._helpers import PredictParams, safe_get_key, make_df
 from source.back.data_process import DataProcess
 from source.back.models._model import BaseModel
 
@@ -21,8 +21,11 @@ class Model(BaseModel):
                                                 'No key exogenous_variables in stationary linear regression params')
 
     def load(self, params: PredictParams):
-        self.df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
-                                                  params.offset.value, self.exogenous_variables)
+        if params.upload:
+            self.df = make_df(params.uploaded_data, params.start_date, params.end_date)
+        else:
+            self.df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
+                                                      params.offset.value, self.exogenous_variables)
 
     def train(self, shift: int):
         df_copy = self.df.copy()

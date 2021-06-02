@@ -121,7 +121,7 @@ class DataProcess:
 
     # join dataframe and named series (sum of two series with coefficients):
     @staticmethod
-    def _join(df, a, a_coef=1, b=None, b_coef=-1, name=None):
+    def _join(df, a, a_coef=1.0, b=None, b_coef=-1.0, name=None):
         # rename series for simplification:
         if name is None:
             name = df.shape[1]
@@ -133,7 +133,7 @@ class DataProcess:
         # return joined dataframe:
         return df.join(
             pd.DataFrame(index=df.index).join(
-                (a_coef * a if a is not None else 0) + (b_coef * b if b is not None else 0)
+                (a if a is not None else 0) * a_coef + (b if b is not None else 0) * b_coef
             ).rename(columns={a.name: name}),
             how='outer'
         )
