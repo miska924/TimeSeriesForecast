@@ -26,6 +26,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.setWindowTitle("TimeSeries Forecast")
         self.ui.verticalLayout_2.setAlignment(QtCore.Qt.AlignTop)
+        self.test_flag = test
 
         self.comboBoxes_general = [
             self.ui.comboBox_model,
@@ -45,19 +46,22 @@ class GUI(QtWidgets.QMainWindow):
         if not test:
             for cb in self.comboBoxes_general:
                 cb.addItem("")            
-            self.ui.comboBox_trend.addItem("")    
-            self.ui.comboBox_metric.addItem("")    
+            self.ui.comboBox_trend.addItem("") 
+            self.ui.comboBox_loss.addItem("")
 
         self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.keys())
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.keys())
         self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETSTrend.keys())
-        self.ui.comboBox_metric.addItems(ui_cfg.TRANSLATE.RFCriterion.keys())
+        self.ui.comboBox_loss.addItems(ui_cfg.TRANSLATE.GBLoss.keys())
 
         self.ui.spinBox_estimators.setMinimum(1)
+        self.ui.spinBox_estimators.setMaximum(1000)
         self.ui.doubleSpinBox_leaf.setMinimum(0.01)
         self.ui.doubleSpinBox_leaf.setMaximum(50)
         self.ui.doubleSpinBox_samples.setMinimum(0.01)
         self.ui.doubleSpinBox_samples.setMaximum(100)
+        self.ui.doubleSpinBox_alpha.setMinimum(0.01)
+        self.ui.doubleSpinBox_alpha.setMaximum(0.99)
 
         if test:
             self.ui.spinBox_estimators.setValue(50)
@@ -79,6 +83,7 @@ class GUI(QtWidgets.QMainWindow):
                 curr.hide()
         if not test:
             self.ui.checkBox_dumped.hide()
+        self.ui.widget_alpha.hide()
 
         if test:
             self.change_model(self.ui.comboBox_model.currentText())
@@ -110,6 +115,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
         self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
         self.ui.listWidget.delete.connect(self.del_exogenous)
+        self.ui.comboBox_loss.currentTextChanged.connect(self.update_loss)
         self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
         self.ui.pushButton_forecast.clicked.connect(self.predict_handler)
 
@@ -171,16 +177,27 @@ class GUI(QtWidgets.QMainWindow):
         else:
             self.ui.checkBox_dumped.hide()
 
+    def update_loss(self, loss_name):
+        if loss_name and \
+            (loss_name == "Функция потерь Хьюбера" or loss_name == "Квантильная регрессия"):
+            self.ui.widget_alpha.show()
+        else:
+            self.ui.widget_alpha.hide()
+
     def change_model(self, model_name):
         for model in ui_cfg.TRANSLATE.Model.values():
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
+        self.ui.comboBox_metric.clear()
         if model_name:
             model = ui_cfg.TRANSLATE.Model[model_name]
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.show()
+            if not self.test_flag:
+                self.ui.comboBox_metric.addItem("")
+            self.ui.comboBox_metric.addItems(ui_cfg.TRANSLATE.Model[model_name].metrics.keys())
 
     def update_cv(self, state):
         if state:
@@ -350,6 +367,10 @@ class GUI(QtWidgets.QMainWindow):
                 self.check_correct(self.ui.comboBox_metric, self.ui.comboBox_metric.currentText()):
                 flag_correct = False
         
+        if self.ui.comboBox_model.currentText() and "loss_wrapper" in \
+                ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
+            if not self.check_correct(self.ui.comboBox_loss, self.ui.comboBox_loss.currentText()):
+                flag_correct = False
         
         dates = [
             self.ui.dateEdit_start.date(), 
@@ -400,9 +421,14 @@ class GUI(QtWidgets.QMainWindow):
                 if self.ui.comboBox_trend.currentText() else None,
             "dumped": self.ui.checkBox_dumped.isChecked(),
             "n_estimators": self.ui.spinBox_estimators.value(),
-            "criterion": ui_cfg.TRANSLATE.RFCriterion[self.ui.comboBox_metric.currentText()],
+            "criterion": ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].metrics[self.ui.comboBox_metric.currentText()]
+                if self.ui.comboBox_metric.currentText() else None,
             "min_samples_leaf": self.ui.doubleSpinBox_leaf.value(),
-            "max_samples": self.ui.doubleSpinBox_samples.value()
+            "max_samples": self.ui.doubleSpinBox_samples.value(),
+            "loss": ui_cfg.TRANSLATE.GBLoss[self.ui.comboBox_loss.currentText()] 
+                if self.ui.comboBox_loss.currentText() else None,
+            "learning_rate": self.ui.doubleSpinBox_learnrate.value(),
+            "alpha": self.ui.doubleSpinBox_alpha.value()
         }
 
         curr_params = { key: all_params[key]
