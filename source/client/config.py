@@ -65,6 +65,31 @@ class TRANSLATE:
                 "MSE": cfg.RFCriterion.mse,
                 "MAE": cfg.RFCriterion.mae
             }
+        ),
+        "Градиентный бустинг": ModelParams(
+            backend=cfg.Model.gradient_boosting_regressor,
+            widgets=[
+                "exogenous_wrapper",
+                "loss_wrapper",
+                "learning_rate_wrapper",
+                "estimators_wrapper",
+                "metric_wrapper",
+                "min_samples_leaf_wrapper"
+            ],
+            params=[
+                "exogenous_variables",
+                "loss",
+                "learning_rate",
+                "n_estimators",
+                "criterion",
+                "min_samples_leaf",
+                "alpha"
+            ],
+            metrics={
+                "MSE Фридмана": cfg.GBCriterion.friedman_mse,
+                "MSE": cfg.GBCriterion.mse,
+                "MAE": cfg.GBCriterion.mae
+            }
         )
     }
 
@@ -79,6 +104,13 @@ class TRANSLATE:
         "Аддитивный": cfg.ETSTrend.additive,
         "Мультипликативный": cfg.ETSTrend.multiplicative,
         "Без тренда": cfg.ETSTrend.no_trend
+    }
+
+    GBLoss = {
+        "Наименьшие квадраты": cfg.GBLoss.ls,
+        "Наименьшее абс. отклонение": cfg.GBLoss.lad,
+        "Функция потерь Хьюбера": cfg.GBLoss.huber,
+        "Квантильная регрессия": cfg.GBLoss.quantile
     }
 
 tmp_app = QtWidgets.QApplication([])

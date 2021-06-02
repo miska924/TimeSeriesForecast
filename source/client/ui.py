@@ -47,10 +47,12 @@ class GUI(QtWidgets.QMainWindow):
             for cb in self.comboBoxes_general:
                 cb.addItem("")            
             self.ui.comboBox_trend.addItem("") 
+            self.ui.comboBox_loss.addItem("")
 
         self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.keys())
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.keys())
         self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETSTrend.keys())
+        self.ui.comboBox_loss.addItems(ui_cfg.TRANSLATE.GBLoss.keys())
 
         self.ui.spinBox_estimators.setMinimum(1)
         self.ui.doubleSpinBox_leaf.setMinimum(0.01)
@@ -78,6 +80,7 @@ class GUI(QtWidgets.QMainWindow):
                 curr.hide()
         if not test:
             self.ui.checkBox_dumped.hide()
+        self.ui.widget_alpha.hide()
 
         if test:
             self.change_model(self.ui.comboBox_model.currentText())
@@ -181,7 +184,7 @@ class GUI(QtWidgets.QMainWindow):
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.show()
-            if self.test_flag:
+            if not self.test_flag:
                 self.ui.comboBox_metric.addItem("")
             self.ui.comboBox_metric.addItems(ui_cfg.TRANSLATE.Model[model_name].metrics.keys())
 
