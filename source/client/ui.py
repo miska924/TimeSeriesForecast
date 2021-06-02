@@ -364,6 +364,10 @@ class GUI(QtWidgets.QMainWindow):
                 self.check_correct(self.ui.comboBox_metric, self.ui.comboBox_metric.currentText()):
                 flag_correct = False
         
+        if self.ui.comboBox_model.currentText() and "loss_wrapper" in \
+                ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
+            if not self.check_correct(self.ui.comboBox_loss, self.ui.comboBox_loss.currentText()):
+                flag_correct = False
         
         dates = [
             self.ui.dateEdit_start.date(), 
