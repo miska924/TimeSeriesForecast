@@ -18,10 +18,18 @@ TICKERS = {
     'CBOM': ['PIKK', 'GAZP', 'PIKK']
 }
 
+
+# ETS
 class ETSTrend(enum.Enum):
     additive = 'add'
     multiplicative = 'mul'
     no_trend = 'no_trend'
+
+
+# Random Forest
+class RFCriterion(enum.Enum):
+    mse = 'mse'
+    mae = 'mae'
 
 
 class Model(enum.Enum):

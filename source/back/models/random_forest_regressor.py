@@ -10,9 +10,8 @@ class Model(BaseModel):
     # {
     #     "exogenous_variables": list,
     #     "n_estimators": int,
-    #     "criterion": str,
+    #     "criterion": cfg.RFCriterion,
     #     "min_samples_leaf": float,
-    #     "bootstrap": bool,
     #     "max_samples" : float,
     # }
 
@@ -26,9 +25,9 @@ class Model(BaseModel):
         self.n_estimators = safe_get_key(params, 'n_estimators', 'No key n_estimators in linear regression params')
         self.criterion = safe_get_key(params, 'criterion', 'No key criterion in linear regression params')
         self.min_samples_leaf = safe_get_key(params, 'min_samples_leaf',
-                                             'No key min_samples_leaf in linear regression params')
-        self.bootstrap = safe_get_key(params, 'bootstrap', 'No key bootstrap in linear regression params')
-        self.max_samples = safe_get_key(params, 'max_samples', 'No key max_samples in linear regression params')
+                                             'No key min_samples_leaf in linear regression params') / 100
+        self.max_samples = safe_get_key(params, 'max_samples', 'No key max_samples in linear regression params') / 100
+        self.max_samples = self.max_samples if self.max_samples != 1 else None
 
     def load(self, params: PredictParams):
         loaded_df = DataProcess.load_data_from_moex(params.ticker, params.start_date, params.end_date,
@@ -46,8 +45,8 @@ class Model(BaseModel):
         df_copy = df_copy[self.filtered_columns].to_numpy()
         x = df_copy[:, 1:]
         y = df_copy[:, 0]
-        self.model = RandomForestRegressor(n_estimators=self.n_estimators, criterion=self.criterion,
-                                           min_samples_leaf=self.min_samples_leaf, bootstrap=self.bootstrap,
+        self.model = RandomForestRegressor(n_estimators=self.n_estimators, criterion=self.criterion.value,
+                                           min_samples_leaf=self.min_samples_leaf, bootstrap=True,
                                            max_samples=self.max_samples, n_jobs=1)
         self.model.fit(x, y)
 

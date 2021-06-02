@@ -169,6 +169,30 @@ if __name__ == '__main__':
     else:
         offset = cfg.Offset(offset)
 
+    tmp_params = PredictParams(
+        model=cfg.Model.random_forest_regressor,
+        ticker='GAZP',
+        start_date='2011-06-01',
+        end_date='2021-05-09',
+        forecast_date='2021-05-09',
+        offset=offset,
+        cv_period=127,
+        cv_shift=15,
+        cv_predict_days=2,
+        params={
+            'exogenous_variables': ['IMOEX', 'MOEXOG', 'USD000000TOD'],
+            'n_estimators': 50,
+            'criterion': 'mse',
+            'min_samples_leaf': 0.0005,
+            'bootstrap': True,
+            'max_samples': 0.8,
+        }
+    )
+    res = run_cross_validation(tmp_params)
+    print(res)
+    exit(0)
+
+
     import decimal
 
     def drange(x, y, jump):
@@ -185,9 +209,9 @@ if __name__ == '__main__':
 
                 tmp_params = PredictParams(
                     model=cfg.Model.random_forest_regressor,
-                    ticker=list(cfg.TICKERS.keys())[0],
-                    start_date=start_date,
-                    end_date=end_date,
+                    ticker='GAZP',
+                    start_date='2011-06-01',
+                    end_date='2021-05-09',
                     forecast_date='2021-05-09',
                     offset=offset,
                     cv_period=127,

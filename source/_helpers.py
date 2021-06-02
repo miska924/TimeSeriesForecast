@@ -78,7 +78,8 @@ def send_request(method: str, url: str, params=None, headers=None, cookies=None,
 PUBLIC_ENUMS = {
     'Model': cfg.Model,
     'Offset': cfg.Offset,
-    'ETSTrend': cfg.ETSTrend
+    'ETSTrend': cfg.ETSTrend,
+    'RFCriterion': cfg.RFCriterion
 }
 
 
