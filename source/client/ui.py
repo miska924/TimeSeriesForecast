@@ -2,6 +2,8 @@ import json
 import time
 import sys
 from functools import partial
+from typing import List
+import csv
 
 from PyQt5 import QtWidgets, QtCore
 
@@ -25,13 +27,21 @@ class GUI(QtWidgets.QMainWindow):
         self.setWindowTitle("TimeSeries Forecast")
         self.ui.verticalLayout_2.setAlignment(QtCore.Qt.AlignTop)
 
-        self.lineEdits = [self.ui.lineEdit_series]
         self.comboBoxes_general = [
             self.ui.comboBox_model,
             self.ui.comboBox_offset,
         ]
         self.comboBoxes_ets = [self.ui.comboBox_trend]
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
+
+        self.ui.horizontalWidget_series_wrapper.hide()
+        self.filename = "Загрузите ряд"
+        self.uploaded_data = []
+        if test:
+            self.home_loc = ""
+        else:
+            self.home_loc = \
+                QtCore.QStandardPaths.standardLocations(QtCore.QStandardPaths.HomeLocation)[0]
 
         if not test:
             for cb in self.comboBoxes_general:
@@ -81,14 +91,58 @@ class GUI(QtWidgets.QMainWindow):
 
         self.mutex = QtCore.QMutex()
 
-        self.ui.listWidget.delete.connect(self.del_exogenous)
-        self.ui.pushButton_forecast.clicked.connect(self.predict_handler)
-        self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
-        self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
-        self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
+        self.ui.checkBox_upload.stateChanged.connect(self.show_upload_series)
+        self.ui.pushButton_upload.clicked.connect(self.upload_series)
         self.ui.comboBox_model.currentTextChanged.connect(self.change_model)
-        self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
         self.ui.comboBox_trend.currentTextChanged.connect(self.update_ets_trend)
+        self.ui.lineEdit_exogenous.returnPressed.connect(self.add_exogenous)
+        self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
+        self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
+        self.ui.listWidget.delete.connect(self.del_exogenous)
+        self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
+        self.ui.pushButton_forecast.clicked.connect(self.predict_handler)
+
+    def update_uploaded(self) -> List[str]:
+        with open(self.filename, newline='') as f:
+            reader = csv.reader(f)
+            self.uploaded_data = list(reader)
+            return self.uploaded_data[0][1:]
+
+    def show_upload_series(self, state):
+        self.ui.listWidget.clear()
+        self.ui.lineEdit_series.clear()
+        if state:
+            self.ui.horizontalWidget_exogenous.hide()
+            self.ui.lineEdit_series.setReadOnly(True)
+            self.ui.listWidget.delete.disconnect()
+            if self.filename != "Загрузите ряд":
+                headers = self.update_uploaded()
+                self.ui.listWidget.addItems(headers[1:])
+                self.ui.lineEdit_series.setText(headers[0])
+            self.ui.horizontalWidget_series_wrapper.show()
+        else:
+            self.ui.horizontalWidget_series_wrapper.hide()
+            self.ui.listWidget.delete.connect(self.del_exogenous)
+            self.ui.lineEdit_series.setReadOnly(False)
+            self.ui.horizontalWidget_exogenous.show()
+            
+    def upload_series(self):
+        tmp_filename = QtWidgets.QFileDialog.getOpenFileName(
+            parent=None,
+            caption="Выберите ряд",
+            directory=self.home_loc,
+            filter="*.csv"
+        )[0]
+        if not tmp_filename:
+            return
+        self.filename = tmp_filename
+        headers = self.update_uploaded()
+        self.ui.lineEdit_series.setText(headers[0])
+        self.ui.listWidget.clear()
+        self.ui.listWidget.addItems(headers[1:])
+        short_name = self.filename if '/' not in self.filename else \
+            self.filename[self.filename.rfind('/') + 1:]
+        self.ui.label_upload.setText(short_name)
 
     def add_exogenous(self):
         if self.ui.lineEdit_exogenous.text():
@@ -260,15 +314,21 @@ class GUI(QtWidgets.QMainWindow):
     def handle_errors(self):
         flag_correct = True
 
-        for le in self.lineEdits:
-            if not self.check_correct(le, le.text()):
+        if self.ui.checkBox_upload.isChecked():
+            if not self.check_correct(
+                self.ui.horizontalWidget_series, 
+                self.filename != "Загрузите ряд"):
+                flag_correct = False
+        else:
+            if not self.check_correct(self.ui.lineEdit_series, self.ui.lineEdit_series.text()):
                 flag_correct = False
         
         for cb in self.comboBoxes_general:
             if not self.check_correct(cb, cb.currentText()):
                 flag_correct = False
 
-        if "ets_wrapper" in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
+        if self.ui.comboBox_model.currentText() and \
+             "ets_wrapper" in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
             for cb in self.comboBoxes_ets:
                 if not self.check_correct(cb, cb.currentText()):
                     flag_correct = False
@@ -336,7 +396,9 @@ class GUI(QtWidgets.QMainWindow):
             cv_shift=self.ui.spinBox_shift.value(),
             cv_period=self.ui.spinBox_period.value(),
             cv_predict_days=self.ui.spinBox_preddays.value(),
-            params=curr_params
+            params=curr_params,
+            upload=self.ui.checkBox_upload.isChecked(),
+            uploaded_data=self.uploaded_data if self.ui.checkBox_upload.isChecked() else []
         )
 
         self.worker = Worker(partial(self.predict_series, params, self.ui.checkBox_cv.isChecked()))

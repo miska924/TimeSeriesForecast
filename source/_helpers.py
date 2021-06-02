@@ -28,7 +28,7 @@ class PredictParams:
     cv_predict_days: int = None
     params: dict = None
     upload: bool = False
-    uploaded_data: List[List[str]] = None  # list<list<any>>
+    uploaded_data: List[List[str]] = None
 
 
 def stderr_print(*args, **kwargs):
