@@ -335,9 +335,16 @@ class GUI(QtWidgets.QMainWindow):
 
         if self.ui.comboBox_model.currentText() and \
              "ets_wrapper" in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
-            for cb in self.comboBoxes_ets:
-                if not self.check_correct(cb, cb.currentText()):
-                    flag_correct = False
+            if not \
+                self.check_correct(self.ui.comboBox_trend, self.ui.comboBox_trend.currentText()):
+                flag_correct = False
+        
+        if self.ui.comboBox_model.currentText() and "metric_wrapper" in \
+                ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
+            if not \
+                self.check_correct(self.ui.comboBox_metric, self.ui.comboBox_metric.currentText()):
+                flag_correct = False
+        
         
         dates = [
             self.ui.dateEdit_start.date(), 
