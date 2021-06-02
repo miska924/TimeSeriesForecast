@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>700</height>
+    <height>991</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -51,7 +51,7 @@
          <item alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Прогнозный ряд</string>
+            <string>Forecast series</string>
            </property>
           </widget>
          </item>
@@ -73,7 +73,7 @@
             <item>
              <widget class="QCheckBox" name="checkBox_upload">
               <property name="text">
-               <string>Загрузить .csv ряд с компьютера</string>
+               <string>Upload .csv series from PC</string>
               </property>
              </widget>
             </item>
@@ -138,7 +138,7 @@
                <item>
                 <widget class="QLabel" name="label_upload">
                  <property name="text">
-                  <string>Загрузите ряд</string>
+                  <string>Upload series</string>
                  </property>
                 </widget>
                </item>
@@ -157,7 +157,7 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>Обзор...</string>
+                  <string>Search...</string>
                  </property>
                 </widget>
                </item>
@@ -170,7 +170,7 @@
          <item alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Модель прогнозирования</string>
+            <string>Model</string>
            </property>
           </widget>
          </item>
@@ -216,7 +216,7 @@
             <item alignment="Qt::AlignHCenter">
              <widget class="QLabel" name="label_3">
               <property name="text">
-               <string>Внешние переменные</string>
+               <string>Exogenous variables</string>
               </property>
              </widget>
             </item>
@@ -334,7 +334,7 @@
             <item alignment="Qt::AlignHCenter">
              <widget class="QLabel" name="label_4">
               <property name="text">
-               <string>Тренд</string>
+               <string>Trend</string>
               </property>
              </widget>
             </item>
@@ -377,9 +377,58 @@
                <item>
                 <widget class="QCheckBox" name="checkBox_dumped">
                  <property name="text">
-                  <string>Тренд с затуханием</string>
+                  <string>Dumped trend</string>
                  </property>
                 </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="metric_wrapper" native="true">
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <property name="spacing">
+             <number>3</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Criterion</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="comboBox_metric_wrapper" native="true">
+              <layout class="QVBoxLayout" name="verticalLayout_8">
+               <property name="leftMargin">
+                <number>2</number>
+               </property>
+               <property name="topMargin">
+                <number>2</number>
+               </property>
+               <property name="rightMargin">
+                <number>2</number>
+               </property>
+               <property name="bottomMargin">
+                <number>2</number>
+               </property>
+               <item>
+                <widget class="QComboBox" name="comboBox_metric"/>
                </item>
               </layout>
              </widget>
@@ -408,7 +457,7 @@
             <item alignment="Qt::AlignHCenter">
              <widget class="QLabel" name="label_17">
               <property name="text">
-               <string>Функция потери</string>
+               <string>Loss function</string>
               </property>
              </widget>
             </item>
@@ -451,7 +500,7 @@
                <item>
                 <widget class="QLabel" name="label_18">
                  <property name="text">
-                  <string>Альфа</string>
+                  <string>Alpha parameter</string>
                  </property>
                 </widget>
                </item>
@@ -495,7 +544,7 @@
             <item>
              <widget class="QLabel" name="label_19">
               <property name="text">
-               <string>Скорость обучения</string>
+               <string>Learning rate</string>
               </property>
              </widget>
             </item>
@@ -536,7 +585,7 @@
             <item>
              <widget class="QLabel" name="label_5">
               <property name="text">
-               <string>Деревьев в лесу</string>
+               <string>Number of estimators</string>
               </property>
              </widget>
             </item>
@@ -560,55 +609,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QWidget" name="metric_wrapper" native="true">
-           <layout class="QVBoxLayout" name="verticalLayout_7">
-            <property name="spacing">
-             <number>3</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item alignment="Qt::AlignHCenter">
-             <widget class="QLabel" name="label_6">
-              <property name="text">
-               <string>Метрика</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QWidget" name="comboBox_metric_wrapper" native="true">
-              <layout class="QVBoxLayout" name="verticalLayout_8">
-               <property name="leftMargin">
-                <number>2</number>
-               </property>
-               <property name="topMargin">
-                <number>2</number>
-               </property>
-               <property name="rightMargin">
-                <number>2</number>
-               </property>
-               <property name="bottomMargin">
-                <number>2</number>
-               </property>
-               <item>
-                <widget class="QComboBox" name="comboBox_metric"/>
-               </item>
-              </layout>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
           <widget class="QWidget" name="min_samples_leaf_wrapper" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_14">
             <property name="leftMargin">
@@ -626,7 +626,7 @@
             <item>
              <widget class="QLabel" name="label_15">
               <property name="text">
-               <string>Мин. % исходов в 1 листе</string>
+               <string>Min. % of samples in a leaf</string>
               </property>
              </widget>
             </item>
@@ -667,7 +667,7 @@
             <item>
              <widget class="QLabel" name="label_16">
               <property name="text">
-               <string>% исходов для обучения</string>
+               <string>% of samples to learn from</string>
               </property>
              </widget>
             </item>
@@ -693,7 +693,7 @@
          <item alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label_10">
            <property name="text">
-            <string>Периодичность</string>
+            <string>Periodicity</string>
            </property>
           </widget>
          </item>
@@ -742,7 +742,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Кросс-валидация</string>
+               <string>Cross-validation</string>
               </property>
              </widget>
             </item>
@@ -781,7 +781,7 @@
               <item>
                <widget class="QLabel" name="label_11">
                 <property name="text">
-                 <string>Ширина окна</string>
+                 <string>Window size</string>
                 </property>
                </widget>
               </item>
@@ -829,7 +829,7 @@
               <item>
                <widget class="QLabel" name="label_13">
                 <property name="text">
-                 <string>Сдвиг окна</string>
+                 <string>Shift</string>
                 </property>
                </widget>
               </item>
@@ -877,7 +877,7 @@
               <item>
                <widget class="QLabel" name="label_14">
                 <property name="text">
-                 <string>Размер тест. выборки</string>
+                 <string>Test sample size</string>
                 </property>
                </widget>
               </item>
@@ -941,7 +941,7 @@
             <item alignment="Qt::AlignHCenter">
              <widget class="QLabel" name="label_7">
               <property name="text">
-               <string>Даты начала и конца периода</string>
+               <string>Dates</string>
               </property>
               <property name="margin">
                <number>0</number>
@@ -959,7 +959,7 @@
               <item>
                <widget class="QLabel" name="label_8">
                 <property name="text">
-                 <string>Начало:</string>
+                 <string>Start</string>
                 </property>
                 <property name="margin">
                  <number>0</number>
@@ -1000,7 +1000,7 @@
               <item>
                <widget class="QLabel" name="label_9">
                 <property name="text">
-                 <string>Конец:</string>
+                 <string>End</string>
                 </property>
                </widget>
               </item>
@@ -1056,7 +1056,7 @@
               <item>
                <widget class="QLabel" name="label_12">
                 <property name="text">
-                 <string>Конец прогноза:</string>
+                 <string>Forecast end</string>
                 </property>
                </widget>
               </item>
@@ -1104,7 +1104,7 @@
             <item>
              <widget class="QPushButton" name="pushButton_forecast">
               <property name="text">
-               <string>Спрогнозировать</string>
+               <string>Forecast</string>
               </property>
               <property name="flat">
                <bool>false</bool>

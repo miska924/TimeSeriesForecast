@@ -35,7 +35,7 @@ class GUI(QtWidgets.QMainWindow):
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
 
         self.ui.horizontalWidget_series_wrapper.hide()
-        self.filename = "Загрузите ряд"
+        self.filename = "Upload series"
         self.uploaded_data = []
         if test:
             self.home_loc = ""
@@ -67,6 +67,8 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.spinBox_estimators.setValue(50)
             self.ui.doubleSpinBox_leaf.setValue(10)
             self.ui.doubleSpinBox_samples.setValue(100)
+            self.ui.doubleSpinBox_alpha.setValue(0.5)
+            self.ui.doubleSpinBox_learnrate.setValue(0.1)
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)
@@ -99,11 +101,11 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.spinBox_preddays.setValue(2)
 
         self.threadpool = QtCore.QThreadPool()
-        print("Max потоков, кот. будут использоваться=`%d`" % self.threadpool.maxThreadCount())
+        print("Max number of threads which will be used=`%d`" % self.threadpool.maxThreadCount())
 
         threadtest = QtCore.QThread(self)
         idealthreadcount = threadtest.idealThreadCount()
-        print("Ваша машина может обрабатывать `{}` потокa оптимально.".format(idealthreadcount))
+        print("Your machine can handle `{}` threads optimally.".format(idealthreadcount))
 
         self.mutex = QtCore.QMutex()
 
@@ -132,7 +134,7 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.horizontalWidget_exogenous.hide()
             self.ui.lineEdit_series.setReadOnly(True)
             self.ui.listWidget.delete.disconnect()
-            if self.filename != "Загрузите ряд":
+            if self.filename != "Upload series":
                 headers = self.update_uploaded()
                 self.ui.listWidget.addItems(headers[1:])
                 self.ui.lineEdit_series.setText(headers[0])
@@ -146,7 +148,7 @@ class GUI(QtWidgets.QMainWindow):
     def upload_series(self):
         tmp_filename = QtWidgets.QFileDialog.getOpenFileName(
             parent=None,
-            caption="Выберите ряд",
+            caption="Select series",
             directory=self.home_loc,
             filter="*.csv"
         )[0]
@@ -172,14 +174,14 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.listWidget.takeItem(self.ui.listWidget.row(item))
 
     def update_ets_trend(self, trend_name):
-        if trend_name and trend_name != "Без тренда":
+        if trend_name and trend_name != "No trend":
             self.ui.checkBox_dumped.show()
         else:
             self.ui.checkBox_dumped.hide()
 
     def update_loss(self, loss_name):
         if loss_name and \
-            (loss_name == "Функция потерь Хьюбера" or loss_name == "Квантильная регрессия"):
+            (loss_name == "Huber" or loss_name == "Quantile"):
             self.ui.widget_alpha.show()
         else:
             self.ui.widget_alpha.hide()
@@ -202,11 +204,9 @@ class GUI(QtWidgets.QMainWindow):
     def update_cv(self, state):
         if state:
             self.ui.forecast_wrapper.hide()
-            self.ui.pushButton_forecast.setText("Оценить")
             self.ui.cv_wrapper.show()
         else:
             self.ui.cv_wrapper.hide()
-            self.ui.pushButton_forecast.setText("Спрогнозировать")
             self.ui.forecast_wrapper.show()
 
     def paint_widget(self, widget, color: str):
@@ -345,7 +345,7 @@ class GUI(QtWidgets.QMainWindow):
         if self.ui.checkBox_upload.isChecked():
             if not self.check_correct(
                 self.ui.horizontalWidget_series, 
-                self.filename != "Загрузите ряд"):
+                self.filename != "Upload series"):
                 flag_correct = False
         else:
             if not self.check_correct(self.ui.lineEdit_series, self.ui.lineEdit_series.text()):
@@ -476,7 +476,7 @@ class GUI(QtWidgets.QMainWindow):
             return {
                 "cur_model": cur_model,
                 "cur_data": data_cur['data'],
-                "baseline_model": "Наивная модель",
+                "baseline_model": "Naive model",
                 "baseline_data": data_baseline['data'],
                 "cv_flag": True
             }

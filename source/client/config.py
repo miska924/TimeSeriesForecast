@@ -15,25 +15,25 @@ class ModelParams:
 
 class TRANSLATE:
     Model = {
-        "Линейная регрессия" : ModelParams(
+        "Linear regression" : ModelParams(
             backend=cfg.Model.linear_reg, 
             widgets=["exogenous_wrapper"],
             params=["exogenous_variables"],
             metrics={}
         ),
-        "Наивная модель" : ModelParams(
+        "Naive model" : ModelParams(
             backend=cfg.Model.naive, 
             widgets=[],
             params=[],
             metrics={}
         ),
-        "Стационарный лин. рег.": ModelParams(
+        "Lin. reg. on derivative": ModelParams(
             backend=cfg.Model.stationary_linear_regression,
             widgets=["exogenous_wrapper"],
             params=["exogenous_variables"],
             metrics={}
         ),
-        "Волшебный Ансамбль": ModelParams(
+        "Magic Ensemble": ModelParams(
             backend=cfg.Model.magic_ensemble,
             widgets=["exogenous_wrapper"],
             params=["exogenous_variables"],
@@ -45,7 +45,7 @@ class TRANSLATE:
             params=["trend", "dumped"],
             metrics={}
         ),
-        "Случайный лес": ModelParams(
+        "Random forest": ModelParams(
             backend = cfg.Model.random_forest_regressor,
             widgets=[
                 "exogenous_wrapper",
@@ -66,7 +66,7 @@ class TRANSLATE:
                 "MAE": cfg.RFCriterion.mae
             }
         ),
-        "Градиентный бустинг": ModelParams(
+        "Gradient boosting": ModelParams(
             backend=cfg.Model.gradient_boosting_regressor,
             widgets=[
                 "exogenous_wrapper",
@@ -86,7 +86,7 @@ class TRANSLATE:
                 "alpha"
             ],
             metrics={
-                "MSE Фридмана": cfg.GBCriterion.friedman_mse,
+                "Friedman MSE": cfg.GBCriterion.friedman_mse,
                 "MSE": cfg.GBCriterion.mse,
                 "MAE": cfg.GBCriterion.mae
             }
@@ -94,23 +94,23 @@ class TRANSLATE:
     }
 
     Offset = {
-        "День": cfg.Offset.business_day,
-        "Неделя": cfg.Offset.week,
-        "Месяц": cfg.Offset.business_month,
-        "Год": cfg.Offset.business_year
+        "Day": cfg.Offset.business_day,
+        "Week": cfg.Offset.week,
+        "Month": cfg.Offset.business_month,
+        "Year": cfg.Offset.business_year
     }
 
     ETSTrend = {
-        "Аддитивный": cfg.ETSTrend.additive,
-        "Мультипликативный": cfg.ETSTrend.multiplicative,
-        "Без тренда": cfg.ETSTrend.no_trend
+        "Additive": cfg.ETSTrend.additive,
+        "Multiplicative": cfg.ETSTrend.multiplicative,
+        "No trend": cfg.ETSTrend.no_trend
     }
 
     GBLoss = {
-        "Наименьшие квадраты": cfg.GBLoss.ls,
-        "Наименьшее абс. отклонение": cfg.GBLoss.lad,
-        "Функция потерь Хьюбера": cfg.GBLoss.huber,
-        "Квантильная регрессия": cfg.GBLoss.quantile
+        "Least squares": cfg.GBLoss.ls,
+        "Least absolute deviation": cfg.GBLoss.lad,
+        "Huber": cfg.GBLoss.huber,
+        "Quantile": cfg.GBLoss.quantile
     }
 
 tmp_app = QtWidgets.QApplication([])
