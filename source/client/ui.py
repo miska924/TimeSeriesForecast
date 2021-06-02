@@ -31,7 +31,6 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.comboBox_model,
             self.ui.comboBox_offset,
         ]
-        self.comboBoxes_ets = [self.ui.comboBox_trend]
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
 
         self.ui.horizontalWidget_series_wrapper.hide()
@@ -45,13 +44,25 @@ class GUI(QtWidgets.QMainWindow):
 
         if not test:
             for cb in self.comboBoxes_general:
-                cb.addItem("")                
-            for cb in self.comboBoxes_ets:
-                cb.addItem("")                
+                cb.addItem("")            
+            self.ui.comboBox_trend.addItem("")    
+            self.ui.comboBox_metric.addItem("")    
 
         self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.keys())
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.keys())
         self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETSTrend.keys())
+        self.ui.comboBox_metric.addItems(ui_cfg.TRANSLATE.RFCriterion.keys())
+
+        self.ui.spinBox_estimators.setMinimum(1)
+        self.ui.doubleSpinBox_leaf.setMinimum(0.01)
+        self.ui.doubleSpinBox_leaf.setMaximum(50)
+        self.ui.doubleSpinBox_samples.setMinimum(0.01)
+        self.ui.doubleSpinBox_samples.setMaximum(100)
+
+        if test:
+            self.ui.spinBox_estimators.setValue(50)
+            self.ui.doubleSpinBox_leaf.setValue(10)
+            self.ui.doubleSpinBox_samples.setValue(100)
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)
@@ -329,9 +340,16 @@ class GUI(QtWidgets.QMainWindow):
 
         if self.ui.comboBox_model.currentText() and \
              "ets_wrapper" in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
-            for cb in self.comboBoxes_ets:
-                if not self.check_correct(cb, cb.currentText()):
-                    flag_correct = False
+            if not \
+                self.check_correct(self.ui.comboBox_trend, self.ui.comboBox_trend.currentText()):
+                flag_correct = False
+        
+        if self.ui.comboBox_model.currentText() and "metric_wrapper" in \
+                ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
+            if not \
+                self.check_correct(self.ui.comboBox_metric, self.ui.comboBox_metric.currentText()):
+                flag_correct = False
+        
         
         dates = [
             self.ui.dateEdit_start.date(), 
@@ -380,7 +398,11 @@ class GUI(QtWidgets.QMainWindow):
                 [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
             "trend": ui_cfg.TRANSLATE.ETSTrend[self.ui.comboBox_trend.currentText()] 
                 if self.ui.comboBox_trend.currentText() else None,
-            "dumped": self.ui.checkBox_dumped.isChecked()
+            "dumped": self.ui.checkBox_dumped.isChecked(),
+            "n_estimators": self.ui.spinBox_estimators.value(),
+            "criterion": ui_cfg.TRANSLATE.RFCriterion[self.ui.comboBox_metric.currentText()],
+            "min_samples_leaf": self.ui.doubleSpinBox_leaf.value(),
+            "max_samples": self.ui.doubleSpinBox_samples.value()
         }
 
         curr_params = { key: all_params[key]
@@ -503,7 +525,8 @@ class GUI(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         # закрыть поток Worker(QRunnable)
         self.mutex.lock()
-        self.worker.stop = True
+        if hasattr(self, "worker"):
+            self.worker.stop = True
         self.mutex.unlock()
         self.threadpool.waitForDone(-1)
         super(GUI, self).closeEvent(event)
