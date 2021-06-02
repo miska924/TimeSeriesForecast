@@ -73,7 +73,7 @@ class TRANSLATE:
 
     RFCriterion = {
         "MSE": cfg.RFCriterion.mse,
-        "MAPE": cfg.RFCriterion.mape
+        "MAE": cfg.RFCriterion.mae
     }
 
 tmp_app = QtWidgets.QApplication([])
