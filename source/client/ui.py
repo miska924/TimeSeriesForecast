@@ -393,7 +393,11 @@ class GUI(QtWidgets.QMainWindow):
                 [self.ui.listWidget.item(i).text() for i in range(self.ui.listWidget.count())],
             "trend": ui_cfg.TRANSLATE.ETSTrend[self.ui.comboBox_trend.currentText()] 
                 if self.ui.comboBox_trend.currentText() else None,
-            "dumped": self.ui.checkBox_dumped.isChecked()
+            "dumped": self.ui.checkBox_dumped.isChecked(),
+            "n_estimators": self.ui.spinBox_estimators.value(),
+            "criterion": ui_cfg.TRANSLATE.RFCriterion[self.ui.comboBox_metric.currentText()],
+            "min_samples_leaf": self.ui.doubleSpinBox_leaf.value(),
+            "max_samples": self.ui.doubleSpinBox_samples.value()
         }
 
         curr_params = { key: all_params[key]
