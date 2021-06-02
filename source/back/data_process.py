@@ -142,7 +142,7 @@ class DataProcess:
         return df
 
     @staticmethod
-    def get_prepared_data_frame(df, diffs_count=2, x_lags=3, y_lags=4, average_y_days=5, predict_day=0):
+    def get_prepared_data_frame(df, diffs_count=10, x_lags=10, y_lags=10, average_y_days=5, predict_day=0):
         # rename index & columns:
         index = df.index
         df.set_axis(index, axis=0, inplace=True)
