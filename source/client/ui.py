@@ -503,7 +503,8 @@ class GUI(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         # закрыть поток Worker(QRunnable)
         self.mutex.lock()
-        self.worker.stop = True
+        if hasattr(self, "worker"):
+            self.worker.stop = True
         self.mutex.unlock()
         self.threadpool.waitForDone(-1)
         super(GUI, self).closeEvent(event)
