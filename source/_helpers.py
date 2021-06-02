@@ -79,7 +79,9 @@ PUBLIC_ENUMS = {
     'Model': cfg.Model,
     'Offset': cfg.Offset,
     'ETSTrend': cfg.ETSTrend,
-    'RFCriterion': cfg.RFCriterion
+    'RFCriterion': cfg.RFCriterion,
+    'GBLoss': cfg.GBLoss,
+    'GBCriterion': cfg.GBCriterion,
 }
 
 

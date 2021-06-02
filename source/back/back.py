@@ -170,9 +170,9 @@ if __name__ == '__main__':
         offset = cfg.Offset(offset)
 
     tmp_params = PredictParams(
-        model=cfg.Model.random_forest_regressor,
-        ticker='GAZP',
-        start_date='2011-06-01',
+        model=cfg.Model.gradient_boosting_regressor,
+        ticker='MTSS',
+        start_date='2016-06-01',
         end_date='2021-05-09',
         forecast_date='2021-05-09',
         offset=offset,
@@ -180,16 +180,17 @@ if __name__ == '__main__':
         cv_shift=15,
         cv_predict_days=2,
         params={
-            'exogenous_variables': ['IMOEX', 'MOEXOG', 'USD000000TOD'],
-            'n_estimators': 50,
-            'criterion': 'mse',
-            'min_samples_leaf': 0.0005,
-            'bootstrap': True,
-            'max_samples': 0.8,
+            'exogenous_variables': ['IMOEX', 'USD000000TOD'],
+            'loss': cfg.GBLoss.huber,
+            'learning_rate': 0.01,
+            'n_estimators': 100,
+            'criterion': cfg.GBCriterion.friedman_mse,
+            'min_samples_leaf': 1,
+            'alpha': 0.9
         }
     )
     res = run_cross_validation(tmp_params)
-    print(res)
+    print(res.data)
     exit(0)
 
 
