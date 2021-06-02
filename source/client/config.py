@@ -30,7 +30,7 @@ class TRANSLATE:
             params=["exogenous_variables"]
         ),
         "Волшебный Ансамбль": ModelParams(
-            backend=cfg.Model.ansamble,
+            backend=cfg.Model.magic_ensemble,
             widgets=["exogenous_wrapper"],
             params=["exogenous_variables"]
         ),

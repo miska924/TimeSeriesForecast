@@ -7,17 +7,14 @@ from source import config as cfg
 
 
 class Model(BaseModel):
-    # Params:
-    # {
-    #
-    # }
-
-    def __init__(self, models=(cfg.Model.linear_reg, cfg.Model.stationary_linear_regression), coefs=(0.4, 0.6), params=({}, {})):
-        if len(models) != len(coefs):
+    def __init__(self, models=(cfg.Model.linear_reg, cfg.Model.stationary_linear_regression), coefs=(0.4, 0.6),
+                 params=({}, {})):
+        if len(models) != len(coefs) or len(coefs) != len(params):
             raise Exception("invalid argumets. lengths of lists do not match!")
+
         self.models = []
-        for model in models:
-            self.models.append(getattr(source.back.models, model.value).Model())
+        for params_val, model in zip(params, models):
+            self.models.append(getattr(source.back.models, model.value).Model(params_val))
 
         self.coefs = coefs
 
