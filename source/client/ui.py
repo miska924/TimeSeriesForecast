@@ -60,6 +60,8 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.doubleSpinBox_leaf.setMaximum(50)
         self.ui.doubleSpinBox_samples.setMinimum(0.01)
         self.ui.doubleSpinBox_samples.setMaximum(100)
+        self.ui.doubleSpinBox_alpha.setMinimum(0.01)
+        self.ui.doubleSpinBox_alpha.setMaximum(0.99)
 
         if test:
             self.ui.spinBox_estimators.setValue(50)
