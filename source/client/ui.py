@@ -31,7 +31,6 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.comboBox_model,
             self.ui.comboBox_offset,
         ]
-        self.comboBoxes_ets = [self.ui.comboBox_trend]
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
 
         self.ui.horizontalWidget_series_wrapper.hide()
@@ -45,13 +44,20 @@ class GUI(QtWidgets.QMainWindow):
 
         if not test:
             for cb in self.comboBoxes_general:
-                cb.addItem("")                
-            for cb in self.comboBoxes_ets:
-                cb.addItem("")                
+                cb.addItem("")            
+            self.ui.comboBox_trend.addItem("")    
+            self.ui.comboBox_metric.addItem("")    
 
         self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.keys())
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.keys())
         self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETSTrend.keys())
+        self.ui.comboBox_metric.addItems(ui_cfg.TRANSLATE.RFCriterion.keys())
+
+        self.ui.spinBox_estimators.setMinimum(1)
+        self.ui.doubleSpinBox_leaf.setMinimum(0.01)
+        self.ui.doubleSpinBox_leaf.setMaximum(99.99)
+        self.ui.doubleSpinBox_samples.setMinimum(0.01)
+        self.ui.doubleSpinBox_samples.setMaximum(100)
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)

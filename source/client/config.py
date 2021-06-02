@@ -38,6 +38,23 @@ class TRANSLATE:
             backend=cfg.Model.ets,
             widgets=["ets_wrapper"],
             params=["trend", "dumped"]
+        ),
+        "Случайный лес": ModelParams(
+            backend = cfg.Model.random_forest_regressor,
+            widgets=[
+                "exogenous_wrapper",
+                "estimators_wrapper", 
+                "metric_wrapper", 
+                "min_samples_leaf_wrapper", 
+                "max_samples_wrapper"
+            ],
+            params=[
+                "exogenous_variables", 
+                "n_estimators", 
+                "criterion", 
+                "min_samples_leaf", 
+                "max_samples"
+            ]
         )
     }
 
@@ -52,6 +69,11 @@ class TRANSLATE:
         "Аддитивный": cfg.ETSTrend.additive,
         "Мультипликативный": cfg.ETSTrend.multiplicative,
         "Без тренда": cfg.ETSTrend.no_trend
+    }
+
+    RFCriterion = {
+        "MSE": cfg.RFCriterion.mse,
+        "MAPE": cfg.RFCriterion.mape
     }
 
 tmp_app = QtWidgets.QApplication([])
