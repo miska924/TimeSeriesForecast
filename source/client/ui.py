@@ -26,6 +26,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.setWindowTitle("TimeSeries Forecast")
         self.ui.verticalLayout_2.setAlignment(QtCore.Qt.AlignTop)
+        self.test_flag = test
 
         self.comboBoxes_general = [
             self.ui.comboBox_model,
@@ -45,13 +46,11 @@ class GUI(QtWidgets.QMainWindow):
         if not test:
             for cb in self.comboBoxes_general:
                 cb.addItem("")            
-            self.ui.comboBox_trend.addItem("")    
-            self.ui.comboBox_metric.addItem("")    
+            self.ui.comboBox_trend.addItem("") 
 
         self.ui.comboBox_model.addItems(ui_cfg.TRANSLATE.Model.keys())
         self.ui.comboBox_offset.addItems(ui_cfg.TRANSLATE.Offset.keys())
         self.ui.comboBox_trend.addItems(ui_cfg.TRANSLATE.ETSTrend.keys())
-        self.ui.comboBox_metric.addItems(ui_cfg.TRANSLATE.RFCriterion.keys())
 
         self.ui.spinBox_estimators.setMinimum(1)
         self.ui.doubleSpinBox_leaf.setMinimum(0.01)
@@ -176,11 +175,15 @@ class GUI(QtWidgets.QMainWindow):
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.hide()
+        self.ui.comboBox_metric.clear()
         if model_name:
             model = ui_cfg.TRANSLATE.Model[model_name]
             for widget in model.widgets:
                 curr = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget)
                 curr.show()
+            if self.test_flag:
+                self.ui.comboBox_metric.addItem("")
+            self.ui.comboBox_metric.addItems(ui_cfg.TRANSLATE.Model[model_name].metrics.keys())
 
     def update_cv(self, state):
         if state:
@@ -400,7 +403,8 @@ class GUI(QtWidgets.QMainWindow):
                 if self.ui.comboBox_trend.currentText() else None,
             "dumped": self.ui.checkBox_dumped.isChecked(),
             "n_estimators": self.ui.spinBox_estimators.value(),
-            "criterion": ui_cfg.TRANSLATE.RFCriterion[self.ui.comboBox_metric.currentText()],
+            "criterion": ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].metrics[self.ui.comboBox_metric.currentText()]
+                if self.ui.comboBox_metric.currentText() else None,
             "min_samples_leaf": self.ui.doubleSpinBox_leaf.value(),
             "max_samples": self.ui.doubleSpinBox_samples.value()
         }

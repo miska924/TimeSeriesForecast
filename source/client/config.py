@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Dict, List
 from PyQt5 import QtWidgets, QtGui
 import numpy as np
 
@@ -10,6 +10,7 @@ class ModelParams:
     backend: cfg.Model
     widgets: List[str]
     params: List[str]
+    metrics: Dict[str, any]
 
 
 class TRANSLATE:
@@ -17,27 +18,32 @@ class TRANSLATE:
         "Линейная регрессия" : ModelParams(
             backend=cfg.Model.linear_reg, 
             widgets=["exogenous_wrapper"],
-            params=["exogenous_variables"]
+            params=["exogenous_variables"],
+            metrics={}
         ),
         "Наивная модель" : ModelParams(
             backend=cfg.Model.naive, 
             widgets=[],
-            params=[]
+            params=[],
+            metrics={}
         ),
         "Стационарный лин. рег.": ModelParams(
             backend=cfg.Model.stationary_linear_regression,
             widgets=["exogenous_wrapper"],
-            params=["exogenous_variables"]
+            params=["exogenous_variables"],
+            metrics={}
         ),
         "Волшебный Ансамбль": ModelParams(
             backend=cfg.Model.magic_ensemble,
             widgets=["exogenous_wrapper"],
-            params=["exogenous_variables"]
+            params=["exogenous_variables"],
+            metrics={}
         ),
         "ETS": ModelParams(
             backend=cfg.Model.ets,
             widgets=["ets_wrapper"],
-            params=["trend", "dumped"]
+            params=["trend", "dumped"],
+            metrics={}
         ),
         "Случайный лес": ModelParams(
             backend = cfg.Model.random_forest_regressor,
@@ -54,7 +60,11 @@ class TRANSLATE:
                 "criterion", 
                 "min_samples_leaf", 
                 "max_samples"
-            ]
+            ],
+            metrics={
+                "MSE": cfg.RFCriterion.mse,
+                "MAE": cfg.RFCriterion.mae
+            }
         )
     }
 
@@ -69,11 +79,6 @@ class TRANSLATE:
         "Аддитивный": cfg.ETSTrend.additive,
         "Мультипликативный": cfg.ETSTrend.multiplicative,
         "Без тренда": cfg.ETSTrend.no_trend
-    }
-
-    RFCriterion = {
-        "MSE": cfg.RFCriterion.mse,
-        "MAE": cfg.RFCriterion.mae
     }
 
 tmp_app = QtWidgets.QApplication([])
