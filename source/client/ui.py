@@ -112,6 +112,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.pushButton_add_ex.clicked.connect(self.add_exogenous)
         self.ui.pushButton_del_ex.clicked.connect(self.del_exogenous)
         self.ui.listWidget.delete.connect(self.del_exogenous)
+        self.ui.comboBox_loss.currentTextChanged.connect(self.update_loss)
         self.ui.checkBox_cv.stateChanged.connect(self.update_cv)
         self.ui.pushButton_forecast.clicked.connect(self.predict_handler)
 
@@ -172,6 +173,13 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.checkBox_dumped.show()
         else:
             self.ui.checkBox_dumped.hide()
+
+    def update_loss(self, loss_name):
+        if loss_name and \
+            (loss_name == "Функция потерь Хьюбера" or loss_name == "Квантильная регрессия"):
+            self.ui.widget_alpha.show()
+        else:
+            self.ui.widget_alpha.hide()
 
     def change_model(self, model_name):
         for model in ui_cfg.TRANSLATE.Model.values():
