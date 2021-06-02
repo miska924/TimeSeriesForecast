@@ -30,6 +30,7 @@ class Model(enum.Enum):
     stationary_linear_regression = 'stationary_linear_regression'
     magic_ensemble = 'magic_ensemble'
     ets = 'ets'
+    random_forest_regressor = 'random_forest_regressor'
 
 
 class Offset(enum.Enum):

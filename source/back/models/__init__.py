@@ -4,5 +4,6 @@ __all__ = [
     'stationary_linear_regression',
     'ensemble',
     'ets',
-    'magic_ensemble'
+    'magic_ensemble',
+    'random_forest_regressor'
 ]
