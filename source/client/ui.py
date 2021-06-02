@@ -55,6 +55,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.comboBox_loss.addItems(ui_cfg.TRANSLATE.GBLoss.keys())
 
         self.ui.spinBox_estimators.setMinimum(1)
+        self.ui.spinBox_estimators.setMaximum(1000)
         self.ui.doubleSpinBox_leaf.setMinimum(0.01)
         self.ui.doubleSpinBox_leaf.setMaximum(50)
         self.ui.doubleSpinBox_samples.setMinimum(0.01)
@@ -421,7 +422,11 @@ class GUI(QtWidgets.QMainWindow):
             "criterion": ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].metrics[self.ui.comboBox_metric.currentText()]
                 if self.ui.comboBox_metric.currentText() else None,
             "min_samples_leaf": self.ui.doubleSpinBox_leaf.value(),
-            "max_samples": self.ui.doubleSpinBox_samples.value()
+            "max_samples": self.ui.doubleSpinBox_samples.value(),
+            "loss": ui_cfg.TRANSLATE.GBLoss[self.ui.comboBox_loss.currentText()] 
+                if self.ui.comboBox_loss.currentText() else None,
+            "learning_rate": self.ui.doubleSpinBox_learnrate.value(),
+            "alpha": self.ui.doubleSpinBox_alpha.value()
         }
 
         curr_params = { key: all_params[key]
