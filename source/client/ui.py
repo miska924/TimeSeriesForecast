@@ -55,9 +55,14 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.spinBox_estimators.setMinimum(1)
         self.ui.doubleSpinBox_leaf.setMinimum(0.01)
-        self.ui.doubleSpinBox_leaf.setMaximum(99.99)
+        self.ui.doubleSpinBox_leaf.setMaximum(50)
         self.ui.doubleSpinBox_samples.setMinimum(0.01)
         self.ui.doubleSpinBox_samples.setMaximum(100)
+
+        if test:
+            self.ui.spinBox_estimators.setValue(50)
+            self.ui.doubleSpinBox_leaf.setValue(10)
+            self.ui.doubleSpinBox_samples.setValue(100)
 
         cur = QtCore.QDate.currentDate()
         self.ui.dateEdit_forecast.setDate(cur)
