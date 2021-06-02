@@ -21,12 +21,14 @@ class Model(BaseModel):
         self.filtered_columns = None
 
         self.exogenous_variables = safe_get_key(params, 'exogenous_variables',
-                                                'No key exogenous_variables in linear regression params')
-        self.n_estimators = safe_get_key(params, 'n_estimators', 'No key n_estimators in linear regression params')
-        self.criterion = safe_get_key(params, 'criterion', 'No key criterion in linear regression params')
+                                                'No key exogenous_variables in random forest regressor')
+        self.n_estimators = safe_get_key(params, 'n_estimators',
+                                         'No key n_estimators in random forest regressor params')
+        self.criterion = safe_get_key(params, 'criterion', 'No key criterion in random forest regressor params')
         self.min_samples_leaf = safe_get_key(params, 'min_samples_leaf',
-                                             'No key min_samples_leaf in linear regression params') / 100
-        self.max_samples = safe_get_key(params, 'max_samples', 'No key max_samples in linear regression params') / 100
+                                             'No key min_samples_leaf in random forest regressor params') / 100
+        self.max_samples = safe_get_key(params, 'max_samples',
+                                        'No key max_samples in random forest regressor params') / 100
         self.max_samples = self.max_samples if self.max_samples != 1 else None
 
     def load(self, params: PredictParams):

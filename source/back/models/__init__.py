@@ -5,5 +5,6 @@ __all__ = [
     'ensemble',
     'ets',
     'magic_ensemble',
-    'random_forest_regressor'
+    'random_forest_regressor',
+    'gradient_boosting_regressor',
 ]

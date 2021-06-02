@@ -32,6 +32,20 @@ class RFCriterion(enum.Enum):
     mae = 'mae'
 
 
+# Gradient Boosting
+class GBLoss(enum.Enum):
+    ls = 'ls'
+    lad = 'lad'
+    huber = 'huber'
+    quantile = 'quantile'
+
+
+class GBCriterion(enum.Enum):
+    friedman_mse = 'friedman_mse'
+    mse = 'mse'
+    mae = 'mae'
+
+
 class Model(enum.Enum):
     linear_reg = 'linear_regression'
     naive = 'naive'
@@ -39,6 +53,7 @@ class Model(enum.Enum):
     magic_ensemble = 'magic_ensemble'
     ets = 'ets'
     random_forest_regressor = 'random_forest_regressor'
+    gradient_boosting_regressor = 'gradient_boosting_regressor'
 
 
 class Offset(enum.Enum):
