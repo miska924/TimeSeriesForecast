@@ -22,19 +22,19 @@ class MoexAPI:
     @staticmethod
     @retry(tries=3, delay=2, backoff=2)
     def get_board_history(
-            session: requests.Session,
-            security: str,
-            start: Optional[str] = None,
-            end: Optional[str] = None,
-            columns: Optional[Tuple[str, ...]] = (
-                "BOARDID",
-                "TRADEDATE",
-                "CLOSE",
-                "VOLUME",
-                "VALUE",
-            ),
-            board: str = "TQBR",
-            market: str = "shares",
-            engine: str = "stock",
+        session: requests.Session,
+        security: str,
+        start: Optional[str] = None,
+        end: Optional[str] = None,
+        columns: Optional[Tuple[str, ...]] = (
+            "BOARDID",
+            "TRADEDATE",
+            "CLOSE",
+            "VOLUME",
+            "VALUE",
+        ),
+        board: str = "TQBR",
+        market: str = "shares",
+        engine: str = "stock",
     ):
         return apimoex.get_board_history(session, security, start, end, columns, board, market, engine)

@@ -104,6 +104,9 @@ def run_prediction(params: PredictParams):
 
 # Returns MSE and MAPE
 def run_cross_validation(params: PredictParams):
+    avg_mse = 0
+    avg_mape = 0
+
     try:
         if params.upload:
             loaded_df = make_df(params.uploaded_data, params.start_date, params.end_date)
@@ -135,14 +138,17 @@ def run_cross_validation(params: PredictParams):
             if mse[-1] > 18000:
                 print(mse[-1], loaded_df.index[i], loaded_df.index[i + params.cv_period - 1],
                       loaded_df.index[i + params.cv_period + params.cv_predict_days - 1])
+
+            avg_mse = sum(mse) / len(mse)
+            avg_mape = sum(mape) / len(mape)
     except:
         print(traceback.format_exc())
         return PredictionData(status=cfg.Status.fail, data=cfg.CROSS_VALIDATION_FAILED)
 
     return PredictionData(
         data={
-            "mse": sum(mse) / len(mse),
-            "mape": sum(mape) / len(mape)
+            "mse": avg_mse,
+            "mape": avg_mape
         },
         status=cfg.Status.ready
     )
