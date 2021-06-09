@@ -13,3 +13,4 @@ prepared/*
 tmp/*
 *.pyc
 .vscode/
+build/
