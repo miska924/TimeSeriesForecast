@@ -17,6 +17,7 @@ import source.config as cfg
 from source.client.design import Ui_MainWindow
 import source.client.custom_widgets as cw
 from source.client.multithreading import Worker
+import source.client.helpers as ui_hlp
 
 
 class GUI(QtWidgets.QMainWindow):
@@ -25,13 +26,9 @@ class GUI(QtWidgets.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowTitle("TimeSeries Forecast")
-        self.ui.verticalLayout_2.setAlignment(QtCore.Qt.AlignTop)
         self.test_flag = test
 
-        self.comboBoxes_general = [
-            self.ui.comboBox_model,
-            self.ui.comboBox_offset,
-        ]
+        self.comboBoxes_general = [self.ui.comboBox_model, self.ui.comboBox_offset]
         self.spinBoxes = [self.ui.spinBox_period, self.ui.spinBox_shift, self.ui.spinBox_preddays]
 
         self.ui.horizontalWidget_series_wrapper.hide()
@@ -40,8 +37,7 @@ class GUI(QtWidgets.QMainWindow):
         if test:
             self.home_loc = ""
         else:
-            self.home_loc = \
-                QtCore.QStandardPaths.standardLocations(QtCore.QStandardPaths.HomeLocation)[0]
+            self.home_loc = QtCore.QStandardPaths.standardLocations(QtCore.QStandardPaths.HomeLocation)[0]
 
         if not test:
             for cb in self.comboBoxes_general:
@@ -101,11 +97,11 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.spinBox_preddays.setValue(2)
 
         self.threadpool = QtCore.QThreadPool()
-        print("Max number of threads which will be used=`%d`" % self.threadpool.maxThreadCount())
+        print("Max number of threads which will be used=%d" % self.threadpool.maxThreadCount())
 
         threadtest = QtCore.QThread(self)
         idealthreadcount = threadtest.idealThreadCount()
-        print("Your machine can handle `{}` threads optimally.".format(idealthreadcount))
+        print("Your machine can handle {} threads optimally.".format(idealthreadcount))
 
         self.mutex = QtCore.QMutex()
 
@@ -159,8 +155,7 @@ class GUI(QtWidgets.QMainWindow):
         self.ui.lineEdit_series.setText(headers[0])
         self.ui.listWidget.clear()
         self.ui.listWidget.addItems(headers[1:])
-        short_name = self.filename if '/' not in self.filename else \
-            self.filename[self.filename.rfind('/') + 1:]
+        short_name = self.filename if '/' not in self.filename else self.filename[self.filename.rfind('/') + 1:]
         self.ui.label_upload.setText(short_name)
 
     def add_exogenous(self):
@@ -180,8 +175,7 @@ class GUI(QtWidgets.QMainWindow):
             self.ui.checkBox_dumped.hide()
 
     def update_loss(self, loss_name):
-        if loss_name and \
-            (loss_name == "Huber" or loss_name == "Quantile"):
+        if loss_name and (loss_name == "Huber" or loss_name == "Quantile"):
             self.ui.widget_alpha.show()
         else:
             self.ui.widget_alpha.hide()
@@ -212,12 +206,7 @@ class GUI(QtWidgets.QMainWindow):
     def paint_widget(self, widget, color: str):
         widget_name = widget.objectName() + "_wrapper"
         widget = self.ui.centralwidget.findChild(QtWidgets.QWidget, widget_name)
-        widget.setStyleSheet(
-            "QWidget#" + widget_name + " {\n"
-            "border: 2px solid " + color + ";\n"
-            "border-radius: 5px;\n"
-            "}"
-        )
+        widget.setStyleSheet(ui_hlp.style_sheet_text(widget_name, color))
 
     def check_correct(self, widget, data):
         if not data:
@@ -269,24 +258,9 @@ class GUI(QtWidgets.QMainWindow):
 
         self.ui.webView.setHtml(html)
 
-    @staticmethod
-    def get_html_table_row(contents, header: bool = False):
-        res = "<tr>"
-        sep_start = "<th>" if header else "<td>"
-        sep_end = "</th>" if header else "</td>"
-        for elem in contents:
-            res += sep_start + elem + sep_end
-        res += "</tr>"
-        return res
-        
-    @staticmethod
-    def prettify_cv_data(errors):
-        errors['mape'] = f"{errors['mape'] * 100 :.{3}f}"
-        errors['mse'] = f"{errors['mse']:.{3}f}"
-
     def print_cv(self, model: str, error_model, baseline: str, error_baseline):
-        self.prettify_cv_data(error_model)
-        self.prettify_cv_data(error_baseline)
+        ui_hlp.prettify_cv_data(error_model)
+        ui_hlp.prettify_cv_data(error_baseline)
         headers = ["Model"] + [error for error in error_model.keys()]
         contents = [
             [model],
@@ -297,58 +271,16 @@ class GUI(QtWidgets.QMainWindow):
         for i in range(1, len(headers)):
             contents[1].append(error_baseline[headers[i]])
             headers[i] = headers[i].upper()
-        HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-    <style>
-        table {
-            width:100%;
-        }
-        table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-        }
-        tr:nth-child(even) {
-            background-color: #eee;
-        }
-        tr:nth-child(odd) {
-            background-color: #fff;
-        }
-    </style>
-</head>
-<body>
-
-<h1>Cross-validation results</h1>
-
-<table>
-"""
-        HTML += self.get_html_table_row(headers, True)
-        HTML += self.get_html_table_row(contents[0])
-        HTML += self.get_html_table_row(contents[1])
-        HTML += """
-</table>
-
-</body>
-</html>
-        """
-        self.ui.webView.setHtml(HTML)
+        self.ui.webView.setHtml(ui_hlp.get_table_html(headers, contents))
         
 
     def handle_errors(self):
         flag_correct = True
 
         if self.ui.checkBox_upload.isChecked():
-            if not self.check_correct(
-                self.ui.horizontalWidget_series, 
-                self.filename != "Upload series"):
+            if not self.check_correct(self.ui.horizontalWidget_series, self.filename != "Upload series"):
                 flag_correct = False
-        else:
-            if not self.check_correct(self.ui.lineEdit_series, self.ui.lineEdit_series.text()):
+        elif not self.check_correct(self.ui.lineEdit_series, self.ui.lineEdit_series.text()):
                 flag_correct = False
         
         for cb in self.comboBoxes_general:
@@ -357,18 +289,16 @@ class GUI(QtWidgets.QMainWindow):
 
         if self.ui.comboBox_model.currentText() and \
              "ets_wrapper" in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
-            if not \
-                self.check_correct(self.ui.comboBox_trend, self.ui.comboBox_trend.currentText()):
+            if not self.check_correct(self.ui.comboBox_trend, self.ui.comboBox_trend.currentText()):
                 flag_correct = False
         
-        if self.ui.comboBox_model.currentText() and "metric_wrapper" in \
-                ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
-            if not \
-                self.check_correct(self.ui.comboBox_metric, self.ui.comboBox_metric.currentText()):
+        if self.ui.comboBox_model.currentText() and \
+             "metric_wrapper" in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
+            if not self.check_correct(self.ui.comboBox_metric, self.ui.comboBox_metric.currentText()):
                 flag_correct = False
         
-        if self.ui.comboBox_model.currentText() and "loss_wrapper" in \
-                ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
+        if self.ui.comboBox_model.currentText() and \
+             "loss_wrapper" in ui_cfg.TRANSLATE.Model[self.ui.comboBox_model.currentText()].widgets:
             if not self.check_correct(self.ui.comboBox_loss, self.ui.comboBox_loss.currentText()):
                 flag_correct = False
         

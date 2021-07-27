@@ -35,6 +35,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setSpacing(3)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.verticalLayout_2.setAlignment(QtCore.Qt.AlignTop)
         self.label = QtWidgets.QLabel(self.horizontalFrame)
         self.label.setObjectName("label")
         self.verticalLayout_2.addWidget(self.label, 0, QtCore.Qt.AlignHCenter)
